@@ -1,28 +1,37 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from flask import Blueprint, request
+from flask import Blueprint, request, render_template_string
 from . import USERS, USER
 
 auth = Blueprint('auth', __name__)
 
 
-@auth.route('/login', methods=['POST'])
+@auth.route('/login', methods=['Get','POST']) #Adding a Get method as login is required to access profile
 def login_post():
+    if request.method == 'POST':
+        # login code goes here
+        email = request.form.get('email')
+        password = request.form.get('password')
+        remember = True if request.form.get('remember') else False
 
-    # login code goes here
-    email = request.form.get('email')
-    password = request.form.get('password')
-    remember = True if request.form.get('remember') else False
+        user = USERS.get(email.strip())
 
-    user = USERS.get(email.strip())
+        # check if the user actually exists
+        # take the user-supplied password, hash it, and compare it to the hashed password in the database
+        if not user or not check_password_hash(user["password"], password):
+            return {"success": "No"}  # if the user doesn't exist or password is wrong
 
-    # check if the user actually exists
-    # take the user-supplied password, hash it, and compare it to the hashed password in the database
-    if not user or not check_password_hash(user["password"], password):
-        return {"success": "No"}  # if the user doesn't exist or password is wrong
-
-    login_user(user, remember=remember)
-    return {"success": "Yes"}
+        login_user(user, remember=remember)
+        return {"success": "Yes"}
+    # Render a simple login form for GET requests
+    return render_template_string('''
+    <form method="post">
+        Email: <input type="text" name="email"><br>
+        Password: <input type="password" name="password"><br>
+        Remember me: <input type="checkbox" name="remember"><br>
+        <input type="submit" value="Login">
+    </form>
+    ''')
 
 
 @auth.route('/signup', methods=['POST'])
