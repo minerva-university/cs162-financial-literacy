@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 profile = Blueprint('profile', __name__)
 
 @profile.route('/profile', methods=['GET'])
-#@login_required
+@login_required
 def get_profile():
     # Return the current user's profile information
     return jsonify({
@@ -15,7 +15,7 @@ def get_profile():
     })
 
 @profile.route('/profile', methods=['POST'])
-#@login_required  # Ensures that only logged-in users can update profiles
+@login_required  # Ensures that only logged-in users can update profiles
 def update_profile():
     data = request.get_json()
     if not data:
