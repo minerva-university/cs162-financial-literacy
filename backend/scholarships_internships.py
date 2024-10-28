@@ -34,6 +34,7 @@ def post_scholarship():
     return jsonify({"success": "Scholarship posted", "scholarship": scholarship}), 201
 
 @scholarships_internships.route('/internships', methods=['GET'])
+@login_required
 def get_internships():
     # Return the list of internships
     return jsonify(internships)
