@@ -36,4 +36,8 @@ def create_app():
     from .profile import profile as profile_blueprint
     app.register_blueprint(profile_blueprint)
 
+    # blueprint for scholarships and internships routes in our app
+    from .scholarships_internships import scholarships_internships
+    app.register_blueprint(scholarships_internships)
+
     return app
