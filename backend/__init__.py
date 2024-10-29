@@ -40,4 +40,8 @@ def create_app():
     from .scholarships_internships import scholarships_internships
     app.register_blueprint(scholarships_internships)
 
+    # blueprint for posts routes in our app
+    from .posts import posts_bp as posts_blueprint
+    app.register_blueprint(posts_blueprint)
+
     return app
