@@ -32,4 +32,12 @@ def create_app():
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
+    # blueprint for profile routes in our app
+    from .profile import profile as profile_blueprint
+    app.register_blueprint(profile_blueprint)
+
+    # blueprint for scholarships and internships routes in our app
+    from .scholarships_internships import scholarships_internships
+    app.register_blueprint(scholarships_internships)
+
     return app
