@@ -7,7 +7,8 @@ function App() {
     <Router>
       <Switch>
         <Route path="/profile" component={ProfilePage} />
-        {/* Add more routes here */}
+        <Route path="/user/:userId" component={OtherUserProfilePage} />
+        <Route path="/mentors" component={MentorsListPage} /> {/* Mentors list page route */}
       </Switch>
     </Router>
   );

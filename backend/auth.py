@@ -68,3 +68,13 @@ def logout():
 @auth.route('/ping')
 def ping():
     return {"authenticated": current_user.is_authenticated}
+
+
+@auth.route('/mentors/available', methods=['GET']) # Get available metors
+def get_available_mentors():
+    # Filter the USERS dictionary to include only users with mentorship set to "yes"
+    available_mentors = [
+        {"id": user_id, "name": user["name"], "mentorship": user["mentorship"]}
+        for user_id, user in USERS.items() if user.get("mentorship") == "yes"
+    ]
+    return {"mentors": available_mentors}
