@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    create_engine, Column, Integer, String, Boolean, Text, TIMESTAMP, Enum, ForeignKey
+    create_engine, Column, Integer, String, Boolean, Text, TIMESTAMP, Enum, ForeignKey, CheckConstraint
 )
 from sqlalchemy.orm import relationship, sessionmaker, declarative_base
 from datetime import datetime
@@ -81,11 +81,28 @@ class Follow(Base):
     follower = relationship("User", foreign_keys=[follower_id], back_populates="following")
     followed_user = relationship("User", foreign_keys=[followed_id], back_populates="followed")
 
-# Internships Table
+    __table_args__ = (
+        CheckConstraint('follower_id != followed_id', name='check_follower_not_self'),
+    )
+
+class Organization(Base):
+    __tablename__ = 'organizations'
+    organization_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(255), nullable=False, unique=True)
+    description = Column(Text)
+    website = Column(String(255))
+    created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
+
+    # Relationships
+    internships = relationship("Internship", back_populates="organization")
+    scholarships = relationship("Scholarship", back_populates="organization")
+
+
 class Internship(Base):
     __tablename__ = 'internships'
     internship_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    organization_id = Column(Integer, ForeignKey('organizations.organization_id'))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     requirements = Column(Text)
@@ -93,13 +110,17 @@ class Internship(Base):
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    user = relationship("User")
+    # Relationships
+    organization = relationship("Organization", back_populates="internships")
+    user = relationship("User", back_populates="internships")
+
 
 # Scholarships Table
 class Scholarship(Base):
     __tablename__ = 'scholarships'
     scholarship_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    organization_id = Column(Integer, ForeignKey('organizations.organization_id'))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     requirements = Column(Text)
@@ -107,7 +128,10 @@ class Scholarship(Base):
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    user = relationship("User")
+    # Relationships
+    organization = relationship("Organization", back_populates="scholarships")
+    user = relationship("User", back_populates="scholarships")
+
 
 # Mentorship Table
 class Mentorship(Base):
