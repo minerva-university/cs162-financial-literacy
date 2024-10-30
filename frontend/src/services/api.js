@@ -33,3 +33,9 @@ export const updateMentorship = async (availability) => {
   );
   return response.data;
 };
+
+// Fetch available mentors
+export const getAvailableMentors = async () => {
+  const response = await axios.get(`${API_URL}/mentors/available`, { withCredentials: true });
+  return response.data;
+};
