@@ -1,17 +1,13 @@
 from flask import Flask
-from flask_login import LoginManager, UserMixin
+from flask_login import LoginManager
 from flask_cors import CORS
+from .database.create import User, engine
+from sqlalchemy.orm import sessionmaker
 
 
-# a variable to store users until we create a database for users
-USERS = {}
-
-
-class USER(UserMixin, dict):
-    def __init__(self, id, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.id = id
-
+# Create a new session
+Session = sessionmaker(bind=engine)
+session = Session()
 
 def create_app():
     app = Flask(__name__)
@@ -23,10 +19,11 @@ def create_app():
     login_manager.login_view = 'auth.login_post'
     login_manager.init_app(app)
 
+    
+
     @login_manager.user_loader
-    def load_user(email):
-        # will be edited when we have a database
-        return USERS[email]
+    def load_user(user_id):
+        return session.query(User).get(int(user_id))
 
     # blueprint for auth routes in our app
     from .auth import auth as auth_blueprint
