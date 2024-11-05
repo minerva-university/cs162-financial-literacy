@@ -4,12 +4,17 @@ import { updateMentorship } from '../services/api';
 
 const UserProfile = ({ userData, setUserData }) => {
   const [isEditingName, setIsEditingName] = useState(false);
+  const [mentorshipStatus, setMentorshipStatus] = useState(userData.mentorship);
 
   const handleMentorshipChange = async (event) => {
     const availability = event.target.value;
     const result = await updateMentorship(availability);
     if (result.success) {
       setUserData({ ...userData, mentorship: availability });
+      setMentorshipStatus(availability);
+      alert(`Your mentorship availability is now set to: ${availability === 'yes' ? 'Available' : 'Not Available'}`);
+    } else {
+      alert('Failed to update mentorship availability. Please try again.');
     }
   };
 
@@ -23,7 +28,7 @@ const UserProfile = ({ userData, setUserData }) => {
         <label>
           Mentorship Availability:
           <select
-            value={userData.mentorship}
+            value={mentorshipStatus}
             onChange={handleMentorshipChange}
           >
             <option value="yes">Yes</option>
