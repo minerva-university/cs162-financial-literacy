@@ -72,9 +72,14 @@ def ping():
 
 @auth.route('/mentors/available', methods=['GET']) # Get available metors
 def get_available_mentors():
-    # Filter the USERS dictionary to include only users with mentorship set to "yes"
+    company = request.args.get('company')
+    role = request.args.get('role')
+
     available_mentors = [
         {"id": user_id, "name": user["name"], "mentorship": user["mentorship"]}
-        for user_id, user in USERS.items() if user.get("mentorship") == "yes"
+        for user_id, user in USERS.items()
+        if user.get("mentorship") == "yes" and
+           (not company or user.get("company") == company) and
+           (not role or user.get("role") == role)
     ]
     return {"mentors": available_mentors}

@@ -35,7 +35,21 @@ export const updateMentorship = async (availability) => {
 };
 
 // Fetch available mentors
-export const getAvailableMentors = async () => {
-  const response = await axios.get(`${API_URL}/mentors/available`, { withCredentials: true });
+export const getAvailableMentors = async (company, role) => {
+  const params = new URLSearchParams();
+  if (company) params.append('company', company);
+  if (role) params.append('role', role);
+
+  const response = await axios.get(`${API_URL}/mentors/available?${params.toString()}`, { withCredentials: true });
+  return response.data;
+};
+
+// Update user profile
+export const updateUserProfile = async (profileData) => {
+  const response = await axios.post(
+    `${API_URL}/user/profile`,
+    profileData,
+    { withCredentials: true }
+  );
   return response.data;
 };

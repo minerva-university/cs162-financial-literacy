@@ -37,6 +37,31 @@ const UserProfile = ({ userData, setUserData }) => {
         </label>
       </div>
 
+      <div>
+        <label>School:</label>
+        <input
+          type="text"
+          value={userData.school || ''}
+          onChange={(e) => setUserData({ ...userData, school: e.target.value })}
+        />
+      </div>
+      <div>
+        <label>Company:</label>
+        <input
+          type="text"
+          value={userData.company || ''}
+          onChange={(e) => setUserData({ ...userData, company: e.target.value })}
+        />
+      </div>
+      <div>
+        <label>Role:</label>
+        <input
+          type="text"
+          value={userData.role || ''}
+          onChange={(e) => setUserData({ ...userData, role: e.target.value })}
+        />
+      </div>
+
       {isEditingName && (
         <EditUserNameModal
           userData={userData}

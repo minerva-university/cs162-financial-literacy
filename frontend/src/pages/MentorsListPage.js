@@ -5,40 +5,57 @@ import { getAvailableMentors } from '../services/api';
 const MentorsListPage = () => {
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [company, setCompany] = useState('');
+  const [role, setRole] = useState('');
 
   useEffect(() => {
-    // Fetch mentors when the component loads
-    async function fetchMentors() {
-      try {
-        const availableMentors = await getAvailableMentors();
-        setMentors(availableMentors.mentors); // Ensure it uses the right data structure
-      } catch (error) {
-        console.error("Failed to fetch mentors", error);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchMentors();
-  }, []);
+  }, [company, role]);
+
+  const fetchMentors = async () => {
+    setLoading(true);
+    try {
+      const availableMentors = await getAvailableMentors(company, role);
+      setMentors(availableMentors.mentors);
+    } catch (error) {
+      console.error("Failed to fetch mentors", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) return <div>Loading mentors...</div>;
-
-  if (mentors.length === 0) {
-    return <div>No mentors are available for mentorship at the moment.</div>;
-  }
 
   return (
     <div>
       <h1>Available Mentors</h1>
-      <ul>
-        {mentors.map((mentor) => (
-          <li key={mentor.id}>
-            <Link to={`/user/${mentor.id}`}>
-              {mentor.name} - Mentorship Available
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <div>
+        <input
+          type="text"
+          placeholder="Filter by company"
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Filter by role"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+        />
+      </div>
+      {mentors.length === 0 ? (
+        <div>No mentors are available for mentorship at the moment.</div>
+      ) : (
+        <ul>
+          {mentors.map((mentor) => (
+            <li key={mentor.id}>
+              <Link to={`/user/${mentor.id}`}>
+                {mentor.name} - Mentorship Available
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

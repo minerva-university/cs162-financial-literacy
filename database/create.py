@@ -22,6 +22,9 @@ class User(Base):
     bio = Column(Text)
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    school = Column(String(255))
+    company = Column(String(255))
+    role = Column(String(255))
 
     posts = relationship("Post", back_populates="user")
     comments = relationship("Comment", back_populates="user")

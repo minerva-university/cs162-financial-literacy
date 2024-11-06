@@ -12,7 +12,10 @@ def get_profile():
         'id': current_user.id,
         'email': current_user.get('email'),
         'name': current_user.get('name'),
-        'bio': current_user.get('bio', 'No bio available')
+        'bio': current_user.get('bio', 'No bio available'),
+        'school': current_user.get('school', 'No school available'),
+        'company': current_user.get('company', 'No company available'),
+        'role': current_user.get('role', 'No role available')
     })
 
 
@@ -25,6 +28,9 @@ def update_profile():
 
     current_user['bio'] = data.get('bio', current_user.get('bio', 'No bio available'))
     current_user['name'] = data.get('name', current_user.get('name'))
+    current_user['school'] = data.get('school', current_user.get('school'))
+    current_user['company'] = data.get('company', current_user.get('company'))
+    current_user['role'] = data.get('role', current_user.get('role'))
 
     # Update the user dictionary directly (in-memory)
     return jsonify({
