@@ -8,7 +8,7 @@ import Login from './pages/Login';
 import MainPage from './pages/MainPage';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer'; // Assuming Footer component is used globally
-import OtherUserProfilePage from './pages/OtherUserProfilePage'; // Add this if not already imported
+import OtherUserProfilePage from './pages/OtherUserProfilePage'; // @Jiyun/ Haneen, we do not have this page yet.
 import MentorsListPage from './pages/MentorsListPage'; // Add this if not already imported
 
 function App() {
