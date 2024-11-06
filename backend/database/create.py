@@ -1,16 +1,21 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from sqlalchemy import (
     create_engine, Column, Integer, String, Boolean, Text, TIMESTAMP, Enum, ForeignKey, CheckConstraint
 )
-from sqlalchemy.orm import relationship, sessionmaker, declarative_base
-from datetime import datetime
+from sqlalchemy.orm import relationship, declarative_base
+from datetime import datetime, timezone
+from flask_login import UserMixin
+import os
+
 
 # Initialize SQLite engine and base class
-engine = create_engine('sqlite:///app_database.db')
+engine = create_engine(os.environ.get("db_uri"))
 Base = declarative_base()
 
 # Users Table
-# Users Table
-class User(Base):
+class User(UserMixin, Base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(50), unique=True, nullable=False)
@@ -28,6 +33,11 @@ class User(Base):
     votes = relationship("Vote", back_populates="user")
     following = relationship("Follow", foreign_keys='Follow.follower_id', back_populates="follower")
     followed = relationship("Follow", foreign_keys='Follow.followed_id', back_populates="followed_user")
+    internships = relationship("Internship", foreign_keys='Internship.user_id', back_populates="user")
+    scholarships = relationship("Scholarship", foreign_keys='Scholarship.user_id', back_populates="user")
+
+    def get_id(self):
+        return self.user_id
 
 # Posts Table
 class Post(Base):
@@ -148,7 +158,3 @@ class Mentorship(Base):
 
 # Create all tables in the database
 Base.metadata.create_all(bind=engine)
-
-# Create a new session
-Session = sessionmaker(bind=engine)
-session = Session()
