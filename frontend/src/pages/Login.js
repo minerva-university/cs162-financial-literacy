@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { login } from '../services/api';  // Import the login function from your API services
-import '../styles/login.css';  // Adjusted path to locate Login.css
+import '../styles/login.css';
 
 function Login() {
     const navigate = useNavigate();

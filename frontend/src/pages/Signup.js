@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import '../styles/signup.css';  // Adjusted path to locate signup.css
+import '../styles/signup.css';
 import { FaUser, FaLock, FaEnvelope } from 'react-icons/fa';
 
 function Signup() {

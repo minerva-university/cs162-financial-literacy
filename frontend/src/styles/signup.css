@@ -1,0 +1,46 @@
+/* src/styles/signup.css */
+
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f7f7f7;
+}
+
+.signup-card {
+    width: 400px;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.input-wrapper {
+    margin-bottom: 15px;
+}
+
+.input-icon {
+    margin-right: 5px;
+}
+
+.signup-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.signup-btn:hover {
+    background-color: #1e88e5;
+}
+
+.error-message {
+    color: red;
+}
+
+.login-link {
+    margin-top: 15px;
+}
