@@ -78,3 +78,6 @@ def get_available_mentors():
     available_mentors = session.query(User).filter_by(mentorship_availability=True).all()
     mentors = [{"id": mentor.user_id, "name": mentor.name, "mentorship": "yes"} for mentor in available_mentors]
     return {"mentors": mentors}
+
+from flask import Flask
+app = Flask(__name__)
