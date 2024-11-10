@@ -1,5 +1,8 @@
 from dotenv import load_dotenv
-load_dotenv()
+import os
+
+#.env is in the parent directory (backend), won't be tracked by git though
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 from sqlalchemy import (
     create_engine, Column, Integer, String, Boolean, Text, TIMESTAMP, Enum, ForeignKey, CheckConstraint

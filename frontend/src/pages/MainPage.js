@@ -3,7 +3,7 @@
 import React from 'react';
 import './MainPage.css';
 
-function MainPage() {
+const MainPage = () => {
     return (
         <div className="mainpage-container">
             <header>
@@ -21,6 +21,6 @@ function MainPage() {
             </footer>
         </div>
     );
-}
+};
 
 export default MainPage;

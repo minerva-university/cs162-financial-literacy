@@ -3,6 +3,7 @@ from flask_login import LoginManager
 from flask_cors import CORS
 from .database.create import User, engine
 from sqlalchemy.orm import sessionmaker
+from flask import jsonify
 
 
 # Create a new session
@@ -40,5 +41,10 @@ def create_app():
     # blueprint for posts routes in our app
     from .posts import posts_bp as posts_blueprint
     app.register_blueprint(posts_blueprint)
+
+    # Add a default route
+    @app.route('/')
+    def home():
+        return jsonify(message="Welcome to the Financial Literacy Marketplace! Empowering you with the knowledge and tools to achieve financial success.")
 
     return app
