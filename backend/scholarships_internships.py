@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from flask import Blueprint, jsonify, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 from sqlalchemy.orm import sessionmaker
-from .database.create import engine, Scholarship, Internship, User  # Adjust the import according to your file structure
+from .database.create import Organization, engine, Scholarship, Internship, User  # Adjust the import according to your file structure
 
 # Create a new session factory
 Session = sessionmaker(bind=engine)

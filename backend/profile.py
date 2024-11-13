@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-from .database.create import User, engine
-from sqlalchemy.orm import sessionmaker
+from .database.create import User, engine, User, Follow
+from sqlalchemy.orm import sessionmaker,aliased
 
 
 profile = Blueprint('profile', __name__)
@@ -9,20 +9,7 @@ profile = Blueprint('profile', __name__)
 Session = sessionmaker(bind=engine)
 
 
-@profile.route('/profile', methods=['GET'])
-@login_required
-def get_profile():
-    # Fetch the current user's profile information from the database
-    user = current_user
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
 
-    return jsonify({
-        'id': user.user_id,
-        'email': user.email,
-        'name': user.name,
-        'bio': user.bio or 'No bio available'  # Default message if bio is None
-    })
 
 
 @profile.route('/profile', methods=['POST'])
@@ -58,12 +45,8 @@ def update_profile():
         }
     })
 
-from flask import Blueprint, jsonify
-from flask_login import login_required, current_user
-from sqlalchemy.orm import aliased
-from .database.create import Session, User, Follow
 
-profile = Blueprint('profile', __name__)
+
 
 @profile.route('/profile', methods=['GET'])
 @login_required
@@ -87,25 +70,5 @@ def get_followings():
         'followings': [following.name for following in followings]
     })
 
-@profile.route('/profile', methods=['GET'])
-@login_required
-def get_followers():
-    # Fetch the current user's profile information from the database
-    user = current_user
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
 
-    # Get the users who are following the current user
-    follower_alias = aliased(User)  # Alias for the User table
-    followers = Session().query(follower_alias).join(Follow, Follow.followed_id == user.user_id).filter(
-        Follow.followed_id == user.user_id).all()
-
-    # Return only followers
-    return jsonify({
-        'id': user.user_id,
-        'email': user.email,
-        'name': user.name,
-        'bio': user.bio or 'No bio available',  # Default message if bio is None
-        'followers': [follower.name for follower in followers]
-    })
 

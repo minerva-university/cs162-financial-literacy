@@ -54,7 +54,7 @@ def signup_post():
     # Check if user already exists in the database
     existing_user = session.query(User).filter_by(username=username).first()
     if existing_user:
-        return {"success": "No", "reason": "User already exists with this username"}
+        return {"success": "No", "reason": "User already exists with this username"}  # User already exists
 
     # Create a new user and add to the database
     try:
