@@ -44,3 +44,106 @@ def get_posts():
     # Fetch all posts from the database
     posts = session.query(Post).all()  # Retrieve all posts
     return jsonify({'posts': [{'id': post.post_id, 'author': post.user_id, 'content': post.content} for post in posts]}), 200
+
+# Endpoint to fetch posts by a specific user
+@posts_bp.route('/posts/<int:user_id>', methods=['GET'])
+@login_required
+def get_user_posts(user_id):
+    session = Session()
+
+    # Fetch posts made by a specific user
+    posts = session.query(Post).filter(Post.user_id == user_id).all()
+    post_list = []
+    for post in posts:
+        author = session.query(User).filter(User.user_id == post.user_id).first()
+        post_list.append({
+            'id': post.post_id,
+            'title': post.title,
+            'content': post.content,
+            'author': author.name if author else 'Unknown',
+            'created_at': post.created_at
+        })
+    
+    return jsonify({'posts': post_list}), 200
+
+
+# Endpoint to fetch posts sorted by date (descending by default)
+@posts_bp.route('/posts/sorted_by_date', methods=['GET'])
+@login_required
+def get_posts_sorted_by_date():
+    session = Session()
+
+    # Fetch posts sorted by creation date (descending)
+    posts = session.query(Post).order_by(Post.created_at.desc()).all()
+    post_list = []
+    for post in posts:
+        author = session.query(User).filter(User.user_id == post.user_id).first()
+        post_list.append({
+            'id': post.post_id,
+            'title': post.title,
+            'content': post.content,
+            'author': author.name if author else 'Unknown',
+            'created_at': post.created_at
+        })
+    
+    return jsonify({'posts': post_list}), 200
+
+
+# Endpoint to fetch posts sorted by number of votes
+@posts_bp.route('/posts/sorted_by_votes', methods=['GET'])
+@login_required
+def get_posts_sorted_by_votes():
+    session = Session()
+
+    # Fetch posts and count votes per post
+    posts_with_votes = session.query(
+        Post,
+        func.count(Vote.vote_id).label('vote_count')
+    ).join(Vote, Vote.post_id == Post.post_id, isouter=True) \
+     .group_by(Post.post_id) \
+     .order_by(func.count(Vote.vote_id).desc()).all()
+
+    post_list = []
+    for post, vote_count in posts_with_votes:
+        author = session.query(User).filter(User.user_id == post.user_id).first()
+        post_list.append({
+            'id': post.post_id,
+            'title': post.title,
+            'content': post.content,
+            'author': author.name if author else 'Unknown',
+            'vote_count': vote_count,
+            'created_at': post.created_at
+        })
+    
+    return jsonify({'posts': post_list}), 200
+
+
+# Endpoint to fetch posts of people the user follows
+@posts_bp.route('/posts/followed', methods=['GET'])
+@login_required
+def get_posts_of_followed_users():
+    session = Session()
+
+    # Get the list of users that the current user follows
+    followed_user_ids = session.query(Follow.followed_id) \
+                               .filter(Follow.follower_id == current_user.user_id) \
+                               .all()
+    
+    # Extract the followed user ids
+    followed_user_ids = [followed_user_id[0] for followed_user_id in followed_user_ids]
+    
+    # Fetch posts from followed users
+    posts = session.query(Post).filter(Post.user_id.in_(followed_user_ids)).all()
+    
+    post_list = []
+    for post in posts:
+        author = session.query(User).filter(User.user_id == post.user_id).first()
+        post_list.append({
+            'id': post.post_id,
+            'title': post.title,
+            'content': post.content,
+            'author': author.name if author else 'Unknown',
+            'created_at': post.created_at
+        })
+    
+    return jsonify({'posts': post_list}), 200

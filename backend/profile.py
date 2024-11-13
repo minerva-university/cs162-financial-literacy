@@ -57,3 +57,55 @@ def update_profile():
             'bio': user.bio
         }
     })
+
+from flask import Blueprint, jsonify
+from flask_login import login_required, current_user
+from sqlalchemy.orm import aliased
+from .database.create import Session, User, Follow
+
+profile = Blueprint('profile', __name__)
+
+@profile.route('/profile', methods=['GET'])
+@login_required
+def get_followings():
+    # Fetch the current user's profile information from the database
+    user = current_user
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    # Get the users the current user is following
+    following_alias = aliased(User)  # Alias for the User table
+    followings = Session().query(following_alias).join(Follow, Follow.follower_id == user.user_id).filter(
+        Follow.follower_id == user.user_id).all()
+
+    # Return only followings
+    return jsonify({
+        'id': user.user_id,
+        'email': user.email,
+        'name': user.name,
+        'bio': user.bio or 'No bio available',  # Default message if bio is None
+        'followings': [following.name for following in followings]
+    })
+
+@profile.route('/profile', methods=['GET'])
+@login_required
+def get_followers():
+    # Fetch the current user's profile information from the database
+    user = current_user
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    # Get the users who are following the current user
+    follower_alias = aliased(User)  # Alias for the User table
+    followers = Session().query(follower_alias).join(Follow, Follow.followed_id == user.user_id).filter(
+        Follow.followed_id == user.user_id).all()
+
+    # Return only followers
+    return jsonify({
+        'id': user.user_id,
+        'email': user.email,
+        'name': user.name,
+        'bio': user.bio or 'No bio available',  # Default message if bio is None
+        'followers': [follower.name for follower in followers]
+    })
+
