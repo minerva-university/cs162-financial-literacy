@@ -46,7 +46,7 @@ def signup_post():
     # Check if user already exists in the database
     existing_user = session.query(User).filter_by(username=username).first()
     if existing_user:
-        return {"success": "No", "reason":"User already exists with this username"}  # User already exists
+        return {"success": "No", "reason": "User already exists with this username"}  # User already exists
 
     # Create a new user and add to the database
     new_user = User(
@@ -78,6 +78,3 @@ def get_available_mentors():
     available_mentors = session.query(User).filter_by(mentorship_availability=True).all()
     mentors = [{"id": mentor.user_id, "name": mentor.name, "mentorship": "yes"} for mentor in available_mentors]
     return {"mentors": mentors}
-
-from flask import Flask
-app = Flask(__name__)

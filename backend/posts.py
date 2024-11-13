@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
-from .database.create import Post, engine
+from sqlalchemy import func
+from .database.create import Follow, Post, User, Vote, engine
 from sqlalchemy.orm import sessionmaker
 
 # Define the blueprint
@@ -147,3 +148,114 @@ def get_posts_of_followed_users():
         })
     
     return jsonify({'posts': post_list}), 200
+
+# adding votes, upvotes/downvotes
+@posts_bp.route('/post/<int:post_id>/vote', methods=['POST'])
+@login_required
+def add_vote(post_id):
+    data = request.get_json()
+    if not data or 'vote_type' not in data or data['vote_type'] not in ['upvote', 'downvote']:
+        return jsonify({'error': 'Vote type is required and must be "upvote" or "downvote"'}), 400
+
+    session = Session()
+
+    # Check if the user has already voted on this post
+    existing_vote = session.query(Vote).filter(
+        Vote.post_id == post_id,
+        Vote.user_id == current_user.user_id
+    ).first()
+
+    if existing_vote:
+        # Update the existing vote
+        existing_vote.vote_type = data['vote_type']
+        action = 'updated'
+    else:
+        # Add a new vote
+        new_vote = Vote(
+            post_id=post_id,
+            user_id=current_user.user_id,
+            vote_type=data['vote_type']
+        )
+        session.add(new_vote)
+        action = 'added'
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify({'message': f'Vote {action} successfully'}), 200
+
+
+# commenting on a post
+@posts_bp.route('/post/<int:post_id>/comment', methods=['POST'])
+@login_required
+def add_comment(post_id):
+    data = request.get_json()
+    if not data or 'comment_text' not in data:
+        return jsonify({'error': 'Comment text is required'}), 400
+
+    session = Session()
+
+    # Create a new comment for the post
+    new_comment = Comment(
+        post_id=post_id,
+        user_id=current_user.user_id,
+        comment_text=data['comment_text']
+    )
+
+    session.add(new_comment)
+    
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+    return jsonify({'message': 'Comment added successfully', 'comment': {'id': new_comment.comment_id, 'text': new_comment.comment_text}}), 201
+
+
+# fetching votes of a post
+@posts_bp.route('/post/<int:post_id>/votes', methods=['GET'])
+@login_required
+def get_votes(post_id):
+    session = Session()
+
+    # Count the number of upvotes and downvotes for the post
+    upvotes_count = session.query(Vote).filter(
+        Vote.post_id == post_id,
+        Vote.vote_type == 'upvote'
+    ).count()
+
+    downvotes_count = session.query(Vote).filter(
+        Vote.post_id == post_id,
+        Vote.vote_type == 'downvote'
+    ).count()
+
+    return jsonify({
+        'post_id': post_id,
+        'upvotes': upvotes_count,
+        'downvotes': downvotes_count
+    }), 200
+
+
+# fetching comments of a post
+@posts_bp.route('/post/<int:post_id>/comments', methods=['GET'])
+@login_required
+def get_comments(post_id):
+    session = Session()
+
+    # Fetch all comments for the post
+    comments = session.query(Comment).filter(Comment.post_id == post_id).all()
+
+    # Return the list of comments
+    comment_list = [{
+        'id': comment.comment_id,
+        'user_id': comment.user_id,
+        'comment_text': comment.comment_text,
+        'created_at': comment.created_at
+    } for comment in comments]
+
+    return jsonify({'post_id': post_id, 'comments': comment_list}), 200
+

@@ -136,8 +136,10 @@ class Scholarship(Base):
     organization_id = Column(Integer, ForeignKey('organizations.organization_id'))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
+    amount = Column(Integer)
     requirements = Column(Text)
     application_link = Column(String(255))
+    deadline = Column(TIMESTAMP)
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
