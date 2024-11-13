@@ -13,7 +13,7 @@
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/yourusername/cs162-financial-literacy.git
+   git clone https://github.com/minerva-university/cs162-financial-literacy.git
    cd cs162-financial-literacy/backend
    ```
 
@@ -36,7 +36,7 @@
    Create a `.env` file in the `backend` directory and add the following environment variables:
 
    ```env
-   FLASK_APP=backend/wsgi.py
+   FLASK_APP=wsgi.py
    FLASK_ENV=development
    SECRET_KEY=your_secret_key
    DATABASE_URL=your_database_url

@@ -38,26 +38,40 @@ def signup_post():
     body = request.json
     email = body.get('email')
     if isinstance(email, str):
-        email.strip()
+        email = email.strip()
     name = body.get('name')
-    username = body.get('username')
+    username = email #body.get('username')
     password = body.get('password')
+
+    # Validate input
+    if not username: # No field for username in the frontend
+        return {"success": "No", "reason": "Username is required"}, 400
+    if not email:
+        return {"success": "No", "reason": "Email is required"}, 400
+    if not password:
+        return {"success": "No", "reason": "Password is required"}, 400
 
     # Check if user already exists in the database
     existing_user = session.query(User).filter_by(username=username).first()
     if existing_user:
-        return {"success": "No", "reason":"User already exists with this username"}  # User already exists
+        return {"success": "No", "reason": "User already exists with this username"}
 
     # Create a new user and add to the database
-    new_user = User(
-        email=email,
-        name=name,
-        password_hash=generate_password_hash(password),
-        username=username
-    )
-    session.add(new_user)
-    session.commit()
-    session.close()
+    try:
+        new_user = User(
+            email=email,
+            name=name,
+            password_hash=generate_password_hash(password),
+            username=username
+        )
+        session.add(new_user)
+        session.commit()
+    except Exception as e:
+        session.rollback()  # Rollback on error
+        return {"success": "No", "reason": f"Database error: {str(e)}"}, 500
+    finally:
+        session.close()
+
     return {"success": "Yes"}
 
 @auth.route('/logout')
@@ -78,6 +92,3 @@ def get_available_mentors():
     available_mentors = session.query(User).filter_by(mentorship_availability=True).all()
     mentors = [{"id": mentor.user_id, "name": mentor.name, "mentorship": "yes"} for mentor in available_mentors]
     return {"mentors": mentors}
-
-from flask import Flask
-app = Flask(__name__)
