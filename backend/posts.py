@@ -3,10 +3,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import func
 from .database.create import Follow, Post, User, Vote, engine
 from sqlalchemy.orm import sessionmaker
-from config import (
-    COST_TO_ACCESS,
-    REWARD_FOR_POSTING,
-)
+from .config import COST_TO_ACCESS, REWARD_FOR_POSTING
 
 # Define the blueprint
 posts_bp = Blueprint('posts', __name__)

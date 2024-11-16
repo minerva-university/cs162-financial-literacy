@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from .database.create import Organization, engine, Scholarship, Internship, User
-from config import COST_TO_ACCESS, REWARD_FOR_POSTING
+from .config import COST_TO_ACCESS, REWARD_FOR_POSTING
 
 # Create a new session factory
 Session = sessionmaker(bind=engine)
