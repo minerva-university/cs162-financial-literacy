@@ -1,17 +1,16 @@
+# create.py
+
 from dotenv import load_dotenv
 import os
-
-#.env is in the parent directory (backend), won't be tracked by git though
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
-
 from sqlalchemy import (
     create_engine, Column, Integer, String, Boolean, Text, TIMESTAMP, Enum, ForeignKey, CheckConstraint
 )
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime, timezone
 from flask_login import UserMixin
-import os
 
+# Load environment variables
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Initialize SQLite engine and base class
 engine = create_engine(os.environ.get("db_uri"))
@@ -28,6 +27,7 @@ class User(UserMixin, Base):
     mentorship_availability = Column(Boolean, default=False)
     profile_picture = Column(String(255))
     bio = Column(Text)
+    credits = Column(Integer, default=100)  # Add this line for initial credits
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
@@ -78,7 +78,6 @@ class Vote(Base):
     user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     vote_type = Column(Enum('upvote', 'downvote', name='vote_type_enum'), nullable=False)
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
-    
 
     post = relationship("Post", back_populates="votes")
     user = relationship("User", back_populates="votes")
@@ -106,10 +105,8 @@ class Organization(Base):
     website = Column(String(255))
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
 
-    # Relationships
     internships = relationship("Internship", back_populates="organization")
     scholarships = relationship("Scholarship", back_populates="organization")
-
 
 class Internship(Base):
     __tablename__ = 'internships'
@@ -123,12 +120,9 @@ class Internship(Base):
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    # Relationships
     organization = relationship("Organization", back_populates="internships")
     user = relationship("User", back_populates="internships")
 
-
-# Scholarships Table
 class Scholarship(Base):
     __tablename__ = 'scholarships'
     scholarship_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -143,12 +137,9 @@ class Scholarship(Base):
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    # Relationships
     organization = relationship("Organization", back_populates="scholarships")
     user = relationship("User", back_populates="scholarships")
 
-
-# Mentorship Table
 class Mentorship(Base):
     __tablename__ = 'mentorship'
     mentorship_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -159,7 +150,6 @@ class Mentorship(Base):
 
     mentor = relationship("User", foreign_keys=[mentor_id])
     mentee = relationship("User", foreign_keys=[mentee_id])
-
 
 # Create all tables in the database
 Base.metadata.create_all(bind=engine)
