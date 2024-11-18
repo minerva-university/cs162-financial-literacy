@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import func
 from .database.create import Follow, Post, User, Vote, engine
 from sqlalchemy.orm import sessionmaker
+from .config import COST_TO_ACCESS, REWARD_FOR_POSTING
 
 # Define the blueprint
 posts_bp = Blueprint('posts', __name__)
@@ -30,6 +31,9 @@ def add_post():
     session.add(new_post)
     try:
         session.commit()
+        # Reward the user for posting
+        user_id.credits += REWARD_FOR_POSTING
+        session.commit()
     except Exception as e:
         session.rollback()  # Rollback in case of an error
         return jsonify({'error': str(e)}), 500
@@ -42,9 +46,14 @@ def add_post():
 @login_required
 def get_posts():
     session = Session()
-    # Fetch all posts from the database
-    posts = session.query(Post).all()  # Retrieve all posts
-    return jsonify({'posts': [{'id': post.post_id, 'author': post.user_id, 'content': post.content} for post in posts]}), 200
+    # Fetch all posts from the database if the credit balance is sufficient
+    if user_id.credits >= COST_TO_ACCESS:
+        user_id.credits -= COST_TO_ACCESS
+        session.commit()
+        posts = session.query(Post).all()  # Retrieve all posts
+        return jsonify({'posts': [{'id': post.post_id, 'author': post.user_id, 'content': post.content} for post in posts]}), 200
+    else:
+        return jsonify({'error': 'Insufficient credits'}), 403
 
 # Endpoint to fetch posts by a specific user
 @posts_bp.route('/posts/<int:user_id>', methods=['GET'])
@@ -259,3 +268,10 @@ def get_comments(post_id):
 
     return jsonify({'post_id': post_id, 'comments': comment_list}), 200
 
+
+# Endpoint to fetch the number of credits available to the user
+@posts_bp.route('/get_credits', methods=['GET'])
+@login_required
+def get_credits():
+    user = current_user
+    return jsonify({'credits': user.credits})
