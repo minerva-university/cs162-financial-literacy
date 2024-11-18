@@ -8,9 +8,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime, timezone
 from flask_login import UserMixin
+from ..config import INITIAL_CREDITS
 
 # Load environment variables
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+load_dotenv()
 
 # Initialize SQLite engine and base class
 engine = create_engine(os.environ.get("db_uri"))
@@ -27,9 +28,13 @@ class User(UserMixin, Base):
     mentorship_availability = Column(Boolean, default=False)
     profile_picture = Column(String(255))
     bio = Column(Text)
-    credits = Column(Integer, default=100)  # Add this line for initial credits
+    credits = Column(Integer, default=INITIAL_CREDITS)  # Add this line for initial credits
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    school = Column(Text)
+    company = Column(Text)
+    role = Column(Text)
 
     posts = relationship("Post", back_populates="user")
     comments = relationship("Comment", back_populates="user")

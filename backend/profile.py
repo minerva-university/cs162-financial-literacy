@@ -41,7 +41,10 @@ def update_profile():
             'id': user.user_id,
             'email': user.email,
             'name': user.name,
-            'bio': user.bio
+            'bio': user.bio,
+            'company': user.company,
+            'role': user.role,
+            'school': user.school,
         }
     })
 

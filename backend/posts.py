@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import func
-from .database.create import Follow, Post, User, Vote, engine
+from .database.create import Follow, Post, User, Vote, Comment, engine
 from sqlalchemy.orm import sessionmaker
 from .config import COST_TO_ACCESS, REWARD_FOR_POSTING
 
@@ -32,7 +32,7 @@ def add_post():
     try:
         session.commit()
         # Reward the user for posting
-        user_id.credits += REWARD_FOR_POSTING
+        current_user.credits += REWARD_FOR_POSTING
         session.commit()
     except Exception as e:
         session.rollback()  # Rollback in case of an error
@@ -47,8 +47,8 @@ def add_post():
 def get_posts():
     session = Session()
     # Fetch all posts from the database if the credit balance is sufficient
-    if user_id.credits >= COST_TO_ACCESS:
-        user_id.credits -= COST_TO_ACCESS
+    if current_user.credits >= COST_TO_ACCESS:
+        current_user.credits -= COST_TO_ACCESS
         session.commit()
         posts = session.query(Post).all()  # Retrieve all posts
         return jsonify({'posts': [{'id': post.post_id, 'author': post.user_id, 'content': post.content} for post in posts]}), 200
