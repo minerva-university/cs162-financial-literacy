@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from .database.create import Organization, engine, Scholarship, Internship, User
 from .config import COST_TO_ACCESS, REWARD_FOR_POSTING
 
+
 # Create a new session factory
 Session = sessionmaker(bind=engine)
 scholarships_internships = Blueprint('scholarships_internships', __name__)
@@ -416,15 +417,208 @@ def update_internship(internship_id):
     finally:
         session.close()
 
-# Optional endpoint to get user's current credits
-@scholarships_internships.route('/get_credits', methods=['GET'])
+
+# Updating scholarship/internship status 
+def update_listing_status(session, model_class):
+    """
+    Update status of expired listings
+    """
+    current_time = datetime.now(timezone.utc)
+    expired_listings = session.query(model_class).filter(
+        model_class.status == ListingStatus.ACTIVE,
+        model_class.deadline < current_time
+    ).all()
+    
+    for listing in expired_listings:
+        listing.status = ListingStatus.EXPIRED
+    
+    if expired_listings:
+        session.commit()
+
+@scholarships_internships.route('/scholarships/search', methods=['GET'])
 @login_required
-def get_user_credits():
+def scholarship_ordering_date():
     session = Session()
     try:
         user = session.query(User).filter_by(user_id=current_user.user_id).first()
-        return jsonify({'credits': user.credits}), 200
+
+        # Check if user has enough credits
+        if user.credits < COST_TO_ACCESS:
+            return jsonify({'error': 'Insufficient credits'}), 403
+
+        # Update expired listings
+        update_listing_status(session, Scholarship)
+
+        # Deduct credits
+        user.credits -= COST_TO_ACCESS
+        session.commit()
+
+        # Get search and filter parameters
+        title = request.args.get('title')
+        organization = request.args.get('organization')
+        min_amount = request.args.get('min_amount', type=int)
+        max_amount = request.args.get('max_amount', type=int)
+        include_expired = request.args.get('include_expired', 'false').lower() == 'true'
+        
+        # Start the base query
+        query = session.query(Scholarship)
+
+        # Only show active listings by default
+        if not include_expired:
+            query = query.filter(Scholarship.status == ListingStatus.ACTIVE)
+
+        # Apply other filters
+        if title:
+            query = query.filter(Scholarship.title.ilike(f"%{title}%"))
+        if organization:
+            query = query.join(Organization).filter(Organization.name.ilike(f"%{organization}%"))
+        if min_amount is not None:
+            query = query.filter(Scholarship.amount >= min_amount)
+        if max_amount is not None:
+            query = query.filter(Scholarship.amount <= max_amount)
+
+        # Apply ordering
+        order_by = request.args.get('order_by', 'deadline')
+        if order_by == 'deadline':
+            query = query.order_by(Scholarship.deadline.asc())
+        elif order_by == 'newest':
+            query = query.order_by(Scholarship.created_at.desc())
+
+        results = query.all()
+
+        return jsonify({
+            'credits': user.credits,
+            'scholarships': [{
+                'id': scholarship.scholarship_id,
+                'title': scholarship.title,
+                'description': scholarship.description,
+                'organization': scholarship.organization.name if scholarship.organization else None,
+                'amount': scholarship.amount,
+                'deadline': scholarship.deadline.isoformat(),
+                'status': scholarship.status.value,
+                'created_at': scholarship.created_at.isoformat()
+            } for scholarship in results]
+        })
     except SQLAlchemyError as e:
+        session.rollback()
         return jsonify({'error': str(e)}), 500
     finally:
         session.close()
+
+@scholarships_internships.route('/internships/search', methods=['GET'])
+@login_required
+def internship_ordering_date():
+    session = Session()
+    try:
+        user = session.query(User).filter_by(user_id=current_user.user_id).first()
+
+        # Check if user has enough credits
+        if user.credits < COST_TO_ACCESS:
+            return jsonify({'error': 'Insufficient credits'}), 403
+
+        # Update expired listings
+        update_listing_status(session, Internship)
+
+        # Deduct credits
+        user.credits -= COST_TO_ACCESS
+        session.commit()
+
+        # Get search and filter parameters
+        title = request.args.get('title')
+        organization = request.args.get('organization')
+        min_amount = request.args.get('min_amount', type=int)
+        max_amount = request.args.get('max_amount', type=int)
+        include_expired = request.args.get('include_expired', 'false').lower() == 'true'
+        
+        # Start the base query
+        query = session.query(Internship)
+
+        # Only show active listings by default
+        if not include_expired:
+            query = query.filter(Internship.status == ListingStatus.ACTIVE)
+
+        # Apply other filters
+        if title:
+            query = query.filter(Internship.title.ilike(f"%{title}%"))
+        if organization:
+            query = query.join(Organization).filter(Organization.name.ilike(f"%{organization}%"))
+        if min_amount is not None:
+            query = query.filter(Internship.amount >= min_amount)
+        if max_amount is not None:
+            query = query.filter(Internship.amount <= max_amount)
+
+        # Apply ordering
+        order_by = request.args.get('order_by', 'deadline')
+        if order_by == 'deadline':
+            query = query.order_by(Internship.deadline.asc())
+        elif order_by == 'newest':
+            query = query.order_by(Internship.created_at.desc())
+
+        results = query.all()
+
+        return jsonify({
+            'credits': user.credits,
+            'internships': [{
+                'id': internship.internship_id,
+                'title': internship.title,
+                'description': internship.description,
+                'organization': internship.organization.name if internship.organization else None,
+                'amount': internship.amount,
+                'deadline': internship.deadline.isoformat(),
+                'status': internship.status.value,
+                'created_at': internship.created_at.isoformat()
+            } for internship in results]
+        })
+    except SQLAlchemyError as e:
+        session.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        session.close()
+
+
+# Function for deleting scholarships and internships
+def delete_listing(listing_type: str, listing_id: int, user_id: int, session) -> tuple[bool, Optional[str]]:
+    """
+    Delete a scholarship or internship listing
+    
+    Args:
+        listing_type: Either 'scholarship' or 'internship'
+        listing_id: ID of the listing to delete
+        user_id: ID of the user attempting to delete
+        session: SQLAlchemy session
+        
+    Returns:
+        Tuple of (success: bool, error_message: Optional[str])
+    """
+    try:
+        Model = Scholarship if listing_type == 'scholarship' else Internship
+        listing = session.query(Model).get(listing_id)
+        
+        if not listing:
+            return False, f"{listing_type.title()} not found"
+            
+        success, error = listing.safe_delete(session, user_id)
+        if success:
+            session.commit()
+            
+        return success, error
+        
+    except Exception as e:
+        session.rollback()
+        return False, f"Error during deletion: {str(e)}"
+
+# Deleting scholarships and internships
+@app.route('/api/<listing_type>/<int:listing_id>', methods=['DELETE'])
+@login_required
+def delete_listing_route(listing_type, listing_id):
+    success, error = delete_listing(
+        listing_type=listing_type,
+        listing_id=listing_id,
+        user_id=current_user.user_id,
+        session=db.session
+    )
+    
+    if success:
+        return jsonify({'message': f'{listing_type.title()} deleted successfully'}), 200
+    else:
+        return jsonify({'error': error}), 400

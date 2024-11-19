@@ -9,6 +9,11 @@ from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime, timezone
 from flask_login import UserMixin
 from ..config import INITIAL_CREDITS
+from enum import Enum as PyEnum
+from sqlalchemy import event
+from sqlalchemy.exc import IntegrityError
+from typing import Optional, Union
+
 
 # Load environment variables
 load_dotenv()
@@ -16,6 +21,8 @@ load_dotenv()
 # Initialize SQLite engine and base class
 engine = create_engine(os.environ.get("db_uri"))
 Base = declarative_base()
+
+
 
 # Users Table
 class User(UserMixin, Base):
@@ -113,7 +120,41 @@ class Organization(Base):
     internships = relationship("Internship", back_populates="organization")
     scholarships = relationship("Scholarship", back_populates="organization")
 
-class Internship(Base):
+# Status of Scholarship and Internship
+class ListingStatus(PyEnum):
+    ACTIVE = "active"
+    EXPIRED = "expired"
+    CLOSED = "closed"
+
+class DeletionMixin:
+    """Mixin to add safe deletion methods to models"""
+    
+    def can_be_deleted_by(self, user_id: int) -> bool:
+        """Check if the given user has permission to delete this record"""
+        return hasattr(self, 'user_id') and self.user_id == user_id
+
+    def safe_delete(self, session, user_id: int) -> tuple[bool, Optional[str]]:
+        """
+        Safely delete the record if the user has permission
+        Returns: (success: bool, error_message: Optional[str])
+        """
+        try:
+            if not self.can_be_deleted_by(user_id):
+                return False, "Permission denied: You can only delete your own posts"
+            
+            session.delete(self)
+            session.flush()  # Flush to catch any deletion problems before commit
+            return True, None
+            
+        except IntegrityError as e:
+            session.rollback()
+            return False, f"Cannot delete: The record is being referenced by other data"
+        except Exception as e:
+            session.rollback()
+            return False, f"Deletion failed: {str(e)}"
+
+
+class Internship(DeletionMixin, Base):
     __tablename__ = 'internships'
     internship_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
@@ -122,13 +163,15 @@ class Internship(Base):
     description = Column(Text, nullable=False)
     requirements = Column(Text)
     application_link = Column(String(255))
+    deadline = Column(TIMESTAMP, nullable=False)  # Make deadline required
+    status = Column(Enum(ListingStatus), default=ListingStatus.ACTIVE)
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     organization = relationship("Organization", back_populates="internships")
     user = relationship("User", back_populates="internships")
 
-class Scholarship(Base):
+class Scholarship(DeletionMixin, Base):
     __tablename__ = 'scholarships'
     scholarship_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
@@ -138,7 +181,8 @@ class Scholarship(Base):
     amount = Column(Integer)
     requirements = Column(Text)
     application_link = Column(String(255))
-    deadline = Column(TIMESTAMP)
+    deadline = Column(TIMESTAMP, nullable=False)  # Make deadline required
+    status = Column(Enum(ListingStatus), default=ListingStatus.ACTIVE)
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
