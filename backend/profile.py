@@ -74,29 +74,6 @@ def get_followings():
     })
 
 
-@profile.route('/profile', methods=['GET'])
-@login_required
-def get_followings():
-    # Fetch the current user's profile information from the database
-    user = current_user
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
-    
-    # Get the users the current user is following
-    following_alias = aliased(User)  # Alias for the User table
-    followings = Session().query(following_alias).join(
-        Follow, Follow.follower_id == user.user_id
-    ).filter(Follow.follower_id == user.user_id).all()
-    
-    # Return only followings
-    return jsonify({
-        'id': user.user_id,
-        'email': user.email,
-        'name': user.name,
-        'bio': user.bio or 'No bio available',  # Default message if bio is None
-        'followings': [following.name for following in followings]
-    })
-
 @profile.route('/follow', methods=['POST'])
 @login_required
 def follow_user():

@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from .database.create import Organization, engine, Scholarship, Internship, User
 from .config import COST_TO_ACCESS, REWARD_FOR_POSTING
+from typing import Optional
 
 
 # Create a new session factory
@@ -608,7 +609,7 @@ def delete_listing(listing_type: str, listing_id: int, user_id: int, session) ->
         return False, f"Error during deletion: {str(e)}"
 
 # Deleting scholarships and internships
-@app.route('/api/<listing_type>/<int:listing_id>', methods=['DELETE'])
+@scholarships_internships.route('/api/<listing_type>/<int:listing_id>', methods=['DELETE'])
 @login_required
 def delete_listing_route(listing_type, listing_id):
     success, error = delete_listing(
