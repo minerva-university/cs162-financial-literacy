@@ -1,5 +1,12 @@
 import axios from 'axios';
-const API_URL = "http://localhost:4000";
+
+const API_URL = process.env.REACT_APP_backend_api;
+
+// Check Authentication
+export const is_authenticated = async () => {
+  const response = await axios.get(`${API_URL}/ping`, { withCredentials: true });
+  return response.data.authenticated;
+};
 
 // Login
 export const login = async (email, password, remember) => {
