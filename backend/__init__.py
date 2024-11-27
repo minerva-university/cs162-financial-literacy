@@ -48,3 +48,4 @@ def create_app():
         return jsonify(message="Welcome to the Financial Literacy Marketplace! Empowering you with the knowledge and tools to achieve financial success.")
 
     return app
+app = create_app()
