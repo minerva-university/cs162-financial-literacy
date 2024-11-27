@@ -4,6 +4,10 @@ from sqlalchemy import func
 from .database.create import Follow, Post, User, Vote, Comment, engine
 from sqlalchemy.orm import sessionmaker
 from .config import COST_TO_ACCESS, REWARD_FOR_POSTING
+from sqlalchemy.exc import IntegrityError
+from typing import Tuple, Optional
+from datetime import datetime, timezone
+
 
 # Define the blueprint
 posts_bp = Blueprint('posts', __name__)
@@ -275,3 +279,118 @@ def get_comments(post_id):
 def get_credits():
     user = current_user
     return jsonify({'credits': user.credits})
+
+# Function for removing votes
+def delete_vote(
+    post_id: int,
+    user_id: int,
+    session,
+    Post,
+    Vote
+) -> Tuple[bool, Optional[str], int]:
+    """
+    Delete a user's vote on a post
+    
+    Args:
+        post_id: ID of the post
+        user_id: ID of the user who made the vote
+        session: SQLAlchemy session
+        Post: Post model class
+        Vote: Vote model class
+    
+    Returns:
+        Tuple of (success: bool, error_message: Optional[str], status_code: int)
+    """
+    try:
+        # Check if post exists
+        post = session.query(Post).get(post_id)
+        if not post:
+            return False, "Post not found", 404
+
+        # Find the vote
+        vote = session.query(Vote).filter(
+            Vote.post_id == post_id,
+            Vote.user_id == user_id
+        ).first()
+
+        if not vote:
+            return False, "Vote not found", 404
+
+        # Delete the vote
+        session.delete(vote)
+        session.commit()
+        
+        return True, "Vote deleted successfully", 200
+
+    except IntegrityError as e:
+        session.rollback()
+        return False, "Database integrity error", 500
+    except Exception as e:
+        session.rollback()
+        return False, f"Error deleting vote: {str(e)}", 500
+
+def get_post_votes(
+    post_id: int,
+    session,
+    Post,
+    Vote
+) -> dict:
+    """
+    Get vote counts for a post
+    
+    Args:
+        post_id: ID of the post
+        session: SQLAlchemy session
+        Post: Post model class
+        Vote: Vote model class
+    
+    Returns:
+        Dict containing vote counts
+    """
+    upvotes = session.query(Vote).filter(
+        Vote.post_id == post_id,
+        Vote.vote_type == 'upvote'
+    ).count()
+
+    downvotes = session.query(Vote).filter(
+        Vote.post_id == post_id,
+        Vote.vote_type == 'downvote'
+    ).count()
+
+    return {
+        'upvotes': upvotes,
+        'downvotes': downvotes,
+        'total': upvotes - downvotes
+    }
+
+# Route handler for deleting votes
+@posts_bp.route('/post/<int:post_id>/vote', methods=['DELETE'])
+@login_required
+def remove_vote(post_id: int):
+    """Delete a user's vote on a post"""
+    
+    # Process the vote deletion
+    success, message, status_code = delete_vote(
+        post_id=post_id,
+        user_id=current_user.user_id,
+        session=Session(),
+        Post=Post,
+        Vote=Vote
+    )
+
+    if not success:
+        return jsonify({'error': message}), status_code
+
+    # Get updated vote counts
+    vote_counts = get_post_votes(
+        post_id=post_id,
+        session=Session(),
+        Post=Post,
+        Vote=Vote
+    )
+
+    return jsonify({
+        'message': message,
+        'votes': vote_counts
+    }), status_code
+
