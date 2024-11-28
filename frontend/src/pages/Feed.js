@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import HTMLRenderer from 'react-html-renderer'
 import { Link } from 'react-router-dom';
+import { getPosts } from '../services/api';
 
 const PostFeed = () => {
   const [posts, setPosts] = useState([]);
@@ -11,8 +11,7 @@ const PostFeed = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get('/posts');
-        setPosts(response.data.posts);
+        setPosts(await getPosts());
       } catch (err) {
         setError(err);
       } finally {
@@ -33,13 +32,16 @@ const PostFeed = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4 max-w-[600px] mx-auto py-20">
-      {posts.map((post) => (
+      {posts?.map((post) => (
         <div key={post.id} className="bg-white rounded-lg shadow-md p-4">
-          <h2 className="text-xl font-bold mb-2">{post.title}</h2>
+          <Link to={`/post/${post.id}`}>
+            <h2 className="text-xl font-bold mb-2">{post.title}</h2>
+          </Link>
           <HTMLRenderer html={post.content}> </HTMLRenderer>
           <p className="text-gray-500 text-sm">Author: {post.author}</p>
           <p className="text-gray-400 text-sm">Created At: {post.created_at}</p>
-          
+          <p></p>
+          <p></p>
         </div>
       ))}
     <Link to="/post">

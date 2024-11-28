@@ -66,6 +66,75 @@ def get_posts():
     else:
         return jsonify({'error': 'Insufficient credits'}), 403
 
+def get_post(post_id):
+    """Fetches a post with its upvotes, downvotes, and comments.
+
+    Args:
+        post_id (int): ID of the post to fetch.
+
+    Returns:
+        dict: Dictionary containing post information, upvotes, downvotes, and comments.
+    """
+
+    session = Session()
+
+    # Fetch the post
+    post = session.query(Post).filter_by(post_id=post_id).first()
+
+    if not post:
+        return jsonify({"error": "Post not found"}), 404
+
+    # Calculate upvotes and downvotes, checking if current user has voted
+    upvotes = session.query(Vote).filter_by(post_id=post_id, vote_type="upvote").count()
+    downvotes = session.query(Vote).filter_by(post_id=post_id, vote_type="downvote").count()
+    user_has_upvoted = session.query(Vote).filter_by(post_id=post_id, user_id=current_user.user_id, vote_type="upvote").first() is not None
+    user_has_downvoted = session.query(Vote).filter_by(post_id=post_id, user_id=current_user.user_id, vote_type="downvote").first() is not None
+
+    # Fetch comments for the post
+    comments = session.query(Comment).filter_by(post_id=post_id).all()
+
+    # Format response data
+    response = {
+        "post": {
+            "id": post.post_id,
+            "title": post.title,
+            "content": post.content,
+            "image_url": post.image_url,
+            "created_at": post.created_at,
+            "user": {  # Include user details if needed
+                "username": post.user.username,
+                "name": post.user.name,
+                "id": post.user.user_id,
+            }
+        },
+        "upvotes": upvotes,
+        "downvotes": downvotes,
+        "user_has_upvoted": user_has_upvoted,
+        "user_has_downvoted": user_has_downvoted,
+        "comments": [
+            {
+                "comment_id": comment.comment_id,
+                "comment_text": comment.comment_text,
+                "created_at": comment.created_at,
+                "user": {  # Include user details if needed
+                    "username": comment.user.username,
+                    "name": comment.user.name,
+                    "id": comment.user.user_id,
+                }
+            }
+            for comment in comments
+        ]
+    }
+
+    session.close()
+    return jsonify(response)
+
+
+# Register the endpoint with your Flask app
+@posts_bp.route("/post/<int:post_id>")
+def fetch_post(post_id):
+    return get_post(post_id)
+
 # Endpoint to fetch posts by a specific user
 @posts_bp.route('/posts/<int:user_id>', methods=['GET'])
 @login_required
@@ -186,9 +255,20 @@ def add_vote(post_id):
     ).first()
 
     if existing_vote:
-        # Update the existing vote
-        existing_vote.vote_type = data['vote_type']
-        action = 'updated'
+        if existing_vote.vote_type != data['vote_type']:
+            # Update the existing vote
+            existing_vote.vote_type = data['vote_type']
+            action = 'updated'
+        else:
+            delete_vote(
+                post_id=post_id,
+                user_id=current_user.user_id,
+                session=Session(),
+                Post=Post,
+                Vote=Vote
+            )
+            action = 'deleted'
+
     else:
         # Add a new vote
         new_vote = Vote(
@@ -233,7 +313,7 @@ def add_comment(post_id):
         session.rollback()
         return jsonify({'error': str(e)}), 500
 
-    return jsonify({'message': 'Comment added successfully', 'comment': {'id': new_comment.comment_id, 'text': new_comment.comment_text}}), 201
+    return jsonify({'message': 'Comment added successfully', 'comment': {'id': new_comment.comment_id, 'created_at':new_comment.created_at,"user_id":current_user.user_id, "name":current_user.name, 'text': new_comment.comment_text}}), 201
 
 
 # fetching votes of a post
