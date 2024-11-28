@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from .database.create import User, engine, User, Follow
-from sqlalchemy.orm import sessionmaker,aliased
+from sqlalchemy.orm import sessionmaker, aliased
+from sqlalchemy import and_ 
 
 
 profile = Blueprint('profile', __name__)
