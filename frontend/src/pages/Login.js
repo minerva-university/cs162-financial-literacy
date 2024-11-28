@@ -17,7 +17,7 @@ function Login() {
             const data = await login(email, password);
             if (data.success === "Yes") {
                 // Store token if necessary, navigate to profile page
-                navigate('/profile');
+                window.location.href = '/';
             } else {
                 setErrorMessage('Invalid credentials or an error occurred. Please try again.');
             }
