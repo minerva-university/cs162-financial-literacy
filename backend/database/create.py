@@ -13,6 +13,7 @@ from enum import Enum as PyEnum
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError
 from typing import Optional, Union
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 # Load environment variables
@@ -53,6 +54,16 @@ class User(UserMixin, Base):
 
     def get_id(self):
         return self.user_id
+    
+    # Method to set the password and salt it
+    def set_password(self, password: str):
+        """Hashing and salting the password before storing it in the database"""
+        self.password_hash = generate_password_hash(password)
+
+    # Method to check if the password matches
+    def check_password(self, password: str) -> bool:
+        """Checking the given password against the stored hash"""
+        return check_password_hash(self.password_hash, password)
 
 # Posts Table
 class Post(Base):
