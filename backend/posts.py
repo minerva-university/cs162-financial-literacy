@@ -55,7 +55,14 @@ def get_posts():
         current_user.credits -= COST_TO_ACCESS
         session.commit()
         posts = session.query(Post).all()  # Retrieve all posts
-        return jsonify({'posts': [{'id': post.post_id, 'author': post.user_id, 'content': post.content} for post in posts]}), 200
+        return jsonify({
+            'posts': [
+                {'id': post.post_id,
+                 'author': post.user.name,
+                 'content': post.content,
+                 'title': post.title,
+                 'created_at':post.created_at} for post in posts
+                ]}), 200
     else:
         return jsonify({'error': 'Insufficient credits'}), 403
 
