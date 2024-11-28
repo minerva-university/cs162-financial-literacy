@@ -75,10 +75,12 @@ def signup_post():
     return {"success": "Yes"}
 
 @auth.route('/logout')
-@login_required
 def logout():
-    logout_user()
-    return {}
+    if current_user.is_authenticated:
+        logout_user()
+        return {}, 200
+    else:
+        return {}, 401
 
 @auth.route('/ping')
 def ping():
