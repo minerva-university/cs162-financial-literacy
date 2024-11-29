@@ -14,11 +14,13 @@ export const login = async (email, password, remember) => {
   return response.data;
 };
 
-// Signup
 export const register = async (email, name, password) => {
-  const response = await axios.post(`${API_URL}/signup`, { email, name, username: email, password }, { withCredentials: true });
+  const response = await axios.post(`${API_URL}/signup`, { email, name, password }, { withCredentials: true });
   return response.data;
+      
 };
+
+
 
 // Logout
 export const logout = async () => {
