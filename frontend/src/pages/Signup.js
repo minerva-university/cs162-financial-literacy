@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/signup.css';
 import { FaUser, FaLock, FaEnvelope } from 'react-icons/fa';
+import { register } from '../services/api';
 
 function Signup() {
     const navigate = useNavigate();
@@ -18,14 +19,10 @@ function Signup() {
         handleSignup(email, name, password);
     };
 
-    const handleSignup = (email, name, password) => {
-        axios.post('/signup', { email, name, password })
-            .then(response => {
-                navigate('/login');
-            })
-            .catch(error => {
-                setErrorMessage('Signup failed. Please try again.');
-            });
+    const handleSignup = async (email, name, password) => {
+        await register(email, name, password)
+        navigate('/login');
+           
     };
 
     return (
