@@ -13,9 +13,12 @@ session = Session()
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'A'
+    # Configure the session cookie settings
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Allow cross-origin usage
+    app.config['SESSION_COOKIE_SECURE'] = True      # Ensure cookies are sent over HTTPS
 
     CORS(app, supports_credentials=True)
-
+    
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login_post'
     login_manager.init_app(app)
