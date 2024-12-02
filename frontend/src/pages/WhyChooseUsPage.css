@@ -1,0 +1,101 @@
+/* General Page Layout */
+.why-choose-us-container {
+    font-family: 'Roboto', sans-serif;
+    padding: 2rem;
+    background-color: #f5faff;
+    color: #333;
+}
+
+.why-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.why-header h1 {
+    font-size: 2.5rem;
+    color: #003366;
+}
+
+.why-header p {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+/* Benefits Section */
+.benefits-section {
+    margin-bottom: 3rem;
+}
+
+.benefits-section h2 {
+    font-size: 2rem;
+    color: #003366;
+    margin-bottom: 1rem;
+}
+
+.benefits-section ul {
+    list-style: disc;
+    margin-left: 2rem;
+    color: #555;
+    font-size: 1rem;
+}
+
+.benefits-section ul li {
+    margin-bottom: 0.5rem;
+}
+
+/* Reviews Section */
+.reviews-section {
+    margin-top: 2rem;
+}
+
+.reviews-section h2 {
+    font-size: 2rem;
+    color: #003366;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.reviews-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+}
+
+/* Review Cards */
+.review-card {
+    background: linear-gradient(135deg, #e8f0ff, #d0e7ff);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.review-card h3 {
+    font-size: 1.25rem;
+    color: #003366;
+    margin-bottom: 0.5rem;
+}
+
+.review-text {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+/* Stars */
+.stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.2rem;
+    color: #FFD700;
+    font-size: 1.4rem;
+}
+
