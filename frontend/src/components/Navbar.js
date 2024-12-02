@@ -1,41 +1,73 @@
-// src/components/Navbar.js
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { is_authenticated, logout } from '../services/api';
+import './Navbar.css';
 
 const Navbar = () => {
-    const [authenticated, setauthenticated] = useState(false)
+    const [authenticated, setAuthenticated] = useState(false);
 
-    async function handlelogout(){
+    const handleLogout = async () => {
         await logout();
         window.location.href = "/login";
     };
-    
-    useEffect(async ()=>{
-        setauthenticated(await is_authenticated())
-    }, [])
+
+    useEffect(() => {
+        const checkAuthentication = async () => {
+            const authStatus = await is_authenticated();
+            setAuthenticated(authStatus);
+        };
+        checkAuthentication();
+    }, []);
+
     return (
-        <nav className="bg-gray-800 text-white">
-            <ul className="flex justify-between items-center py-4 px-8 max-w-[500px] mx-auto">
-                {authenticated&&<li className="hidden md:block">
-                    <Link to="/profile" className="hover:text-gray-300">Profile</Link>
-                </li>}
-                {authenticated&&<li>
-                    <Link to="/" className="font-bold text-lg">Home</Link>
-                </li>}
-                {!authenticated&&<li className="hidden md:block">
-                    <Link to="/signup" className="hover:text-gray-300">Signup</Link>
-                </li>}
-                {!authenticated&&<li className="hidden md:block">
-                    <Link to="/login" className="hover:text-gray-300">Login</Link>
-                </li>}
-                
-                {authenticated&&<li>
-                    <button onClick={handlelogout} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                        Logout
-                    </button>
-                </li>}
+        <nav className="navbar-container">
+            <div className="navbar-logo">
+                <Link to="/" className="navbar-brand">
+                    Financial Literacy
+                </Link>
+            </div>
+            <ul className="navbar-list">
+                <li>
+                    <Link to="/why-choose-us" className="navbar-link">
+                        Why Choose Us
+                    </Link>
+                </li>
+                {authenticated && (
+                    <>
+                        <li>
+                            <Link to="/profile" className="navbar-link">
+                                Profile
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/" className="navbar-link">
+                                Home
+                            </Link>
+                        </li>
+                        <li>
+                            <button
+                                onClick={handleLogout}
+                                className="logout-button"
+                            >
+                                Logout
+                            </button>
+                        </li>
+                    </>
+                )}
+                {!authenticated && (
+                    <>
+                        <li>
+                            <Link to="/signup" className="navbar-link">
+                                Signup
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/login" className="navbar-link">
+                                Login
+                            </Link>
+                        </li>
+                    </>
+                )}
             </ul>
         </nav>
     );
