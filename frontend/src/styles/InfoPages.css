@@ -1,0 +1,60 @@
+/* General Page Styling */
+.info-page {
+    padding: 40px;
+    text-align: center;
+    background-color: #f4f6f8;
+    min-height: 100vh;
+}
+
+.info-page-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #0056b3;
+    margin-bottom: 20px;
+}
+
+.info-page-description {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 40px;
+}
+
+/* Cards for Sections */
+.info-page-sections {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.info-page-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+    text-align: center;
+}
+
+.info-page-icon {
+    font-size: 40px;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.faq-list {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.faq-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.faq-icon {
+    font-size: 24px;
+    color: #007bff;
+    margin-right: 10px;
+}

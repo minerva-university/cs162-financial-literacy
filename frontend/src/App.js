@@ -11,42 +11,53 @@ import PostFeed from './pages/Feed';
 import PostForm from './components/PostForm';
 import { is_authenticated } from './services/api';
 import PostPage from './components/Post';
+import WhyChooseUsPage from './pages/WhyChooseUsPage';
+import MentorsListPage from './pages/MentorsListPage';  
+// Added new routes for AboutUsPage, ContactUsPage, and FaqPage
+import AboutUsPage from './pages/AboutUsPage';
+import ContactUsPage from './pages/ContactUsPage';
+import FaqPage from './pages/FaqPage';
+
 
 function App() {
+    useEffect(() => {
+        const checkAuthentication = async () => {
+            const authenticated = await is_authenticated();
 
-    useEffect(async ()=>{
-        const authenticated = await is_authenticated()
-        
-          if(authenticated){
-            localStorage.setItem("logged", "false")
-            
-          } else {
-            localStorage.setItem("logged", "true")
-          }
-    
-          if(!authenticated && (window.location.pathname != "/login"&&window.location.pathname != "/signup")){
-            
-            window.location.href = "/login"
-            console.log(window.path)
-            
-          } 
-    
-          
-        
-      }, [])
+            if (!authenticated) {
+                localStorage.setItem("logged", "false");
+                if (
+                    window.location.pathname !== "/login" &&
+                    window.location.pathname !== "/signup"
+                ) {
+                    window.location.href = "/login";
+                }
+            } else {
+                localStorage.setItem("logged", "true");
+            }
+        };
+
+        checkAuthentication();
+    }, []);
+
     return (
         <Router>
             <div className="min-h-screen flex flex-col">
                 <Navbar />
-                <main className="min-h-screen">
+                <main className="flex-grow">
                     <Routes>
                         <Route path="/" element={<MainPage />} />
+                        <Route path="/mentors" element={<MentorsListPage />} /> {/* Add route for MentorsListPage */}
                         <Route path="/post" element={<PostForm />} />
                         <Route path="/feed" element={<PostFeed />} />
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/profile" element={<ProfilePage />} />
-                        <Route path="/post/:postId"  element={<PostPage />} /> 
+                        <Route path="/post/:postId" element={<PostPage />} />
+                        <Route path="/why-choose-us" element={<WhyChooseUsPage />} />
+                        <Route path="/about" element={<AboutUsPage />} />
+                        <Route path="/contact" element={<ContactUsPage />} />
+                        <Route path="/faq" element={<FaqPage />} />
                     </Routes>
                 </main>
                 <Footer />

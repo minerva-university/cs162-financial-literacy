@@ -14,13 +14,11 @@ export const login = async (email, password, remember) => {
   return response.data;
 };
 
+// Register
 export const register = async (email, name, password) => {
   const response = await axios.post(`${API_URL}/signup`, { email, name, password }, { withCredentials: true });
   return response.data;
-      
 };
-
-
 
 // Logout
 export const logout = async () => {
@@ -52,6 +50,53 @@ export const getAvailableMentors = async () => {
   return response.data;
 };
 
+// Book mentorship
+export const bookMentorship = async (mentorId, scheduledTime) => {
+  const response = await axios.post(`${API_URL}/mentorship/book`, {
+    mentor_id: mentorId,
+    scheduled_time: scheduledTime
+  }, { withCredentials: true });
+  return response.data;
+};
+
+// Complete mentorship session
+export const completeMentorship = async (sessionId) => {
+  const response = await axios.post(`${API_URL}/mentorship/complete/${sessionId}`, {}, { withCredentials: true });
+  return response.data;
+};
+
+// Cancel mentorship session
+export const cancelMentorship = async (sessionId) => {
+  const response = await axios.post(`${API_URL}/mentorship/cancel/${sessionId}`, {}, { withCredentials: true });
+  return response.data;
+};
+
+// Get mentorship history
+export const getMentorshipHistory = async () => {
+  const response = await axios.get(`${API_URL}/mentorship/history`, { withCredentials: true });
+  return response.data;
+};
+
+// Get upcoming mentorship sessions
+export const getUpcomingMentorships = async () => {
+  const response = await axios.get(`${API_URL}/mentorship/upcoming`, { withCredentials: true });
+  return response.data;
+};
+
+// Submit feedback for mentorship session
+export const submitFeedback = async (sessionId, feedback) => {
+  const response = await axios.post(`${API_URL}/mentorship/feedback/${sessionId}`, {
+    feedback: feedback
+  }, { withCredentials: true });
+  return response.data;
+};
+
+// Get user credits
+export const getUserCredits = async () => {
+  const response = await axios.get(`${API_URL}/mentorship/get_credits`, { withCredentials: true });
+  return response.data;
+};
+
 // Add a new post
 export const addPost = async (title, content) => {
   const response = await axios.post(`${API_URL}/post`, { title, content }, { withCredentials: true });
@@ -70,16 +115,15 @@ export const getPostById = async (postId) => {
   return response.data;
 };
 
-
-// Upvoting a post
+// Upvote a post
 export const vote = async (postId, vote_type) => {
-  const response = await axios.post(`${API_URL}/post/${postId}/vote`, {vote_type}, { withCredentials: true });
+  const response = await axios.post(`${API_URL}/post/${postId}/vote`, { vote_type }, { withCredentials: true });
   return response.data.message;
 };
 
-// Commenting on a post
+// Comment on a post
 export const comment = async (postId, comment_text) => {
-  const response = await axios.post(`${API_URL}/post/${postId}/comment`, {comment_text}, { withCredentials: true });
+  const response = await axios.post(`${API_URL}/post/${postId}/comment`, { comment_text }, { withCredentials: true });
   return response.data;
 };
 
@@ -114,5 +158,11 @@ export const postInternship = async (title, description, requirements, applicati
     requirements,
     applicationLink
   }, { withCredentials: true });
+  return response.data;
+};
+
+// Get scheduled mentorship sessions
+export const getScheduledSessions = async () => {
+  const response = await axios.get(`${API_URL}/mentorship/upcoming`, { withCredentials: true });
   return response.data;
 };

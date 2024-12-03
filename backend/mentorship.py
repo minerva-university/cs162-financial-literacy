@@ -166,25 +166,51 @@ def get_mentorship_history():
 
     return jsonify({'mentorship_history': history}), 200
 
-# Endpoint to fetch available mentors
-@mentorship_bp.route('/mentors', methods=['GET'])
+@mentorship_bp.route('/mentorship/sessions', methods=['GET'])
 @login_required
-def get_available_mentors():
+def get_scheduled_sessions():
     session = Session()
-    mentors = session.query(User).filter(User.is_mentor == True).all()  # Assuming 'is_mentor' flag
+    sessions = session.query(MentorshipSession).filter(
+        (MentorshipSession.mentee_id == current_user.user_id) |
+        (MentorshipSession.mentor_id == current_user.user_id),
+        MentorshipSession.status == 'scheduled'
+    ).all()
 
-    mentor_list = [{
-        'id': mentor.user_id,
-        'name': mentor.name,
-        'bio': mentor.bio  # Assuming 'bio' field
-    } for mentor in mentors]
+    session_list = [
+        {
+            'session_id': s.session_id,
+            'mentor': s.mentor_id,
+            'mentee': s.mentee_id,
+            'scheduled_time': s.scheduled_time,
+            'status': s.status
+        } for s in sessions
+    ]
 
-    return jsonify({'mentors': mentor_list}), 200
+    return jsonify({'sessions': session_list}), 200
 
-# Endpoint to get user's current credits
-@mentorship_bp.route('/mentorship/get_credits', methods=['GET'])
+@mentorship_bp.route('/mentorship/feedback', methods=['POST'])
 @login_required
-def get_user_credits():
+def add_feedback():
+    data = request.get_json()
+    session_id = data.get('session_id')
+    feedback = data.get('feedback')
+
+    if not session_id or not feedback:
+        return jsonify({'error': 'Session ID and feedback are required'}), 400
+
     session = Session()
-    user = session.query(User).filter(User.user_id == current_user.user_id).first()
-    return jsonify({'credits': user.credits}), 200
+    mentorship_session = session.query(MentorshipSession).filter_by(
+        session_id=session_id
+    ).first()
+
+    if not mentorship_session or mentorship_session.mentee_id != current_user.user_id:
+        return jsonify({'error': 'Invalid session or unauthorized action'}), 403
+
+    mentorship_session.feedback = feedback
+
+    try:
+        session.commit()
+        return jsonify({'message': 'Feedback added successfully'}), 200
+    except Exception as e:
+        session.rollback()
+        return jsonify({'error': str(e)}), 500

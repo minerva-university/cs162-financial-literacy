@@ -1,12 +1,12 @@
-// src/pages/ProfilePage.js
-
 import React, { useState, useEffect } from 'react';
-import EditUserNameModal from '../components/EditUserNameModal';
+import { FaIdBadge, FaUser, FaUserEdit } from 'react-icons/fa';
 import { getUserProfile, updateUserName, updateMentorship } from '../services/api';
+import '../styles/ProfilePage.css';
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -36,32 +36,77 @@ const ProfilePage = () => {
     }
   };
 
-  if (!userData) return <div>Loading profile...</div>;
+  const handleSaveName = async () => {
+    try {
+      const result = await updateUserName(newName);
+      if (result.success) {
+        setUserData({ ...userData, name: newName });
+        alert('Name updated successfully!');
+        setIsEditingName(false);
+      } else {
+        alert('Failed to update name. Please try again.');
+      }
+    } catch (error) {
+      console.error('Name update error', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+
+  if (!userData) return <div className="loading">Loading profile...</div>;
 
   return (
-    <div>
-      <h2>User Profile</h2>
-      <h3>ID: {userData.id}</h3>
-      <h3>Name: {userData.name}</h3>
-      <button onClick={() => setIsEditingName(true)}>Edit Name</button>
-      
-      <div>
-        <label>
-          Mentorship Availability:
-          <select value={userData.mentorship} onChange={handleMentorshipChange}>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
+    <div className="profile-page">
+      <h2 className="profile-header">Your Profile</h2>
+      <p className="profile-subheader">Manage your account details and preferences below.</p>
+      <div className="profile-card">
+        <div className="profile-section">
+          <FaIdBadge className="profile-icon" />
+          <span className="label">ID:</span>
+          <span className="value">{userData.id}</span>
+        </div>
+        <div className="profile-section">
+          <FaUser className="profile-icon" />
+          <span className="label">Name:</span>
+          <span className="value">{userData.name}</span>
+          <button
+            className="edit-button"
+            onClick={() => setIsEditingName(true)}
+          >
+            <FaUserEdit />
+          </button>
+        </div>
+        {isEditingName && (
+          <div className="edit-name-section">
+            <input
+              type="text"
+              placeholder="Enter new name"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="edit-name-input"
+            />
+            <button className="save-button" onClick={handleSaveName}>
+              Save
+            </button>
+            <button
+              className="cancel-button"
+              onClick={() => setIsEditingName(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+        <div className="profile-section">
+          <span className="label">Mentorship Availability:</span>
+          <select
+            value={userData.mentorship}
+            onChange={handleMentorshipChange}
+            className="availability-select"
+          >
+            <option value="yes">Available</option>
+            <option value="no">Not Available</option>
           </select>
-        </label>
+        </div>
       </div>
-
-      {isEditingName && (
-        <EditUserNameModal
-          userData={userData}
-          setUserData={setUserData}
-          closeModal={() => setIsEditingName(false)}
-        />
-      )}
     </div>
   );
 };
