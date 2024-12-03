@@ -12,7 +12,12 @@ import PostForm from './components/PostForm';
 import { is_authenticated } from './services/api';
 import PostPage from './components/Post';
 import WhyChooseUsPage from './pages/WhyChooseUsPage';
-import MentorsListPage from './pages/MentorsListPage';  // Import the new page
+import MentorsListPage from './pages/MentorsListPage';  
+// Added new routes for AboutUsPage, ContactUsPage, and FaqPage
+import AboutUsPage from './pages/AboutUsPage';
+import ContactUsPage from './pages/ContactUsPage';
+import FaqPage from './pages/FaqPage';
+
 
 function App() {
     useEffect(() => {
@@ -50,6 +55,9 @@ function App() {
                         <Route path="/profile" element={<ProfilePage />} />
                         <Route path="/post/:postId" element={<PostPage />} />
                         <Route path="/why-choose-us" element={<WhyChooseUsPage />} />
+                        <Route path="/about" element={<AboutUsPage />} />
+                        <Route path="/contact" element={<ContactUsPage />} />
+                        <Route path="/faq" element={<FaqPage />} />
                     </Routes>
                 </main>
                 <Footer />
