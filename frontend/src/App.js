@@ -12,6 +12,7 @@ import PostForm from './components/PostForm';
 import { is_authenticated } from './services/api';
 import PostPage from './components/Post';
 import WhyChooseUsPage from './pages/WhyChooseUsPage';
+import MentorsListPage from './pages/MentorsListPage';  // Import the new page
 
 function App() {
     useEffect(() => {
@@ -41,6 +42,7 @@ function App() {
                 <main className="flex-grow">
                     <Routes>
                         <Route path="/" element={<MainPage />} />
+                        <Route path="/mentors" element={<MentorsListPage />} /> {/* Add route for MentorsListPage */}
                         <Route path="/post" element={<PostForm />} />
                         <Route path="/feed" element={<PostFeed />} />
                         <Route path="/signup" element={<Signup />} />

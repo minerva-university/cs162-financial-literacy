@@ -200,16 +200,32 @@ class Scholarship(DeletionMixin, Base):
     organization = relationship("Organization", back_populates="scholarships")
     user = relationship("User", back_populates="scholarships")
 
-class Mentorship(Base):
-    __tablename__ = 'mentorship'
-    mentorship_id = Column(Integer, primary_key=True, autoincrement=True)
+class MentorshipSession(Base):
+    __tablename__ = 'mentorship_sessions'
+    session_id = Column(Integer, primary_key=True, autoincrement=True)
     mentor_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     mentee_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
-    status = Column(Enum('active', 'pending', 'completed', name='mentorship_status'), default='pending')
+    scheduled_time = Column(TIMESTAMP, nullable=False)  # Required field for scheduling
+    status = Column(Enum('scheduled', 'completed', 'canceled', name='mentorship_session_status'), default='scheduled')
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    mentor = relationship("User", foreign_keys=[mentor_id])
-    mentee = relationship("User", foreign_keys=[mentee_id])
+    # Relationships for Mentor and Mentee
+    mentor = relationship("User", foreign_keys=[mentor_id], back_populates="mentorship_sessions_as_mentor")
+    mentee = relationship("User", foreign_keys=[mentee_id], back_populates="mentorship_sessions_as_mentee")
+
+# Update the User table to include reverse relationships
+User.mentorship_sessions_as_mentor = relationship(
+    "MentorshipSession",
+    foreign_keys=[MentorshipSession.mentor_id],
+    back_populates="mentor"
+)
+
+User.mentorship_sessions_as_mentee = relationship(
+    "MentorshipSession",
+    foreign_keys=[MentorshipSession.mentee_id],
+    back_populates="mentee"
+)
 
 # Create all tables in the database
 Base.metadata.create_all(bind=engine)
