@@ -1,0 +1,112 @@
+/* General Layout */
+.contact-page {
+    background-color: #f2f4f7;
+    color: #2b2d42;
+    padding: 3rem 1.5rem;
+    font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Title Section */
+.contact-page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1b1d2f;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.contact-page-description {
+    font-size: 1.2rem;
+    color: #444;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    text-align: center;
+}
+
+/* Card Section */
+.contact-page-sections {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 2rem; /* Space between cards */
+    width: 100%;
+    max-width: 900px;
+    justify-content: center; /* Center the grid */
+}
+
+/* Individual Cards */
+.contact-page-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.contact-page-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Icons */
+.contact-page-icon {
+    font-size: 2.5rem;
+    color: #0077b6;
+    margin-bottom: 1rem;
+}
+
+/* Card Title */
+.contact-card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1b1d2f;
+    margin-bottom: 0.5rem;
+}
+
+/* Card Content */
+.contact-card-content {
+    font-size: 1rem;
+    color: #555;
+}
+
+.social-link {
+    color: #0077b6;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.social-link:hover {
+    text-decoration: underline;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .contact-page-sections {
+        grid-template-columns: 1fr; /* Stack cards vertically for small screens */
+    }
+
+    .contact-page-title {
+        font-size: 2rem;
+    }
+
+    .contact-page-description {
+        font-size: 1rem;
+    }
+
+    .contact-page-icon {
+        font-size: 2rem;
+    }
+
+    .contact-card-title {
+        font-size: 1.3rem;
+    }
+
+    .contact-card-content {
+        font-size: 0.9rem;
+    }
+}

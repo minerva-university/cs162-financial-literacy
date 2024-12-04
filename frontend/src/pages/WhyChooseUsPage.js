@@ -1,30 +1,57 @@
 import React from 'react';
-import './WhyChooseUsPage.css';
+import "../styles/WhyChooseUsPage.css";
 
 const WhyChooseUsPage = () => {
     return (
         <div className="why-choose-us-container">
-            {/* Header Section */}
-            <header className="why-header">
+            {/* Hero Section */}
+            <section className="hero-section">
                 <h1>Why Choose Us?</h1>
-                <p>Discover the unique advantages of our platform.</p>
-            </header>
-
-            {/* Benefits Section */}
-            <section className="benefits-section">
-                <h2>Key Benefits</h2>
-                <ul>
-                    <li>Access curated resources and expert mentors.</li>
-                    <li>Find scholarships and internships tailored to your needs.</li>
-                    <li>Seamless navigation and a supportive community.</li>
-                </ul>
+                <p>Experience the ultimate platform for financial growth and career success.</p>
             </section>
+
+            {/* Key Benefits Section */}
+            <section className="benefits-section">
+                <div className="benefits-container">
+                    <div className="benefits-title">
+                        <h2>Key Benefits</h2>
+                        <p>Explore the unique features that set our platform apart from the rest.</p>
+                    </div>
+                    <div className="benefits-grid">
+                        <div className="benefit-card">
+                            <div className="benefit-icon">📘</div>
+                            <h3>Curated Resources</h3>
+                            <p>Gain access to expertly curated tools and resources to simplify your financial journey.</p>
+                        </div>
+                        <div className="benefit-card">
+                            <div className="benefit-icon">🎓</div>
+                            <h3>Scholarships & Internships</h3>
+                            <p>Discover tailored opportunities to fund your education and launch your career.</p>
+                        </div>
+                        <div className="benefit-card">
+                            <div className="benefit-icon">🌐</div>
+                            <h3>Supportive Community</h3>
+                            <p>Connect with mentors and peers who are passionate about your success.</p>
+                        </div>
+                        <div className="benefit-card">
+                            <div className="benefit-icon">⚙️</div>
+                            <h3>Seamless Navigation</h3>
+                            <p>Enjoy a user-friendly interface that makes finding opportunities effortless.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Divider */}
+            <div className="divider"></div>
 
             {/* Reviews Section */}
             <section className="reviews-section">
-                <h2>What People Say</h2>
-                <div className="reviews-container">
-                    {/* Review Card 1 */}
+                <div className="reviews-header">
+                    <h2>What People Say</h2>
+                    <p>Hear from those who’ve experienced the benefits of our platform firsthand.</p>
+                </div>
+                <div className="reviews-grid">
                     <div className="review-card">
                         <h3>John Doe</h3>
                         <p className="review-text">
@@ -38,8 +65,6 @@ const WhyChooseUsPage = () => {
                             <span>⭐</span>
                         </div>
                     </div>
-
-                    {/* Review Card 2 */}
                     <div className="review-card">
                         <h3>Jane Smith</h3>
                         <p className="review-text">
@@ -53,8 +78,6 @@ const WhyChooseUsPage = () => {
                             <span>⭐</span>
                         </div>
                     </div>
-
-                    {/* Review Card 3 */}
                     <div className="review-card">
                         <h3>Emily Johnson</h3>
                         <p className="review-text">

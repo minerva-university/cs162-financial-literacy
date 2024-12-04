@@ -12,12 +12,12 @@ import PostForm from './components/PostForm';
 import { is_authenticated } from './services/api';
 import PostPage from './components/Post';
 import WhyChooseUsPage from './pages/WhyChooseUsPage';
-import MentorsListPage from './pages/MentorsListPage';  
-// Added new routes for AboutUsPage, ContactUsPage, and FaqPage
+import MentorsListPage from './pages/MentorsListPage';
 import AboutUsPage from './pages/AboutUsPage';
 import ContactUsPage from './pages/ContactUsPage';
 import FaqPage from './pages/FaqPage';
-
+import ArticlesPage from './pages/ArticlesPage';
+import ArticlePage from './pages/ArticlePage';
 
 function App() {
     useEffect(() => {
@@ -47,7 +47,7 @@ function App() {
                 <main className="flex-grow">
                     <Routes>
                         <Route path="/" element={<MainPage />} />
-                        <Route path="/mentors" element={<MentorsListPage />} /> {/* Add route for MentorsListPage */}
+                        <Route path="/mentors" element={<MentorsListPage />} />
                         <Route path="/post" element={<PostForm />} />
                         <Route path="/feed" element={<PostFeed />} />
                         <Route path="/signup" element={<Signup />} />
@@ -58,6 +58,8 @@ function App() {
                         <Route path="/about" element={<AboutUsPage />} />
                         <Route path="/contact" element={<ContactUsPage />} />
                         <Route path="/faq" element={<FaqPage />} />
+                        <Route path="/articles" element={<ArticlesPage />} />
+                        <Route path="/article/:articleId" element={<ArticlePage />} />
                     </Routes>
                 </main>
                 <Footer />
