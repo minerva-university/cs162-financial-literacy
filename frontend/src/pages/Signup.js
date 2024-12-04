@@ -1,11 +1,7 @@
-// src/pages/signup.js
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import { FaEnvelope, FaUser, FaLock } from 'react-icons/fa';
 import '../styles/signup.css';
-import { FaUser, FaLock, FaEnvelope } from 'react-icons/fa';
-import { register } from '../services/api';
 
 function Signup() {
     const navigate = useNavigate();
@@ -14,61 +10,70 @@ function Signup() {
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        handleSignup(email, name, password);
-    };
-
-    const handleSignup = async (email, name, password) => {
-        await register(email, name, password)
-        navigate('/login');
-           
+        try {
+            // Replace with actual API call
+            console.log("User registered:", { email, name, password });
+            navigate('/login');
+        } catch (error) {
+            setErrorMessage('Signup failed. Please try again.');
+        }
     };
 
     return (
-        <div className="signup-container">
+        <div className="signup-page">
             <div className="signup-card">
-                <h2>Sign Up for Financial Literacy App</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="input-wrapper">
-                        <label htmlFor="email"><FaEnvelope className="input-icon" /> Email:</label>
-                        <input 
-                            type="email" 
+                <h2 className="signup-title">Create Your Account</h2>
+                <p className="signup-subtitle">Join the Financial Literacy Platform</p>
+                <form onSubmit={handleSubmit} className="signup-form">
+                    <div className="form-group">
+                        <label htmlFor="email">
+                            <FaEnvelope className="input-icon" /> Email
+                        </label>
+                        <input
+                            type="email"
                             id="email"
-                            placeholder="Enter your email" 
+                            placeholder="Enter your email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                     </div>
-                    <div className="input-wrapper">
-                        <label htmlFor="name"><FaUser className="input-icon" /> Name:</label>
-                        <input 
-                            type="text" 
+                    <div className="form-group">
+                        <label htmlFor="name">
+                            <FaUser className="input-icon" /> Name
+                        </label>
+                        <input
+                            type="text"
                             id="name"
-                            placeholder="Enter your name" 
+                            placeholder="Enter your name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
                         />
                     </div>
-                    <div className="input-wrapper">
-                        <label htmlFor="password"><FaLock className="input-icon" /> Password:</label>
-                        <input 
+                    <div className="form-group">
+                        <label htmlFor="password">
+                            <FaLock className="input-icon" /> Password
+                        </label>
+                        <input
                             type="password"
-                            id="password" 
-                            placeholder="Enter your password"
+                            id="password"
+                            placeholder="Create a password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
                     </div>
-                    <button type="submit" className="signup-btn">Sign Up</button>
+                    <button type="submit" className="signup-button">
+                        Sign Up
+                    </button>
+                    {errorMessage && <p className="error-message">{errorMessage}</p>}
                 </form>
-                {errorMessage && <p className="error-message">{errorMessage}</p>}
-                <div className="login-link">
-                    <p>Already have an account? <Link to="/login">Login here</Link></p>
-                </div>
+                <p className="signup-footer">
+                    Already have an account? <Link to="/login">Login here</Link>
+                </p>
             </div>
         </div>
     );

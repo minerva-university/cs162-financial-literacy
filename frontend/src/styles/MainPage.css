@@ -1,0 +1,196 @@
+.mainpage-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 100vh;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5faff;
+    color: #333;
+    padding: 0 2rem;
+    box-sizing: border-box;
+}
+
+/* Header Section */
+.header-container {
+    text-align: center;
+    margin: 4rem 0; /* Added more margin for spacing */
+}
+
+.header-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #003366;
+    margin-bottom: 1.5rem;
+}
+
+.header-subtitle {
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Resources Section */
+.resources-section {
+    margin: 5rem 0; /* Increased margin to add space between sections */
+}
+
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    justify-content: center;
+    align-items: start;
+}
+
+/* Resource Cards */
+/* Resource Cards */
+.resource-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 3rem 2rem; /* Adjust padding for better vertical spacing */
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    position: relative;
+    min-height: 350px; /* Keeps the card more square */
+    display: flex;
+    flex-direction: column; /* Align content vertically */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+}
+
+.resource-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.resource-card h3 {
+    font-size: 1.6rem; /* Slightly increased for better scaling */
+    font-weight: 600;
+    color: #003366;
+    margin-top: 1rem; /* Add space between icon and text */
+    margin-bottom: 0.5rem;
+    text-align: center; /* Ensure text alignment */
+}
+
+.resource-icon {
+    font-size: 3rem; /* Increased size for proportion */
+    color: #003366;
+    margin-bottom: 1rem; /* Add spacing below the icon */
+}
+
+/* Tooltip Styling */
+.resource-card .hover-tooltip {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #003366;
+    color: #fff;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    white-space: normal;
+    max-width: 200px;
+    z-index: 1000;
+    text-align: center;
+}
+
+.resource-card:hover .hover-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Learn Platform Section */
+.learn-platform-section {
+    margin: 6rem 0; /* Increased margin for scrolling effect */
+    padding: 2rem;
+    background-color: #d9e7f5; /* Distinct background color for separation */
+    border-radius: 16px;
+}
+
+.learn-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.learn-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #011930;
+}
+
+.learn-header p {
+    font-size: 1rem;
+    color: #555;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjusted for better responsiveness */
+    gap: 2.5rem;
+    justify-content: center;
+}
+
+/* Article Cards */
+.article-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    position: relative; /* Added for .read-time positioning */
+}
+
+.article-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.article-image {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.article-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #003366;
+    margin-bottom: 0.5rem;
+}
+
+.article-card p {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 1.5rem; /* Added spacing for .read-time */
+}
+
+/* Read Time */
+.read-time {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem; /* Adjusted for better alignment inside the card */
+    font-size: 0.8rem;
+    color: #555;
+    background: #e8e8e8;
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
