@@ -18,6 +18,8 @@ import ContactUsPage from './pages/ContactUsPage';
 import FaqPage from './pages/FaqPage';
 import ArticlesPage from './pages/ArticlesPage';
 import ArticlePage from './pages/ArticlePage';
+import MentorshipSessionsPage from './pages/MentorshipSessionsPage';
+import MentorshipHistoryPage from './pages/MentorshipHistoryPage';
 
 function App() {
     useEffect(() => {
@@ -48,6 +50,8 @@ function App() {
                     <Routes>
                         <Route path="/" element={<MainPage />} />
                         <Route path="/mentors" element={<MentorsListPage />} />
+                        <Route path="/mentorship/upcoming" element={<MentorshipSessionsPage />} />
+                        <Route path="/mentorship/history" element={<MentorshipHistoryPage />} />
                         <Route path="/post" element={<PostForm />} />
                         <Route path="/feed" element={<PostFeed />} />
                         <Route path="/signup" element={<Signup />} />

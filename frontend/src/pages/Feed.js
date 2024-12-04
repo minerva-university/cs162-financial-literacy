@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import HTMLRenderer from 'react-html-renderer'
+import HTMLRenderer from 'react-html-renderer';
 import { Link } from 'react-router-dom';
 import { getPosts } from '../services/api';
+import '../styles/PostFeed.css';
 
 const PostFeed = () => {
   const [posts, setPosts] = useState([]);
@@ -23,32 +24,30 @@ const PostFeed = () => {
   }, []);
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading posts...</div>;
+    return <div className="loading-container">Loading posts...</div>;
   }
 
   if (error) {
-    return <div className="flex justify-center items-center h-screen">Error fetching posts: {error.message}</div>;
+    return <div className="error-container">Error fetching posts: {error.message}</div>;
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4 max-w-[600px] mx-auto py-20">
+    <div className="feed-container">
       {posts?.map((post) => (
-        <div key={post.id} className="bg-white rounded-lg shadow-md p-4">
-          <Link to={`/post/${post.id}`}>
-            <h2 className="text-xl font-bold mb-2">{post.title}</h2>
+        <div key={post.id} className="post-card">
+          <Link to={`/post/${post.id}`} className="post-title-link">
+            <h2 className="post-title">{post.title}</h2>
           </Link>
-          <HTMLRenderer html={post.content}> </HTMLRenderer>
-          <p className="text-gray-500 text-sm">Author: {post.author}</p>
-          <p className="text-gray-400 text-sm">Created At: {post.created_at}</p>
-          <p></p>
-          <p></p>
+          <HTMLRenderer html={post.content} />
+          <div className="post-meta">
+            <p className="post-author">Author: {post.author}</p>
+            <p className="post-date">Created At: {post.created_at}</p>
+          </div>
         </div>
       ))}
-    <Link to="/post">
-      <button className='fixed right-10 bottom-10 rounded-lg bg-green-500 m-5 p-5'>
-        + Write a post!
-      </button>
-    </Link>
+      <Link to="/post" className="write-post-button">
+        + Write a Post!
+      </Link>
     </div>
   );
 };
