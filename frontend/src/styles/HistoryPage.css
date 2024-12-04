@@ -1,0 +1,17 @@
+.history-page {
+    padding: 20px;
+  }
+  
+  .history-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .history-card {
+    background: #ffffff;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
