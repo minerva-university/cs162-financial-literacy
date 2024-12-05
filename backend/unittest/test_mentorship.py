@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
+
 import unittest
 import json
 from flask import Flask
@@ -7,7 +11,8 @@ from datetime import datetime, timedelta
 from backend.mentorship import mentorship_bp
 from backend.database.create import User, MentorshipSession, engine
 from sqlalchemy.orm import sessionmaker
-from backend.config import COST_TO_BOOK_MENTORSHIP, REWARD_FOR_MENTORORING
+from backend.config import COST_TO_BOOK_MENTORSHIP, REWARD_FOR_MENTORING
+
 
 class MentorshipBlueprintTests(unittest.TestCase):
     @classmethod
@@ -24,6 +29,12 @@ class MentorshipBlueprintTests(unittest.TestCase):
 
         # Create test session
         cls.Session = sessionmaker(bind=engine)
+
+        # Setup user loader
+        @cls.login_manager.user_loader
+        def load_user(user_id):
+            session = cls.Session()
+            return session.query(User).get(int(user_id))
 
     def setUp(self):
         # Create a test client
@@ -52,11 +63,6 @@ class MentorshipBlueprintTests(unittest.TestCase):
         session.add(self.mentee)
         session.add(self.mentor)
         session.commit()
-
-        # Setup login for current user
-        @self.app.login_manager.user_loader
-        def load_user(user_id):
-            return session.query(User).get(int(user_id))
 
         # Login as mentee
         with self.app.test_request_context():
