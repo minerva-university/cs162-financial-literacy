@@ -10,12 +10,16 @@ from flask import jsonify
 Session = sessionmaker(bind=engine)
 session = Session()
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'A'
-    # Configure the session cookie settings
-    app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Allow cross-origin usage
-    app.config['SESSION_COOKIE_SECURE'] = True      # Ensure cookies are sent over HTTPS
+    
+    # Use test config if provided, otherwise use default config
+    if test_config is None:
+        app.config['SECRET_KEY'] = 'A'
+        app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+        app.config['SESSION_COOKIE_SECURE'] = True
+    else:
+        app.config.update(test_config)
 
     CORS(app, supports_credentials=True)
     
