@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEnvelope, FaUser, FaLock } from 'react-icons/fa';
 import '../styles/signup.css';
+import { register } from '../services/api';
 
 function Signup() {
     const navigate = useNavigate();
@@ -13,13 +14,24 @@ function Signup() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            // Replace with actual API call
-            console.log("User registered:", { email, name, password });
-            navigate('/login');
+            event.preventDefault();
+            handleSignup(email, name, password);
         } catch (error) {
-            setErrorMessage('Signup failed. Please try again.');
+            
         }
     };
+
+    const handleSignup = async (email, name, password) => {
+        const data = await register(email, name, password)
+        if (data.success == "No"){
+            setErrorMessage('Signup failed. Please try again.');
+        } else {
+            navigate('/login');
+        }
+        
+           
+    };
+
 
     return (
         <div className="signup-page">

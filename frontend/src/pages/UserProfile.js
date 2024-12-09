@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import EditUserNameModal from '../components/EditUserNameModal';
 import { getUserProfile, updateMentorship } from '../services/api';
 
+
+
 const UserProfile = () => {
   const [userData, setUserData] = useState(null);
   const [isEditingName, setIsEditingName] = useState(false);
+  
 
   useEffect(() => {
     const fetchUserProfile = async () => {

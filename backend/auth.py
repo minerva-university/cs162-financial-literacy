@@ -85,7 +85,11 @@ def logout():
 @auth.route('/ping')
 def ping():
     if current_user.is_authenticated:
-        return {"authenticated": current_user.is_authenticated, "username": current_user.username}
+        return {
+                "authenticated": current_user.is_authenticated,
+                "username": current_user.username,
+                "id": current_user.user_id
+                }
     return {"authenticated": current_user.is_authenticated}
 
 @auth.route('/mentors/available', methods=['GET'])

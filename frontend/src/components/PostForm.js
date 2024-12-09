@@ -12,7 +12,7 @@ const PostForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await addPost(title, content);
-    if (result.success) {
+    if (result.status == 201) {
       alert('Post added successfully!');
     } else {
       alert('Failed to add post.');

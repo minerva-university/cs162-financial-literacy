@@ -7,7 +7,7 @@ import MainPage from './pages/MainPage';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import './index.css';
-import PostFeed from './pages/Feed';
+import PostFeed from './components/Feed';
 import PostForm from './components/PostForm';
 import { is_authenticated } from './services/api';
 import PostPage from './components/Post';
@@ -20,6 +20,7 @@ import ArticlesPage from './pages/ArticlesPage';
 import ArticlePage from './pages/ArticlePage';
 import MentorshipSessionsPage from './pages/MentorshipSessionsPage';
 import MentorshipHistoryPage from './pages/MentorshipHistoryPage';
+import FeedPage from './pages/FeedPage';
 
 function App() {
     useEffect(() => {
@@ -53,7 +54,7 @@ function App() {
                         <Route path="/mentorship/upcoming" element={<MentorshipSessionsPage />} />
                         <Route path="/mentorship/history" element={<MentorshipHistoryPage />} />
                         <Route path="/post" element={<PostForm />} />
-                        <Route path="/feed" element={<PostFeed />} />
+                        <Route path="/feed" element={<FeedPage />} />
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/profile" element={<ProfilePage />} />
