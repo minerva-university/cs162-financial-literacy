@@ -14,6 +14,7 @@ jobs:
 
     env:
       DATABASE_URL:sqlite:///:memory:
+      db_uri=sqlite:///:memory:
       SECRET_KEY: test_secret_key
       FLASK_ENV: testing
       FLASK_APP: backend.app:create_app
