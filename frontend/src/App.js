@@ -20,6 +20,7 @@ import ArticlesPage from './pages/ArticlesPage';
 import ArticlePage from './pages/ArticlePage';
 import MentorshipSessionsPage from './pages/MentorshipSessionsPage';
 import MentorshipHistoryPage from './pages/MentorshipHistoryPage';
+import Mentorship from './pages/Mentorship';
 
 function App() {
     useEffect(() => {
@@ -64,6 +65,7 @@ function App() {
                         <Route path="/faq" element={<FaqPage />} />
                         <Route path="/articles" element={<ArticlesPage />} />
                         <Route path="/article/:articleId" element={<ArticlePage />} />
+                        <Route path="/mentorship" element={<Mentorship />} />
                     </Routes>
                 </main>
                 <Footer />
