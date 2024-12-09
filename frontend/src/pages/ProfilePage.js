@@ -125,10 +125,12 @@ const ProfilePage = () => {
           </select>
         </div>
       </div>
-      <h1>
-        My Posts
-      </h1>
-      <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={true}/>
+      <div className='my-4'>
+        <h2 className="profile-header">My Posts</h2>
+        {posts.length>0&&<>
+          <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={true}/>
+        </>||<div className=' text-center'> No posts! </div>}
+      </div>
 
     </div>
   );

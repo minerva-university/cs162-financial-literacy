@@ -29,6 +29,12 @@ export const getUserProfile = async () => {
   return response.data;
 };
 
+// Other people's Profile
+export const getOtherProfile = async (userId) => {
+  const response = await axios.get(`${API_URL}/profile/${userId}`, { withCredentials: true });
+  return response.data;
+};
+
 export const updateUserName = async (newName) => {
   const response = await axios.post(`${API_URL}/profile`, { name: newName }, { withCredentials: true });
   return response.data;
@@ -86,7 +92,7 @@ export const submitFeedback = async (sessionId, feedback) => {
 // Post APIs
 export const addPost = async (title, content) => {
   const response = await axios.post(`${API_URL}/post`, { title, content }, { withCredentials: true });
-  return response.data;
+  return response;
 };
 
 export const getPosts = async () => {
