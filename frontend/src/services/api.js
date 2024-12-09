@@ -94,10 +94,27 @@ export const getPosts = async () => {
   return response.data.posts;
 };
 
+
+export const getPostsByUser = async (id) => {
+  const response = await axios.get(`${API_URL}/posts/${id}`, { withCredentials: true });
+  return response.data.posts;
+};
+
+export const getPostsCurrentUser = async ()=>{
+  return await getPostsByUser((await axios.get(`${API_URL}/ping`, { withCredentials: true })).data.id);
+}
+
+
 export const getPostById = async (postId) => {
   const response = await axios.get(`${API_URL}/post/${postId}`, { withCredentials: true });
   return response.data;
 };
+
+export const deletePost = async (postId) => {
+  const response = await axios.delete(`${API_URL}/post/${postId}`, { withCredentials: true });
+  return response.data;
+};
+
 
 export const vote = async (postId, vote_type) => {
   const response = await axios.post(`${API_URL}/post/${postId}/vote`, { vote_type }, { withCredentials: true });

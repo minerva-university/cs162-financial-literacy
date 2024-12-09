@@ -135,6 +135,33 @@ def get_post(post_id):
 def fetch_post(post_id):
     return get_post(post_id)
 
+# Endpoint to delete a post
+@posts_bp.route('/post/<int:post_id>', methods=['DELETE'])
+@login_required
+def delete_post(post_id):
+    session = Session()
+
+    # Fetch the post to delete
+    post = session.query(Post).filter_by(post_id=post_id).first()
+
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
+
+    # Check if the current user is the owner of the post
+    if post.user_id != current_user.user_id:
+        return jsonify({'error': 'Unauthorized: You can only delete your own posts'}), 403
+
+    try:
+        # Delete the post
+        session.delete(post)
+        session.commit()
+        return jsonify({'message': 'Post deleted successfully'}), 200
+    except Exception as e:
+        session.rollback()  # Rollback in case of an error
+        return jsonify({'error': 'An error occurred while deleting the post', 'details': str(e)}), 500
+
+
+
 # Endpoint to fetch posts by a specific user
 @posts_bp.route('/posts/<int:user_id>', methods=['GET'])
 @login_required

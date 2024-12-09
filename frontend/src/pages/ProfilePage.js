@@ -1,12 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { FaIdBadge, FaUser, FaUserEdit } from 'react-icons/fa';
-import { getUserProfile, updateUserName, updateMentorship } from '../services/api';
+import { getUserProfile, updateUserName, updateMentorship, getPostsCurrentUser } from '../services/api';
 import '../styles/ProfilePage.css';
+import PostFeed from '../components/Feed';
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setPosts(await getPostsCurrentUser());
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -107,6 +125,11 @@ const ProfilePage = () => {
           </select>
         </div>
       </div>
+      <h1>
+        My Posts
+      </h1>
+      <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={true}/>
+
     </div>
   );
 };
