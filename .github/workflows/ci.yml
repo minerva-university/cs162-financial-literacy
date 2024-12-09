@@ -57,18 +57,3 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
-
-
-
-  #deploy:
-  #  needs: test
-  #  runs-on: ubuntu-latest
-  #  if: github.ref == 'refs/heads/main'
-  #  
-  #  steps:
-  #  - uses: actions/checkout@v2
-  #  
-  #  - name: Deploy to production
-  #    # Add your deployment steps here
-  #    run: |
-  #      echo "Add deployment commands here"
