@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { is_authenticated, logout } from '../services/api';
-import './Navbar.css';
+import "../styles/Navbar.css";
+
 
 const Navbar = () => {
     const [authenticated, setAuthenticated] = useState(false);

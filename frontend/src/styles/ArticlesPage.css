@@ -1,0 +1,85 @@
+.articles-page {
+    padding: 2rem 2rem 4rem; /* Bottom padding to allow breathing room */
+    background-color: #f5faff; /* Subtle contrast for readability */
+    text-align: center;
+}
+
+.articles-title {
+    font-size: 2.2rem; /* Slightly larger for emphasis */
+    font-weight: 700;
+    margin-bottom: 0.8rem; /* Adjusted spacing */
+    color: #003366;
+}
+
+.articles-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+    color: #555;
+}
+
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Adjusted for slightly larger cards */
+    gap: 2rem; /* More spacing between cards */
+}
+
+.article-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left;
+}
+
+.article-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Enhanced hover effect */
+}
+
+.article-image {
+    width: 100%;
+    height: 200px; /* Taller image height for a balanced card */
+    object-fit: cover; /* Keeps the image proportional */
+    border-bottom: 1px solid #ddd; /* Adds a separator for structure */
+}
+
+.article-content {
+    padding: 1.5rem; /* Slightly larger padding for better spacing */
+}
+
+.article-content h3 {
+    font-size: 1.4rem; /* Slightly larger title */
+    font-weight: 700;
+    color: #003366;
+    margin-bottom: 0.8rem;
+}
+
+.article-content p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 1rem;
+    line-height: 1.6; /* Better text spacing */
+}
+
+.read-time {
+    font-size: 0.9rem;
+    color: #888;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.read-more-link {
+    font-size: 1.1rem;
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 1rem;
+    transition: color 0.2s ease;
+}
+
+.read-more-link:hover {
+    text-decoration: underline;
+    color: #0056b3; /* Slightly darker hover color */
+}
