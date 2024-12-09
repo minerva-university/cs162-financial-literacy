@@ -49,6 +49,10 @@ def create_app(test_config=None):
     from .posts import posts_bp as posts_blueprint
     app.register_blueprint(posts_blueprint)
 
+    # blueprint for mentorship routes in our app
+    from .mentorship import mentorship_bp as mentorship_blueprint
+    app.register_blueprint(mentorship_blueprint)
+
     # Add a default route
     @app.route('/')
     def home():
