@@ -21,6 +21,7 @@ import ArticlePage from './pages/ArticlePage';
 import MentorshipSessionsPage from './pages/MentorshipSessionsPage';
 import MentorshipHistoryPage from './pages/MentorshipHistoryPage';
 import FeedPage from './pages/FeedPage';
+import OtherProfile from './pages/OtherProfile';
 
 function App() {
     useEffect(() => {
@@ -59,6 +60,7 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/profile" element={<ProfilePage />} />
                         <Route path="/post/:postId" element={<PostPage />} />
+                        <Route path="/user/:userId" element={<OtherProfile />} />
                         <Route path="/why-choose-us" element={<WhyChooseUsPage />} />
                         <Route path="/about" element={<AboutUsPage />} />
                         <Route path="/contact" element={<ContactUsPage />} />
