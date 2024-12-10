@@ -33,7 +33,10 @@ const PostFeed = ({posts, error, isLoading, deleteOption}) => {
           </Link>
           <HTMLRenderer html={post.content} />
           <div className="post-meta">
-            <p className="post-author">Author: {post.author}</p>
+            <Link to={`/user/${post.author_id}`} className="post-title-link">
+              <p className="post-author"> Author: {post.author}</p>
+            </Link>
+            
             <p className="post-date">Created At: {post.created_at}</p>
           </div>
           {deleteOption&&<button className='bg-red-600 p-1 rounded-2xl' onClick={deletePostHandler(post.id)}>

@@ -88,7 +88,9 @@ const PostPage = () => {
         <>
           <div className="post-header border-b border-gray-200 pb-4">
             <h2 className="text-2xl font-semibold">{post.post.title}</h2>
-            <p className="text-gray-500 text-sm">Author: {post.post.user.name}</p>
+            <Link to={`/user/${post.post.user.id}`} className="post-title-link">
+              <p className="text-gray-500 text-sm">Author: {post.post.user.name}</p>
+            </Link>
             <p className="text-gray-400 text-sm">Created At: {post.post.created_at}</p>
             <div className="m-3">
               <HTMLRenderer html={post.post.content}  />

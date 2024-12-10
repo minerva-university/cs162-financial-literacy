@@ -61,7 +61,9 @@ def get_posts():
                  'author': post.user.name,
                  'content': post.content,
                  'title': post.title,
-                 'created_at':post.created_at} for post in posts
+                 'created_at': post.created_at,
+                 "author_id": post.user_id,
+                 } for post in posts
                 ]}), 200
     else:
         return jsonify({'error': 'Insufficient credits'}), 403
@@ -178,7 +180,8 @@ def get_user_posts(user_id):
             'title': post.title,
             'content': post.content,
             'author': author.name if author else 'Unknown',
-            'created_at': post.created_at
+            'created_at': post.created_at,
+            "author_id": post.user_id,
         })
     
     return jsonify({'posts': post_list}), 200
