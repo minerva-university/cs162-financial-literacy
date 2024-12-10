@@ -3,9 +3,9 @@ from flask_login import login_required, current_user
 from sqlalchemy import func
 from .database.create import User, MentorshipSession, engine
 from sqlalchemy.orm import sessionmaker
-from config import (
+from .config import (
     COST_TO_BOOK_MENTORSHIP,
-    REWARD_FOR_MENTORORING,
+    REWARD_FOR_MENTORING,
 )
 
 # Define the blueprint
@@ -71,7 +71,7 @@ def complete_mentorship(session_id):
     # Update session status and add credits to mentor
     mentorship_session.status = 'completed'
     mentor = session.query(User).filter(User.user_id == current_user.user_id).first()
-    mentor.credits += REWARD_FOR_MENTORORING
+    mentor.credits += REWARD_FOR_MENTORING
 
     try:
         session.commit()
