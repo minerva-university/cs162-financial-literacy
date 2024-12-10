@@ -44,7 +44,19 @@ const MentorshipSessionsPage = () => {
             <li key={session.session_id} className="session-card">
               <p><strong>Mentor:</strong> {session.mentor.name || "Unknown"}</p>
               <p><strong>Mentee:</strong> {session.mentee.name || "Unknown"}</p>
-              <p><strong>Scheduled Time:</strong> {session.scheduled_time}</p>
+              <p><strong>Scheduled Time:</strong> {new Date(session.scheduled_time).toLocaleString()}</p>
+              {session.event_id && (
+                <p>
+                  <strong>Google Calendar:</strong>{" "}
+                  <a
+                    href={`https://calendar.google.com/calendar/u/0/r/eventedit/${session.event_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Event
+                  </a>
+                </p>
+              )}
               <button onClick={() => handleCancelSession(session.session_id)}>
                 Cancel Session
               </button>
