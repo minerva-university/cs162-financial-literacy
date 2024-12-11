@@ -125,6 +125,7 @@ const ProfilePage = () => {
           </select>
         </div>
       </div>
+
       <div className='my-4'>
         <h2 className="profile-header">My Posts</h2>
         {posts.length>0&&<>

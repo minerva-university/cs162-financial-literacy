@@ -1,37 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   getAvailableMentors,
   bookMentorship,
-  getUpcomingMentorships,
-  getMentorshipHistory,
-  submitFeedback,
 } from "../services/api";
 import "../styles/MentorsList.css";
 
 const MentorsListPage = () => {
   const [mentors, setMentors] = useState([]);
-  const [upcomingSessions, setUpcomingSessions] = useState([]);
-  const [mentorshipHistory, setMentorshipHistory] = useState([]);
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [feedbackLoading, setFeedbackLoading] = useState(false);
+
+  const navigate = useNavigate(); // For navigation between pages
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch available mentors
         const mentorsResponse = await getAvailableMentors();
         setMentors(mentorsResponse.mentors);
-
-        // Fetch upcoming sessions
-        const upcomingResponse = await getUpcomingMentorships();
-        setUpcomingSessions(upcomingResponse.upcoming_sessions);
-
-        // Fetch mentorship history
-        const historyResponse = await getMentorshipHistory();
-        setMentorshipHistory(historyResponse.mentorship_history);
       } catch (error) {
-        console.error("Error fetching mentorship data:", error);
+        console.error("Error fetching mentors:", error);
       } finally {
         setLoading(false);
       }
@@ -40,32 +31,22 @@ const MentorsListPage = () => {
     fetchData();
   }, []);
 
-  const handleRequestMentorship = async (mentorId) => {
-    try {
-      const scheduledTime = prompt("Enter a scheduled time (YYYY-MM-DD HH:MM):");
-      if (!scheduledTime) return;
+  const handleRequestMentorship = async () => {
+    if (!selectedMentor || !selectedDate) {
+      alert("Please select a mentor and a valid date/time.");
+      return;
+    }
 
-      const response = await bookMentorship(mentorId, scheduledTime);
+    const scheduledTime = selectedDate.toISOString();
+
+    try {
+      const response = await bookMentorship(selectedMentor, scheduledTime);
       alert(`Mentorship session booked! Credits left: ${response.credits}`);
+      setSelectedMentor(null);
+      setSelectedDate(null);
     } catch (error) {
       alert("Failed to request mentorship. Please try again.");
       console.error("Mentorship request error:", error);
-    }
-  };
-
-  const handleSubmitFeedback = async (sessionId) => {
-    const feedback = prompt("Enter your feedback for this session:");
-    if (!feedback) return;
-
-    setFeedbackLoading(true);
-    try {
-      const response = await submitFeedback(sessionId, feedback);
-      alert(response.message);
-    } catch (error) {
-      alert("Failed to submit feedback. Please try again.");
-      console.error("Feedback submission error:", error);
-    } finally {
-      setFeedbackLoading(false);
     }
   };
 
@@ -75,7 +56,16 @@ const MentorsListPage = () => {
     <div className="mentors-page">
       <h1>Find Mentors</h1>
 
-      {/* Available Mentors Section */}
+      {/* Navigation Buttons */}
+      <div className="navigation-buttons">
+        <button onClick={() => navigate("/mentorship/upcoming")}>
+          View Upcoming Mentorships
+        </button>
+        <button onClick={() => navigate("/mentorship/history")}>
+          View Mentorship History
+        </button>
+      </div>
+
       <section className="mentors-section">
         <h2>Available Mentors</h2>
         <ul className="mentors-list">
@@ -85,7 +75,19 @@ const MentorsListPage = () => {
                 <h3>{mentor.name}</h3>
                 <p>{mentor.bio}</p>
               </Link>
-              <button onClick={() => handleRequestMentorship(mentor.id)}>
+              {mentor.calendar_url && (
+                <p>
+                  <strong>Google Calendar:</strong>{" "}
+                  <a
+                    href={mentor.calendar_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Availability
+                  </a>
+                </p>
+              )}
+              <button onClick={() => setSelectedMentor(mentor.id)}>
                 Request Mentorship
               </button>
             </li>
@@ -93,51 +95,22 @@ const MentorsListPage = () => {
         </ul>
       </section>
 
-      {/* Upcoming Sessions Section */}
-      <section className="sessions-section">
-        <h2>Upcoming Mentorship Sessions</h2>
-        {upcomingSessions.length > 0 ? (
-          <ul className="sessions-list">
-            {upcomingSessions.map((session) => (
-              <li key={session.session_id}>
-                <p>
-                  Mentor: {session.mentor.name} | Scheduled Time:{" "}
-                  {session.scheduled_time}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No upcoming sessions scheduled.</p>
-        )}
-      </section>
-
-      {/* Mentorship History Section */}
-      <section className="history-section">
-        <h2>Mentorship History</h2>
-        {mentorshipHistory.length > 0 ? (
-          <ul className="history-list">
-            {mentorshipHistory.map((history) => (
-              <li key={history.session_id}>
-                <p>
-                  Mentor: {history.mentor.name} | Status: {history.status} | Date:{" "}
-                  {history.scheduled_time}
-                </p>
-                {history.status === "completed" && (
-                  <button
-                    onClick={() => handleSubmitFeedback(history.session_id)}
-                    disabled={feedbackLoading}
-                  >
-                    {feedbackLoading ? "Submitting..." : "Submit Feedback"}
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No mentorship history found.</p>
-        )}
-      </section>
+      {selectedMentor && (
+        <div className="datepicker-modal">
+          <h2>Select Date and Time</h2>
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date) => setSelectedDate(date)}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="MMMM d, yyyy h:mm aa"
+            minDate={new Date()}
+          />
+          <button onClick={handleRequestMentorship}>Confirm</button>
+          <button onClick={() => setSelectedMentor(null)}>Cancel</button>
+        </div>
+      )}
     </div>
   );
 };

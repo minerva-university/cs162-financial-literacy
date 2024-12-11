@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from .database.create import Organization, engine, Scholarship, Internship, User
+from .database.create import Organization, engine, Scholarship, Internship, User, ListingStatus
 from .config import COST_TO_ACCESS, REWARD_FOR_POSTING
 from typing import Optional
 
@@ -616,7 +616,7 @@ def delete_listing_route(listing_type, listing_id):
         listing_type=listing_type,
         listing_id=listing_id,
         user_id=current_user.user_id,
-        session=db.session
+        session= Session()
     )
     
     if success:
