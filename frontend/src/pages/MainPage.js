@@ -31,7 +31,7 @@ const MainPage = () => {
             description: 'Information about the credit system and how it works.',
             imgSrc: '/images/credit-system.png',
             readTime: '4 min read',
-            link: 'CreditSystemPage'
+            link: '/CreditSystemPage'
         },
     ];
 
