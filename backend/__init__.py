@@ -1,3 +1,4 @@
+# __init__.py
 from flask import Flask
 from flask_login import LoginManager
 from flask_cors import CORS
@@ -32,6 +33,10 @@ def create_app(test_config=None):
     @login_manager.user_loader
     def load_user(user_id):
         return session.query(User).get(int(user_id))
+    
+    @login_manager.unauthorized_handler
+    def unauthorized_callback():
+        return {"success": "No", "reason": "Unauthorized"}, 401
 
     # blueprint for auth routes in our app
     from .auth import auth as auth_blueprint

@@ -1,14 +1,14 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from flask import Blueprint, request, render_template_string
-from sqlalchemy.orm import sessionmaker
+from flask import Blueprint, request
+from sqlalchemy.orm import scoped_session, sessionmaker
 from .database.create import User, engine
 
 auth = Blueprint('auth', __name__)
 
-# Create a new session
+# Create a scoped session
 Session = sessionmaker(bind=engine)
-session = Session()
+session = scoped_session(Session)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login_post():
@@ -40,11 +40,11 @@ def signup_post():
     if isinstance(email, str):
         email = email.strip()
     name = body.get('name')
-    username = email #body.get('username')
+    username = email  # body.get('username')
     password = body.get('password')
 
     # Validate input
-    if not username: # No field for username in the frontend
+    if not username:  # No field for username in the frontend
         return {"success": "No", "reason": "Username is required"}, 400
     if not email:
         return {"success": "No", "reason": "Email is required"}, 400
@@ -69,10 +69,9 @@ def signup_post():
     except Exception as e:
         session.rollback()  # Rollback on error
         return {"success": "No", "reason": f"Database error: {str(e)}"}, 500
-    finally:
-        session.close()
 
     return {"success": "Yes"}
+
 
 @auth.route('/logout')
 def logout():
@@ -82,15 +81,17 @@ def logout():
     else:
         return {}, 401
 
+
 @auth.route('/ping')
 def ping():
     if current_user.is_authenticated:
         return {
-                "authenticated": current_user.is_authenticated,
-                "username": current_user.username,
-                "id": current_user.user_id
-                }
+            "authenticated": current_user.is_authenticated,
+            "username": current_user.username,
+            "id": current_user.user_id
+        }
     return {"authenticated": current_user.is_authenticated}
+
 
 @auth.route('/mentors/available', methods=['GET'])
 def get_available_mentors():

@@ -210,7 +210,7 @@ class MentorshipSession(Base):
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     #event_id is a unique identifier for the event created in Google Calendar. It is assigned by Google and will be useful if we want to edit the event later.
-    # event_id = Column(String(200)) @Alaa, can you add this to our online db?
+    event_id = Column(String(200)) #@Alaa, can you add this to our online db?
 
     # Relationships for Mentor and Mentee
     mentor = relationship("User", foreign_keys=[mentor_id], back_populates="mentorship_sessions_as_mentor")
