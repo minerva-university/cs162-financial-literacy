@@ -22,6 +22,7 @@ import MentorshipSessionsPage from './pages/MentorshipSessionsPage';
 import MentorshipHistoryPage from './pages/MentorshipHistoryPage';
 import FeedPage from './pages/FeedPage';
 import OtherProfile from './pages/OtherProfile';
+import CreditSystemPage from './pages/CreditSystemPage';
 
 function App() {
     useEffect(() => {
@@ -67,6 +68,7 @@ function App() {
                         <Route path="/faq" element={<FaqPage />} />
                         <Route path="/articles" element={<ArticlesPage />} />
                         <Route path="/article/:articleId" element={<ArticlePage />} />
+                        <Route path="/CreditSystemPage" element={<CreditSystemPage />} />
                     </Routes>
                 </main>
                 <Footer />

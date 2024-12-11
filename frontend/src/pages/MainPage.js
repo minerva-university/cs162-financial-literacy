@@ -25,7 +25,14 @@ const MainPage = () => {
             readTime: "6 min read",
             imgSrc: "/images/maximizing-benefits.png",
             link: "/article/3"
-        }
+        },
+        {
+            title: 'Credit System Overview',
+            description: 'Information about the credit system and how it works.',
+            imgSrc: '/images/credit-system.png',
+            readTime: '4 min read',
+            link: 'CreditSystemPage'
+        },
     ];
 
     return (
