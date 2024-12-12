@@ -7,6 +7,7 @@ import {
   bookMentorship,
 } from "../services/api";
 import "../styles/MentorsList.css";
+import { useMentorship } from '../pages/MentorshipContext';
 
 const MentorsListPage = () => {
   const [mentors, setMentors] = useState([]);
@@ -15,11 +16,13 @@ const MentorsListPage = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate(); // For navigation between pages
+  const { addCheckedUser } = useMentorship();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const mentorsResponse = await getAvailableMentors();
+        console.log("Mentors Response:", mentorsResponse); // Add this line
         setMentors(mentorsResponse.mentors);
       } catch (error) {
         console.error("Error fetching mentors:", error);
@@ -82,6 +85,7 @@ const MentorsListPage = () => {
                     href={mentor.calendar_url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => addCheckedUser(mentor.id)}
                   >
                     View Availability
                   </a>

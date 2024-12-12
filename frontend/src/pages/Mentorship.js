@@ -6,6 +6,7 @@ import {
     getMentorshipHistory,
     submitFeedback,
 } from '../services/api';
+import CalendarView from '../components/CalendarView';
 
 function Mentorship() {
     const [upcomingSessions, setUpcomingSessions] = useState([]);
@@ -14,6 +15,7 @@ function Mentorship() {
     const [scheduledTime, setScheduledTime] = useState('');
     const [feedback, setFeedback] = useState('');
     const [sessionId, setSessionId] = useState('');
+    const [events, setEvents] = useState([]);
 
     // Fetch upcoming mentorships
     useEffect(() => {
@@ -21,6 +23,12 @@ function Mentorship() {
             try {
                 const data = await getUpcomingMentorships();
                 setUpcomingSessions(data.upcoming_sessions || []);
+                const calendarEvents = data.upcoming_sessions.map(session => ({
+                    title: `Mentorship with ${session.mentor.name}`,
+                    start: new Date(session.scheduled_time),
+                    end: new Date(new Date(session.scheduled_time).getTime() + 60 * 60 * 1000), // 1 hour duration
+                }));
+                setEvents(calendarEvents);
             } catch (error) {
                 console.error('Error fetching upcoming mentorships:', error);
             }
@@ -41,7 +49,7 @@ function Mentorship() {
         fetchHistory();
     }, []);
 
-    // Book a mentorship session
+    // Handle booking a mentorship session
     const handleBook = async () => {
         if (!mentorId || !scheduledTime) {
             alert('Please provide a mentor ID and scheduled time.');
@@ -50,6 +58,13 @@ function Mentorship() {
         try {
             const response = await bookMentorship(mentorId, scheduledTime);
             alert('Mentorship booked successfully!');
+            // Update the events and upcoming sessions
+            const newEvent = {
+                title: `Mentorship with ${response.mentor.name}`,
+                start: new Date(response.scheduled_time),
+                end: new Date(new Date(response.scheduled_time).getTime() + 60 * 60 * 1000),
+            };
+            setEvents([...events, newEvent]);
             setUpcomingSessions([...upcomingSessions, response]);
         } catch (error) {
             console.error('Error booking mentorship:', error);
@@ -89,6 +104,7 @@ function Mentorship() {
     return (
         <div className="container">
             <h1>Mentorship</h1>
+            <CalendarView events={events} />
             <div className="booking-section">
                 <h2>Book Mentorship</h2>
                 <input
