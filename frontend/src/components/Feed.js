@@ -39,7 +39,7 @@ const PostFeed = ({posts, error, isLoading, deleteOption}) => {
             
             <p className="post-date">Created At: {post.created_at}</p>
           </div>
-          {deleteOption&&<button className='bg-red-600 p-1 rounded-2xl' onClick={deletePostHandler(post.id)}>
+          {deleteOption&&<button className='bg-red-600 p-1 rounded-2xl' onClick={async()=>{await deletePostHandler(post.id)}}>
             X Delete Post
           </button>}
         </div>
