@@ -38,6 +38,10 @@ class TestPosts:
         assert json_data["error"] == "Insufficient credits"
 
     def test_get_posts_success(self, client, create_user, login_user, db_session):
+        # Clear existing posts first
+        db_session.query(Post).delete()
+        db_session.commit()
+        
         user = create_user(username="rich_user", email="rich_user@example.com", password="pass", credits=100)
         post = Post(user_id=user.user_id, title="Test Post", content="Test Content")
         db_session.add(post)

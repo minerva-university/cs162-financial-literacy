@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from sqlalchemy.orm import scoped_session, sessionmaker
 from .database.create import User, engine
 

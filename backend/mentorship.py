@@ -37,12 +37,12 @@ def parse_scheduled_time(time_str):
         raise ValueError("Invalid time format. Use ISO format (YYYY-MM-DDTHH:MM:SS)")
 
 # Endpoint to book a mentorship session
-@mentorship_bp.route('/mentorship/book', methods=['POST'])
+@mentorship_bp.route('/mentorship/book/<int:mentor_id>', methods=['POST'])
 @login_required
-def book_mentorship():
-    data = request.get_json()
-    if not data or 'mentor_id' not in data or 'scheduled_time' not in data:
-        return jsonify({'error': 'Mentor ID and scheduled time are required'}), 400
+def book_mentorship(mentor_id):
+    mentee = current_user
+    if mentee.credits < COST_TO_BOOK_MENTORSHIP:
+        return jsonify({"error": "Insufficient credits"}), 403
 
     session = Session()
     user = session.query(User).filter(User.user_id == current_user.user_id).first()

@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from backend import create_app
-from backend.database.create import Base, User, Scholarship, Internship
+from backend.database.create import Base, User, Scholarship, Internship, Post, Comment, Follow, MentorshipSession
 from backend.auth import session as auth_session
 from datetime import datetime
 
@@ -84,13 +84,12 @@ def login_user(client):
 
 @pytest.fixture(autouse=True)
 def cleanup(db_session):
-    """
-    Enhanced cleanup fixture that handles all test models
-    """
+    """Cleanup all test data"""
     yield
     try:
-        for table in reversed(Base.metadata.sorted_tables):
-            db_session.execute(table.delete())
+        tables = [Post, Comment, User, Follow, MentorshipSession]  # Add all your models
+        for table in tables:
+            db_session.query(table).delete()
         db_session.commit()
     except Exception as e:
         print(f"Cleanup error: {e}")
