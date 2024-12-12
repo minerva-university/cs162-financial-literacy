@@ -1,3 +1,4 @@
+
 .mainpage-container {
     display: flex;
     flex-direction: column;
@@ -145,8 +146,15 @@
     gap: 1rem; /* Reduced gap further */
     justify-content: space-between;
     width: 100%;
-    max-width: 1400px;
     margin: 0 auto;
+}
+
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    justify-content: center;
+    align-items: start;
 }
 
 /* Media Queries for Responsive Behavior */
@@ -164,7 +172,7 @@
 
 /* Article Cards */
 .article-card {
-    flex: 0 0 23%; /* Each card takes roughly 23% of the container width */
+    flex: 0 0 20%; /* Each card takes roughly 23% of the container width */
     min-width: 0; /* Allows cards to shrink below their content size */
     background: #ffffff;
     border-radius: 16px;
@@ -185,7 +193,7 @@
 }
 
 .article-image {
-    width: 100%;
+    width: 50%;
     height: auto;
     object-fit: cover;
     border-radius: 12px;

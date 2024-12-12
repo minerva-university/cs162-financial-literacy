@@ -222,3 +222,10 @@ def cancel_mentorship(session_id):
         session.rollback()
         session.close()
         return jsonify({'error': str(e)}), 500
+
+@mentorship_bp.route('/mentors/available', methods=['GET'])
+def get_available_mentors():
+    # Query the database for users with mentorship availability
+    available_mentors = session.query(User).filter_by(mentorship_availability=True).all()
+    mentors = [{"id": mentor.user_id, "name": mentor.name, "mentorship": "yes"} for mentor in available_mentors]
+    return {"mentors": mentors}

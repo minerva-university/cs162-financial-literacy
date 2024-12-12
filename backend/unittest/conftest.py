@@ -2,16 +2,25 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from backend import create_app
-from backend.database.create import Base, User
+from backend.database.create import Base, User, Scholarship, Internship
 from backend.auth import session as auth_session
+from datetime import datetime
 
 TEST_DB_URI = "sqlite:///:memory:"
 
 @pytest.fixture(scope='session')
 def app():
+    """
+    Enhanced test application configuration
+    """
     app = create_app({
         'TESTING': True,
         'SECRET_KEY': 'test_secret_key',
+        'SQLALCHEMY_DATABASE_URI': TEST_DB_URI,
+        'JWT_SECRET_KEY': 'test_jwt_secret',
+        'MAIL_SUPPRESS_SEND': True,
+        'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+        'ERROR_404_HELP': False,
     })
     return app
 
@@ -24,17 +33,22 @@ def test_engine():
 
 @pytest.fixture(scope='function')
 def db_session(test_engine):
+    """
+    Creates a new database session for a test.
+    """
     connection = test_engine.connect()
     transaction = connection.begin()
     Session = sessionmaker(bind=connection)
     session = scoped_session(Session)
 
+    # Ensure auth session is using the same connection
     auth_session.remove()
     auth_session.configure(bind=connection)
 
     yield session
 
-    session.remove()
+    # Proper cleanup
+    session.close()
     transaction.rollback()
     connection.close()
 
@@ -43,13 +57,22 @@ def client(app, db_session):
     with app.test_client() as client:
         yield client
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def create_user(db_session):
-    def _create(username, email, password, credits=100):
-        user = User(username=username, email=email, credits=credits)
+    """
+    Enhanced user creation fixture supporting additional attributes
+    """
+    def _create(username, email, password, credits=100, **kwargs):
+        user = User(
+            username=username,
+            email=email,
+            credits=credits,
+            **kwargs
+        )
         user.set_password(password)
         db_session.add(user)
         db_session.commit()
+        db_session.refresh(user)  # Ensure we have the latest data
         return user
     return _create
 
@@ -58,3 +81,57 @@ def login_user(client):
     def _login(email, password):
         return client.post('/login', json={"email": email, "password": password})
     return _login
+
+@pytest.fixture(autouse=True)
+def cleanup(db_session):
+    """
+    Enhanced cleanup fixture that handles all test models
+    """
+    yield
+    try:
+        for table in reversed(Base.metadata.sorted_tables):
+            db_session.execute(table.delete())
+        db_session.commit()
+    except Exception as e:
+        print(f"Cleanup error: {e}")
+        db_session.rollback()
+
+@pytest.fixture(scope='function')
+def app_context(app):
+    """
+    Ensures application context is available for tests
+    """
+    with app.app_context():
+        yield
+
+@pytest.fixture
+def auth_headers(client, create_user, login_user):
+    """
+    Fixture to get authentication headers for API requests
+    """
+    def _get_headers(username="testuser", email="test@example.com", password="password123"):
+        user = create_user(username=username, email=email, password=password)
+        response = login_user(email=email, password=password)  # Fixed: was using wrong parameter
+        token = response.json.get('access_token')
+        if not token:
+            raise ValueError("Login failed to return access token")
+        return {'Authorization': f'Bearer {token}'}
+    return _get_headers
+
+@pytest.fixture
+def mock_datetime(monkeypatch):
+    """Fixture to mock datetime for consistent timestamps in tests"""
+    class MockDateTime:
+        @staticmethod
+        def utcnow():
+            return datetime(2024, 1, 1, 12, 0, 0)
+    monkeypatch.setattr('backend.database.create.datetime', MockDateTime)
+    return MockDateTime
+
+@pytest.fixture
+def test_data(db_session):
+    """Fixture to populate database with test data"""
+    def _create_test_data():
+        # Add your common test data here
+        pass
+    return _create_test_data

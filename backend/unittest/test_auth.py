@@ -27,16 +27,20 @@ class TestAuth:
         user = db_session.query(User).filter_by(email="newuser@example.com").first()
         assert user is not None
 
-    def test_signup_user_already_exists(self, client, create_user):
+    def test_signup_user_already_exists(self, client, db_session, create_user):
+        # Use create_user fixture to set up initial user
         create_user(username="existing_user", email="existing_user@example.com", password="pass123")
+
         response = client.post('/signup', json={
             "email": "existing_user@example.com",
             "password": "pass123",
             "name": "Duplicate User"
         })
+
+        assert response.status_code == 400
         json_data = response.get_json()
-        assert json_data["success"] == "No"
-        assert "User already exists" in json_data["reason"]
+        assert json_data["reason"] == "User already exists"
+
 
     def test_login_invalid_credentials(self, client):
         response = client.post('/login', json={
@@ -56,13 +60,15 @@ class TestAuth:
         assert json_data["success"] == "Yes"
 
     def test_ping_authenticated(self, client, create_user, login_user):
-        create_user(username="ping_user", email="ping_user@example.com", password="pingpass")
-        login_user(email="ping_user@example.com", password="pingpass")
+        user = create_user(username="ping_user", email="ping_user@example.com", password="pass")
+        login_user(email="ping_user@example.com", password="pass")
+
         response = client.get('/ping')
         json_data = response.get_json()
         assert response.status_code == 200
         assert json_data["authenticated"] is True
         assert json_data["username"] == "ping_user"
+
 
     def test_ping_unauthenticated(self, client):
         response = client.get('/ping')

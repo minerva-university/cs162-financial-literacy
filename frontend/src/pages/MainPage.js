@@ -90,7 +90,7 @@ const MainPage = () => {
                         Explore comprehensive guides, insightful articles, and helpful tips to make the most of the Financial Literacy Marketplace.
                     </p>
                 </div>
-                <div className="articles-grid">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-4">
                     {articles.map((article, index) => (
                         <Link to={article.link} className="article-card" key={index}>
                             <img
