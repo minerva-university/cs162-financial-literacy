@@ -23,6 +23,8 @@ import MentorshipHistoryPage from './pages/MentorshipHistoryPage';
 import FeedPage from './pages/FeedPage';
 import OtherProfile from './pages/OtherProfile';
 import CreditSystemPage from './pages/CreditSystemPage';
+import ScholarshipsPage from './pages/ScholarshipsPage';
+import InternshipsPage from './pages/InternshipsPage';
 
 function App() {
     useEffect(() => {
@@ -69,6 +71,8 @@ function App() {
                         <Route path="/articles" element={<ArticlesPage />} />
                         <Route path="/article/:articleId" element={<ArticlePage />} />
                         <Route path="/CreditSystemPage" element={<CreditSystemPage />} />
+                        <Route path="/scholarships" element={<ScholarshipsPage />} />
+                        <Route path="/internships" element={<InternshipsPage />} />
                     </Routes>
                 </main>
                 <Footer />

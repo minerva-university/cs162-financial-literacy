@@ -36,12 +36,12 @@ def get_scholarships():
             'scholarships': [{
                 'id': scholarship.scholarship_id,
                 'title': scholarship.title,
-                'provider': scholarship.organization.name if scholarship.organization else None,
+                'organization': scholarship.organization.name if scholarship.organization else None,
                 'description': scholarship.description,
                 'amount': scholarship.amount,
-                'eligibility': scholarship.requirements,
+                'requirements': scholarship.requirements,
                 'application_link': scholarship.application_link,
-                'deadline': scholarship.deadline
+                'deadline': scholarship.deadline,
             } for scholarship in scholarships]
         })
     except SQLAlchemyError as e:
@@ -63,8 +63,10 @@ def post_scholarship():
             user_id=current_user.user_id,
             title=data.get('title'),
             description=data.get('description'),
-            requirements=data.get('eligibility'),
+            amount=data.get('amount'),
+            requirements=data.get('requirements'),
             application_link=data.get('application_link'),
+            deadline=datetime.strptime(data.get('deadline'),'%Y-%m-%d'),
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc)
         )
@@ -233,9 +235,9 @@ def get_internships():
                 'id': internship.internship_id,
                 'title': internship.title,
                 'description': internship.description,
+                'deadline': internship.deadline,
+                'requirements': internship.requirements,
                 'company': internship.organization.name if internship.organization else None,
-                'duration': internship.duration,
-                'stipend': internship.stipend
             } for internship in internships]
         })
     except SQLAlchemyError as e:
@@ -260,6 +262,7 @@ def post_internship():
             description=data.get('description'),
             requirements=data.get('requirements'),
             application_link=data.get('application_link'),
+            deadline=datetime.strptime(data.get('deadline'),'%Y-%m-%d'),
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc)
         )
@@ -311,8 +314,6 @@ def get_internship_by_id(internship_id):
                 'title': internship.title,
                 'company': internship.organization.name if internship.organization else None,
                 'description': internship.description,
-                'duration': internship.duration,
-                'stipend': internship.stipend,
                 'requirements': internship.requirements,
                 'application_link': internship.application_link,
                 'created_at': internship.created_at,
@@ -343,7 +344,6 @@ def filter_internships():
         # Get filter parameters from the request
         title = request.args.get('title')
         company = request.args.get('company')
-        min_stipend = request.args.get('min_stipend', type=int)
 
         # Start the base query
         query = session.query(Internship)
@@ -353,8 +353,6 @@ def filter_internships():
             query = query.filter(Internship.title.ilike(f"%{title}%"))
         if company:
             query = query.join(Organization).filter(Organization.name.ilike(f"%{company}%"))
-        if min_stipend is not None:
-            query = query.filter(Internship.stipend >= min_stipend)
 
         # Execute the query
         results = query.all()
@@ -367,8 +365,6 @@ def filter_internships():
                 'title': internship.title,
                 'description': internship.description,
                 'company': internship.organization.name if internship.organization else None,
-                'duration': internship.duration,
-                'stipend': internship.stipend
             } for internship in results]
         })
     except SQLAlchemyError as e:
@@ -388,7 +384,6 @@ def user_internships():
             'id': internship.internship_id,
             'title': internship.title,
             'description': internship.description,
-            'stipend': internship.stipend
         } for internship in internships])
     finally:
         session.close()
