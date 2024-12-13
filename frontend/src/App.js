@@ -18,11 +18,13 @@ import ContactUsPage from './pages/ContactUsPage';
 import FaqPage from './pages/FaqPage';
 import ArticlesPage from './pages/ArticlesPage';
 import ArticlePage from './pages/ArticlePage';
+import { MentorshipProvider } from './pages/MentorshipContext';
 import MentorshipSessionsPage from './pages/MentorshipSessionsPage';
 import MentorshipHistoryPage from './pages/MentorshipHistoryPage';
 import FeedPage from './pages/FeedPage';
 import OtherProfile from './pages/OtherProfile';
 import CreditSystemPage from './pages/CreditSystemPage';
+
 
 function App() {
     useEffect(() => {
@@ -50,26 +52,28 @@ function App() {
             <div className="min-h-screen flex flex-col">
                 <Navbar />
                 <main className="flex-grow">
-                    <Routes>
-                        <Route path="/" element={<MainPage />} />
-                        <Route path="/mentors" element={<MentorsListPage />} />
-                        <Route path="/mentorship/upcoming" element={<MentorshipSessionsPage />} />
-                        <Route path="/mentorship/history" element={<MentorshipHistoryPage />} />
-                        <Route path="/post" element={<PostForm />} />
-                        <Route path="/feed" element={<FeedPage />} />
-                        <Route path="/signup" element={<Signup />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/profile" element={<ProfilePage />} />
-                        <Route path="/post/:postId" element={<PostPage />} />
-                        <Route path="/user/:userId" element={<OtherProfile />} />
-                        <Route path="/why-choose-us" element={<WhyChooseUsPage />} />
-                        <Route path="/about" element={<AboutUsPage />} />
-                        <Route path="/contact" element={<ContactUsPage />} />
-                        <Route path="/faq" element={<FaqPage />} />
-                        <Route path="/articles" element={<ArticlesPage />} />
-                        <Route path="/article/:articleId" element={<ArticlePage />} />
-                        <Route path="/CreditSystemPage" element={<CreditSystemPage />} />
-                    </Routes>
+                    <MentorshipProvider>
+                        <Routes>
+                            <Route path="/" element={<MainPage />} />
+                            <Route path="/mentors" element={<MentorsListPage />} />
+                            <Route path="/mentorship/upcoming" element={<MentorshipSessionsPage />} />
+                            <Route path="/mentorship/history" element={<MentorshipHistoryPage />} />
+                            <Route path="/post" element={<PostForm />} />
+                            <Route path="/feed" element={<FeedPage />} />
+                            <Route path="/signup" element={<Signup />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/profile" element={<ProfilePage />} />
+                            <Route path="/post/:postId" element={<PostPage />} />
+                            <Route path="/user/:userId" element={<OtherProfile />} />
+                            <Route path="/why-choose-us" element={<WhyChooseUsPage />} />
+                            <Route path="/about" element={<AboutUsPage />} />
+                            <Route path="/contact" element={<ContactUsPage />} />
+                            <Route path="/faq" element={<FaqPage />} />
+                            <Route path="/articles" element={<ArticlesPage />} />
+                            <Route path="/article/:articleId" element={<ArticlePage />} />
+                            <Route path="/CreditSystemPage" element={<CreditSystemPage />} />
+                        </Routes>
+                    </MentorshipProvider>
                 </main>
                 <Footer />
             </div>

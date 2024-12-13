@@ -65,7 +65,7 @@ const OtherProfile = () => {
         <div className="profile-section">
           <span className="label">Mentorship Availability:</span>
           <select
-            value={userData.mentorship}
+            value={userData.mentorship_availability}
             disabled
             className="availability-select"
           >
