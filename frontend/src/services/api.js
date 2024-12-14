@@ -52,10 +52,17 @@ export const updateMentorship = async (availability) => {
 };
 
 export const getAvailableMentors = async () => {
-  const response = await axios.get(`${API_URL}/mentors/available`, { withCredentials: true });
-  return response.data;
+  try {
+    console.log('API URL:', API_URL);
+    const response = await axios.get(`${API_URL}/mentors/available`, { withCredentials: true });
+    console.log('Mentors API Response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching mentors:', error);
+    console.error('Error details:', error.response);
+    throw error;
+  }
 };
-
 export const bookMentorship = async (mentorId, scheduledTime) => {
   const response = await axios.post(`${API_URL}/mentorship/book`, {
     mentor_id: mentorId,
