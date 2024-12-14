@@ -145,12 +145,14 @@ export const getScholarships = async () => {
   return response.data;
 };
 
-export const postScholarship = async (title, description, requirements, applicationLink) => {
+export const postScholarship = async (title, description, amount, requirements, application_link, deadline) => {
   const response = await axios.post(`${API_URL}/scholarships`, {
     title,
     description,
+    amount,
     requirements,
-    applicationLink
+    application_link,
+    deadline,
   }, { withCredentials: true });
   return response.data;
 };
@@ -160,12 +162,13 @@ export const getInternships = async () => {
   return response.data;
 };
 
-export const postInternship = async (title, description, requirements, applicationLink) => {
+export const postInternship = async (title, description, requirements, application_link, deadline) => {
   const response = await axios.post(`${API_URL}/internships`, {
     title,
     description,
     requirements,
-    applicationLink
+    application_link,
+    deadline,
   }, { withCredentials: true });
   return response.data;
 };
