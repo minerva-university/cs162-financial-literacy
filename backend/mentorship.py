@@ -28,8 +28,6 @@ def parse_scheduled_time(time_str):
     """
     try:
         scheduled_time = datetime.fromisoformat(time_str)
-        if scheduled_time <= datetime.utcnow():
-            raise ValueError("Scheduled time must be in the future")
         return scheduled_time
     except Exception:
         raise ValueError("Invalid time format. Use ISO format (YYYY-MM-DDTHH:MM:SS)")
@@ -78,6 +76,7 @@ def book_mentorship():
     # Parse and validate scheduled time
     try:
         scheduled_time = parse_scheduled_time(data['scheduled_time'])
+        print("Parsed Time")
     except ValueError as e:
         session.close()
         return jsonify({'error': str(e)}), 400
@@ -96,14 +95,15 @@ def book_mentorship():
 
     # Create the event in Google Calendar
     try:
-        event_id = create_google_calendar_event(
-            mentor_email=mentor.email,
-            mentee_email=user.email,
-            mentor_name=mentor.username,
-            mentee_name=user.username,
-            start_time=scheduled_time.isoformat(),
-            end_time=end_time.isoformat()
-        )
+        #event_id = create_google_calendar_event(
+        #    mentor_email=mentor.email,
+        #    mentee_email=user.email,
+        #    mentor_name=mentor.username,
+        #    mentee_name=user.username,
+        #    start_time=scheduled_time.isoformat(),
+        #    end_time=end_time.isoformat()
+        #)
+        ...
     except Exception as gc_err:
         # Rollback credit deduction if event creation fails
         user.credits += COST_TO_BOOK_MENTORSHIP
@@ -116,22 +116,24 @@ def book_mentorship():
         mentee_id=user.user_id,
         mentor_id=data['mentor_id'],
         scheduled_time=scheduled_time,
-        status='scheduled',
-        event_id=event_id
+        status='pending',
+        #event_id=event_id
     )
 
     session.add(new_session)
     try:
+        
+        credits = user.credits
         session.commit()
+        session_id = new_session.session_id
         session.close()
+
         return jsonify({
             'message': 'Mentorship session booked successfully',
-            'session_id': new_session.session_id,
-            'credits': user.credits
+            'session_id': session_id,
+            'credits': credits
         }), 201
     except Exception as e:
-        # Remove the created Google Calendar event if DB commit fails
-        delete_google_calendar_event(event_id)
         session.rollback()
         session.close()
         return jsonify({'error': str(e)}), 500
