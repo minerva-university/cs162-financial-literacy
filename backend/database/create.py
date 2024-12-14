@@ -77,8 +77,8 @@ class Post(Base):
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="posts")
-    comments = relationship("Comment", back_populates="post")
-    votes = relationship("Vote", back_populates="post")
+    comments = relationship("Comment", back_populates="post", cascade="all, delete")
+    votes = relationship("Vote", back_populates="post", cascade="all, delete")
 
 # Comments Table
 class Comment(Base):
@@ -206,7 +206,7 @@ class MentorshipSession(Base):
     mentor_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     mentee_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     scheduled_time = Column(TIMESTAMP, nullable=False)  # Required field for scheduling
-    status = Column(Enum('scheduled', 'completed', 'canceled', name='mentorship_session_status'), default='scheduled')
+    status = Column(Enum('pending', 'scheduled', 'completed', 'canceled', name='mentorship_session_status'), default='scheduled')
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     #event_id is a unique identifier for the event created in Google Calendar. It is assigned by Google and will be useful if we want to edit the event later.
