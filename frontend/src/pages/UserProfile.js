@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import EditUserNameModal from '../components/EditUserNameModal';
 import { getUserProfile, updateMentorship } from '../services/api';
-
-
+import MentorshipRequest from '../components/MentorshipRequest';
 
 const UserProfile = () => {
   const [userData, setUserData] = useState(null);
@@ -49,6 +48,7 @@ const UserProfile = () => {
           closeModal={() => setIsEditingName(false)}
         />
       )}
+      <MentorshipRequest />
     </div>
   ) : <p>Loading...</p>;
 };
