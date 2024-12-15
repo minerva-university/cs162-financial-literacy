@@ -1,32 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { FaIdBadge, FaUser, FaUserEdit } from 'react-icons/fa';
-import { getUserProfile, updateUserName, updateMentorship, getPostsCurrentUser } from '../services/api';
-import '../styles/ProfilePage.css';
-import PostFeed from '../components/Feed';
-import MentorshipRequest from '../components/MentorshipReqeust';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaIdBadge, FaUser, FaUserEdit } from "react-icons/fa";
+import {
+  getUserProfile,
+  updateUserName,
+  updateMentorship,
+  getPostsCurrentUser,
+} from "../services/api";
+import "../styles/ProfilePage.css";
+import PostFeed from "../components/Feed";
+import MentorshipRequest from "../components/MentorshipRequest";
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState("");
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
+  // Fetch Posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        setPosts(await getPostsCurrentUser());
+        const userPosts = await getPostsCurrentUser();
+        setPosts(userPosts);
       } catch (err) {
         setError(err);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchPosts();
   }, []);
 
+  // Fetch User Profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -39,100 +48,133 @@ const ProfilePage = () => {
     fetchProfile();
   }, []);
 
+  // Handle Mentorship Availability Change
   const handleMentorshipChange = async (event) => {
     const availability = event.target.value;
     try {
       const result = await updateMentorship(availability);
       if (result.success) {
-        setUserData({ ...userData, mentorship: availability });
-        alert(`Mentorship availability updated to: ${availability === 'yes' ? 'Available' : 'Not Available'}`);
+        setUserData({ ...userData, mentorship_availability: availability });
+        alert(
+          `Mentorship availability updated to: ${
+            availability === "yes" ? "Available" : "Not Available"
+          }`
+        );
       } else {
-        alert('Failed to update mentorship availability. Please try again.');
+        alert("Failed to update mentorship availability. Please try again.");
       }
     } catch (error) {
       console.error("Mentorship update error", error);
-      alert('An error occurred. Please try again.');
+      alert("An error occurred. Please try again.");
     }
   };
 
+  // Handle Save Name
   const handleSaveName = async () => {
     try {
       const result = await updateUserName(newName);
       if (result.success) {
         setUserData({ ...userData, name: newName });
-        alert('Name updated successfully!');
+        alert("Name updated successfully!");
         setIsEditingName(false);
       } else {
-        alert('Failed to update name. Please try again.');
+        alert("Failed to update name. Please try again.");
       }
     } catch (error) {
-      console.error('Name update error', error);
-      alert('An error occurred. Please try again.');
+      console.error("Name update error", error);
+      alert("An error occurred. Please try again.");
     }
   };
 
   if (!userData) return <div className="loading">Loading profile...</div>;
 
   return (
-    <div className="profile-page">
-      <h2 className="profile-header">Your Profile</h2>
-      <p className="profile-subheader">Manage your account details and preferences below.</p>
+    <div className="profile-page-container">
+      {/* Profile Section */}
       <div className="profile-card">
-        <div className="profile-section">
-          <FaIdBadge className="profile-icon" />
-          <span className="label">ID:</span>
-          <span className="value">{userData.id}</span>
-        </div>
-        <div className="profile-section">
-          <FaUser className="profile-icon" />
-          <span className="label">Name:</span>
-          <span className="value">{userData.name}</span>
-          <button
-            className="edit-button"
-            onClick={() => setIsEditingName(true)}
-          >
-            <FaUserEdit />
-          </button>
-        </div>
-        {isEditingName && (
-          <div className="edit-name-section">
-            <input
-              type="text"
-              placeholder="Enter new name"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              className="edit-name-input"
-            />
-            <button className="save-button" onClick={handleSaveName}>
-              Save
-            </button>
+        <h2>Profile</h2>
+        <div className="profile-info">
+          <div className="info-item">
+            <FaIdBadge className="profile-icon" />
+            <span>ID: {userData.id}</span>
+          </div>
+          <div className="info-item">
+            <FaUser className="profile-icon" />
+            <span>Name: {userData.name}</span>
             <button
-              className="cancel-button"
-              onClick={() => setIsEditingName(false)}
+              className="edit-button"
+              onClick={() => setIsEditingName(true)}
             >
-              Cancel
+              <FaUserEdit />
             </button>
           </div>
-        )}
-        <div className="profile-section">
-          <span className="label">Mentorship Availability:</span>
-          <select
-            value={userData.mentorship_availability}
-            onChange={handleMentorshipChange}
-            className="availability-select"
-          >
-            <option value="yes">Available</option>
-            <option value="no">Not Available</option>
-          </select>
+          {isEditingName && (
+            <div className="edit-name-section">
+              <input
+                type="text"
+                placeholder="Enter new name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="edit-name-input"
+              />
+              <button className="save-button" onClick={handleSaveName}>
+                Save
+              </button>
+              <button
+                className="cancel-button"
+                onClick={() => setIsEditingName(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          <div className="info-item">
+            <span>Mentorship Availability:</span>
+            <select
+              value={userData.mentorship_availability}
+              onChange={handleMentorshipChange}
+              className="availability-select"
+            >
+              <option value="yes">Available</option>
+              <option value="no">Not Available</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div className='my-4'>
-        <h2 className="profile-header">My Posts</h2>
-        {posts.length>0&&<>
-          <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={true}/>
-        </>||<div className=' text-center'> No posts! </div>}
+      {/* Posts Section */}
+      <div className="posts-section">
+        <div className="posts-header">
+          <h2 className="posts-title">My Posts</h2>
+          <button
+            className="create-post-button"
+            onClick={() => navigate("/post")}
+          >
+            + Create Post
+          </button>
+        </div>
+        {isLoading ? (
+          <p>Loading posts...</p>
+        ) : posts.length > 0 ? (
+          <div className="posts-feed">
+            {posts.map((post) => (
+              <div key={post.id} className="post-card">
+                <h3 className="post-title">{post.title}</h3>
+                <p className="post-content">{post.content}</p>
+                <p className="post-meta">
+                  <span>Author: {post.author}</span> |{" "}
+                  <span>Created: {post.created_at}</span>
+                </p>
+                <button className="delete-button">Delete</button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No posts yet. Create your first post now!</p>
+        )}
       </div>
+
+      {/* Mentorship Request Section */}
       <MentorshipRequest />
     </div>
   );
