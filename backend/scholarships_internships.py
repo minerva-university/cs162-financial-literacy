@@ -238,6 +238,7 @@ def get_internships():
                 'deadline': internship.deadline,
                 'requirements': internship.requirements,
                 'company': internship.organization.name if internship.organization else None,
+                'application_link': internship.application_link,
             } for internship in internships]
         })
     except SQLAlchemyError as e:

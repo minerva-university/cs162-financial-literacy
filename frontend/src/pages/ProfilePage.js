@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaIdBadge, FaUser, FaUserEdit } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaIdBadge, FaUser, FaUserEdit } from "react-icons/fa";
 import {
   getUserProfile,
   updateUserName,
   updateMentorship,
   getPostsCurrentUser,
-} from '../services/api';
-import '../styles/ProfilePage.css';
-import PostFeed from '../components/Feed';
-import MentorshipRequest from '../components/MentorshipReqeust';
+} from "../services/api";
+import "../styles/ProfilePage.css";
+import PostFeed from "../components/Feed";
+import MentorshipRequest from "../components/MentorshipRequest";
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState("");
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  // Fetch Posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -34,18 +35,20 @@ const ProfilePage = () => {
     fetchPosts();
   }, []);
 
+  // Fetch User Profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const profile = await getUserProfile();
         setUserData(profile);
       } catch (error) {
-        console.error('Failed to fetch profile', error);
+        console.error("Failed to fetch profile", error);
       }
     };
     fetchProfile();
   }, []);
 
+  // Handle Mentorship Availability Change
   const handleMentorshipChange = async (event) => {
     const availability = event.target.value;
     try {
@@ -54,31 +57,32 @@ const ProfilePage = () => {
         setUserData({ ...userData, mentorship_availability: availability });
         alert(
           `Mentorship availability updated to: ${
-            availability === 'yes' ? 'Available' : 'Not Available'
+            availability === "yes" ? "Available" : "Not Available"
           }`
         );
       } else {
-        alert('Failed to update mentorship availability. Please try again.');
+        alert("Failed to update mentorship availability. Please try again.");
       }
     } catch (error) {
-      console.error('Mentorship update error', error);
-      alert('An error occurred. Please try again.');
+      console.error("Mentorship update error", error);
+      alert("An error occurred. Please try again.");
     }
   };
 
+  // Handle Save Name
   const handleSaveName = async () => {
     try {
       const result = await updateUserName(newName);
       if (result.success) {
         setUserData({ ...userData, name: newName });
-        alert('Name updated successfully!');
+        alert("Name updated successfully!");
         setIsEditingName(false);
       } else {
-        alert('Failed to update name. Please try again.');
+        alert("Failed to update name. Please try again.");
       }
     } catch (error) {
-      console.error('Name update error', error);
-      alert('An error occurred. Please try again.');
+      console.error("Name update error", error);
+      alert("An error occurred. Please try again.");
     }
   };
 
@@ -144,7 +148,7 @@ const ProfilePage = () => {
           <h2 className="posts-title">My Posts</h2>
           <button
             className="create-post-button"
-            onClick={() => navigate('/post')}
+            onClick={() => navigate("/post")}
           >
             + Create Post
           </button>
@@ -158,7 +162,7 @@ const ProfilePage = () => {
                 <h3 className="post-title">{post.title}</h3>
                 <p className="post-content">{post.content}</p>
                 <p className="post-meta">
-                  <span>Author: {post.author}</span> |{' '}
+                  <span>Author: {post.author}</span> |{" "}
                   <span>Created: {post.created_at}</span>
                 </p>
                 <button className="delete-button">Delete</button>

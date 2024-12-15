@@ -87,8 +87,8 @@ export const getMentorshipHistory = async () => {
 };
 
 export const getUpcomingMentorships = async () => {
-  const response = await axios.get(`${API_URL}/mentorship/upcoming`, { withCredentials: true });
-  return response.data;
+const response = await axios.get(`${API_URL}/mentorship/mentor_requests`, { withCredentials: true });
+return response.data.upcoming_sessions;
 };
 
 export const submitFeedback = async (sessionId, feedback) => {
@@ -124,18 +124,18 @@ export const getPostById = async (postId) => {
 };
 
 export const deletePost = async (postId) => {
-  const response = await axios.delete(`${API_URL}/post/${postId}`, { withCredentials: true });
+  const response = await axios.delete(`${API_URL}/posts/${postId}`, { withCredentials: true });
   return response.data;
 };
 
 
 export const vote = async (postId, vote_type) => {
-  const response = await axios.post(`${API_URL}/post/${postId}/vote`, { vote_type }, { withCredentials: true });
+  const response = await axios.post(`${API_URL}/posts/${postId}/vote`, { vote_type }, { withCredentials: true });
   return response.data.message;
 };
 
 export const comment = async (postId, comment_text) => {
-  const response = await axios.post(`${API_URL}/post/${postId}/comment`, { comment_text }, { withCredentials: true });
+  const response = await axios.post(`${API_URL}/posts/${postId}/comment`, { comment_text }, { withCredentials: true });
   return response.data;
 };
 
@@ -169,6 +169,13 @@ export const postInternship = async (title, description, requirements, applicati
     requirements,
     application_link,
     deadline,
+  }, { withCredentials: true });
+  return response.data;
+};
+
+export const updateMentorshipSession = async (sessionId, updateType) => {
+  const response = await axios.post(`${API_URL}/mentorship/update/${sessionId}`, {
+    type: updateType
   }, { withCredentials: true });
   return response.data;
 };

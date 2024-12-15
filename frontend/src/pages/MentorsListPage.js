@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getAvailableMentors, bookMentorship } from "../services/api";
 import "../styles/MentorsList.css";
-import { useMentorship } from '../pages/MentorshipContext';
+import { useMentorship } from "../pages/MentorshipContext";
 
 const MentorsListPage = () => {
   const [mentors, setMentors] = useState([]);
@@ -57,10 +57,16 @@ const MentorsListPage = () => {
 
       {/* Navigation Buttons */}
       <div className="navigation-buttons flex justify-between">
-        <button onClick={() => navigate("/mentorship/upcoming")} className="nav-btn">
+        <button
+          onClick={() => navigate("/mentorship/upcoming")}
+          className="nav-btn"
+        >
           View Upcoming Mentorships
         </button>
-        <button onClick={() => navigate("/mentorship/history")} className="nav-btn">
+        <button
+          onClick={() => navigate("/mentorship/history")}
+          className="nav-btn"
+        >
           View Mentorship History
         </button>
       </div>
