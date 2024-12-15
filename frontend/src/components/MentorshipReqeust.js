@@ -9,10 +9,8 @@ const MentorshipRequest = () => {
     const fetchReceivedRequests = async () => {
       try {
         const response = await getUpcomingMentorships();
-        const received = response.upcoming_sessions.filter(
-          (session) => session.mentor.id === current_user.id // Assuming current_user is available in context or props
-        );
-        setReceivedRequests(received);
+        
+        setReceivedRequests(response);
       } catch (error) {
         console.error("Failed to fetch received requests:", error);
       } finally {

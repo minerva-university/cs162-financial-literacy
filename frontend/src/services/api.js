@@ -87,8 +87,8 @@ export const getMentorshipHistory = async () => {
 };
 
 export const getUpcomingMentorships = async () => {
-  const response = await axios.get(`${API_URL}/mentorship/upcoming`, { withCredentials: true });
-  return response.data;
+const response = await axios.get(`${API_URL}/mentorship/mentor_requests`, { withCredentials: true });
+return response.data.upcoming_sessions;
 };
 
 export const submitFeedback = async (sessionId, feedback) => {
