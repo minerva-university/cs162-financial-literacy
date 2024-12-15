@@ -119,7 +119,7 @@ export const getPostsCurrentUser = async ()=>{
 
 
 export const getPostById = async (postId) => {
-  const response = await axios.get(`${API_URL}/posts/${postId}`, { withCredentials: true });
+  const response = await axios.get(`${API_URL}/post/${postId}`, { withCredentials: true });
   return response.data;
 };
 

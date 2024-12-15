@@ -151,7 +151,7 @@ def get_post(post_id):
 
 
 # Register the endpoint with your Flask app
-@posts_bp.route("/posts/<int:post_id>")
+@posts_bp.route("/post/<int:post_id>")
 def fetch_post(post_id):
     return get_post(post_id)
 
