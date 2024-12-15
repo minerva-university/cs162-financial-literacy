@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaIdBadge, FaUser, FaUserEdit } from 'react-icons/fa';
-import { getUserProfile, updateUserName, updateMentorship, getPostsCurrentUser } from '../services/api';
+import {
+  getUserProfile,
+  updateUserName,
+  updateMentorship,
+  getPostsCurrentUser,
+} from '../services/api';
 import '../styles/ProfilePage.css';
+import PostFeed from '../components/Feed';
+import MentorshipRequest from '../components/MentorshipReqeust';
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
@@ -45,7 +52,11 @@ const ProfilePage = () => {
       const result = await updateMentorship(availability);
       if (result.success) {
         setUserData({ ...userData, mentorship_availability: availability });
-        alert(`Mentorship availability updated to: ${availability === 'yes' ? 'Available' : 'Not Available'}`);
+        alert(
+          `Mentorship availability updated to: ${
+            availability === 'yes' ? 'Available' : 'Not Available'
+          }`
+        );
       } else {
         alert('Failed to update mentorship availability. Please try again.');
       }
@@ -86,7 +97,10 @@ const ProfilePage = () => {
           <div className="info-item">
             <FaUser className="profile-icon" />
             <span>Name: {userData.name}</span>
-            <button className="edit-button" onClick={() => setIsEditingName(true)}>
+            <button
+              className="edit-button"
+              onClick={() => setIsEditingName(true)}
+            >
               <FaUserEdit />
             </button>
           </div>
@@ -102,7 +116,10 @@ const ProfilePage = () => {
               <button className="save-button" onClick={handleSaveName}>
                 Save
               </button>
-              <button className="cancel-button" onClick={() => setIsEditingName(false)}>
+              <button
+                className="cancel-button"
+                onClick={() => setIsEditingName(false)}
+              >
                 Cancel
               </button>
             </div>
@@ -141,7 +158,8 @@ const ProfilePage = () => {
                 <h3 className="post-title">{post.title}</h3>
                 <p className="post-content">{post.content}</p>
                 <p className="post-meta">
-                  <span>Author: {post.author}</span> | <span>Created: {post.created_at}</span>
+                  <span>Author: {post.author}</span> |{' '}
+                  <span>Created: {post.created_at}</span>
                 </p>
                 <button className="delete-button">Delete</button>
               </div>
@@ -151,6 +169,9 @@ const ProfilePage = () => {
           <p>No posts yet. Create your first post now!</p>
         )}
       </div>
+
+      {/* Mentorship Request Section */}
+      <MentorshipRequest />
     </div>
   );
 };
