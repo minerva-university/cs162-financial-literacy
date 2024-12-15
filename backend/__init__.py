@@ -5,6 +5,7 @@ from flask_cors import CORS
 from .database.create import User, engine
 from sqlalchemy.orm import sessionmaker
 from flask import jsonify
+from dotenv import load_dotenv
 import os
 
 
