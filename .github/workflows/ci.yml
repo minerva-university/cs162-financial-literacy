@@ -34,7 +34,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-        db_uri: 'sqlite:///:memory:'
+        db_uri: "sqlite:///:memory:"
+        TEST_DB_URI: "sqlite:///:memory:"
         FLASK_ENV: testing
         FLASK_APP: backend.app:create_app
     steps:
