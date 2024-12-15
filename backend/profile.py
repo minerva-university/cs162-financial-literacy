@@ -67,13 +67,15 @@ def get_followings():
     followings = Session().query(following_alias).join(Follow, Follow.follower_id == user.user_id).filter(
         Follow.follower_id == user.user_id).all()
 
+    print(f"User availability: {user.mentorship_availability}")
     # Return only followings
     return jsonify({
         'id': user.user_id,
         'email': user.email,
         'name': user.name,
         'bio': user.bio or 'No bio available',  # Default message if bio is None
-        'followings': [following.name for following in followings]
+        'followings': [following.name for following in followings],
+        'mentorship_availability': 'yes' if user.mentorship_availability else 'no'
     })
 
 @profile.route('/profile/<int:user_id>', methods=['GET'])

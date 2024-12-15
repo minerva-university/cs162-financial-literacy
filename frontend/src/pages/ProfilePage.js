@@ -3,6 +3,7 @@ import { FaIdBadge, FaUser, FaUserEdit } from 'react-icons/fa';
 import { getUserProfile, updateUserName, updateMentorship, getPostsCurrentUser } from '../services/api';
 import '../styles/ProfilePage.css';
 import PostFeed from '../components/Feed';
+import MentorshipRequest from '../components/MentorshipReqeust';
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
@@ -116,7 +117,7 @@ const ProfilePage = () => {
         <div className="profile-section">
           <span className="label">Mentorship Availability:</span>
           <select
-            value={userData.mentorship}
+            value={userData.mentorship_availability}
             onChange={handleMentorshipChange}
             className="availability-select"
           >
@@ -132,7 +133,7 @@ const ProfilePage = () => {
           <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={true}/>
         </>||<div className=' text-center'> No posts! </div>}
       </div>
-
+      <MentorshipRequest />
     </div>
   );
 };

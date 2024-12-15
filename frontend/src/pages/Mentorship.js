@@ -6,6 +6,7 @@ import {
     getMentorshipHistory,
     submitFeedback,
 } from '../services/api';
+import CalendarView from '../components/CalendarView';
 
 function Mentorship() {
     const [upcomingSessions, setUpcomingSessions] = useState([]);
@@ -14,6 +15,7 @@ function Mentorship() {
     const [scheduledTime, setScheduledTime] = useState('');
     const [feedback, setFeedback] = useState('');
     const [sessionId, setSessionId] = useState('');
+    const [events, setEvents] = useState([]);
 
     // Fetch upcoming mentorships
     useEffect(() => {
@@ -21,6 +23,12 @@ function Mentorship() {
             try {
                 const data = await getUpcomingMentorships();
                 setUpcomingSessions(data.upcoming_sessions || []);
+                const calendarEvents = data.upcoming_sessions.map(session => ({
+                    title: `Mentorship with ${session.mentor.name}`,
+                    start: new Date(session.scheduled_time),
+                    end: new Date(new Date(session.scheduled_time).getTime() + 60 * 60 * 1000), // 1 hour duration
+                }));
+                setEvents(calendarEvents);
             } catch (error) {
                 console.error('Error fetching upcoming mentorships:', error);
             }
@@ -41,7 +49,7 @@ function Mentorship() {
         fetchHistory();
     }, []);
 
-    // Book a mentorship session
+    // Handle booking a mentorship session
     const handleBook = async () => {
         if (!mentorId || !scheduledTime) {
             alert('Please provide a mentor ID and scheduled time.');
@@ -50,6 +58,13 @@ function Mentorship() {
         try {
             const response = await bookMentorship(mentorId, scheduledTime);
             alert('Mentorship booked successfully!');
+            // Update the events and upcoming sessions
+            const newEvent = {
+                title: `Mentorship with ${response.mentor.name}`,
+                start: new Date(response.scheduled_time),
+                end: new Date(new Date(response.scheduled_time).getTime() + 60 * 60 * 1000),
+            };
+            setEvents([...events, newEvent]);
             setUpcomingSessions([...upcomingSessions, response]);
         } catch (error) {
             console.error('Error booking mentorship:', error);
@@ -87,10 +102,11 @@ function Mentorship() {
     };
 
     return (
-        <div className="container">
-            <h1>Mentorship</h1>
-            <div className="booking-section">
-                <h2>Book Mentorship</h2>
+        <div className="container p-4">
+            <h1 className="text-2xl font-bold mb-4">Mentorship</h1>
+            <CalendarView events={events} />
+            <div className="booking-section mb-4">
+                <h2 className="text-xl font-semibold mb-2">Book Mentorship</h2>
                 <input
                     type="text"
                     placeholder="Mentor ID"
@@ -105,8 +121,8 @@ function Mentorship() {
                 <button onClick={handleBook}>Book Session</button>
             </div>
 
-            <div className="upcoming-section">
-                <h2>Upcoming Sessions</h2>
+            <div className="upcoming-section mb-4">
+                <h2 className="text-xl font-semibold mb-2">Upcoming Sessions</h2>
                 <ul>
                     {upcomingSessions.map((session) => (
                         <li key={session.session_id}>
@@ -117,8 +133,8 @@ function Mentorship() {
                 </ul>
             </div>
 
-            <div className="history-section">
-                <h2>Mentorship History</h2>
+            <div className="history-section mb-4">
+                <h2 className="text-xl font-semibold mb-2">Mentorship History</h2>
                 <ul>
                     {history.map((session) => (
                         <li key={session.session_id}>
@@ -128,8 +144,8 @@ function Mentorship() {
                 </ul>
             </div>
 
-            <div className="feedback-section">
-                <h2>Submit Feedback</h2>
+            <div className="feedback-section mb-4">
+                <h2 className="text-xl font-semibold mb-2">Submit Feedback</h2>
                 <input
                     type="text"
                     placeholder="Session ID"

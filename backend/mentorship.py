@@ -30,11 +30,34 @@ def parse_scheduled_time(time_str):
     """
     try:
         scheduled_time = datetime.fromisoformat(time_str)
-        if scheduled_time <= datetime.utcnow():
-            raise ValueError("Scheduled time must be in the future")
         return scheduled_time
     except Exception:
         raise ValueError("Invalid time format. Use ISO format (YYYY-MM-DDTHH:MM:SS)")
+
+# Endpoint to get available mentors
+@mentorship_bp.route('/mentors/available', methods=['GET'])
+@login_required
+def get_available_mentors():
+
+    print("Getting available mentors")
+    session = Session()
+    try:
+        # Assuming you have a field in the User model to indicate availability
+        available_mentors = session.query(User).filter(User.mentorship_availability == True).all()
+        
+        mentors_list = [{
+            'id': mentor.user_id,
+            'name': mentor.username,
+            'bio': mentor.bio,
+            #'calendar_url': mentor.calendar_url
+        } for mentor in available_mentors]
+        print(f"Available mentors: {mentors_list}")
+        return jsonify({'mentors': mentors_list}), 200
+    except Exception as e:
+        print(f"Error fetching available mentors: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+    finally:
+        session.close()
 
 # Endpoint to book a mentorship session
 @mentorship_bp.route('/mentorship/book/<int:mentor_id>', methods=['POST'])
@@ -55,6 +78,7 @@ def book_mentorship(mentor_id):
     # Parse and validate scheduled time
     try:
         scheduled_time = parse_scheduled_time(data['scheduled_time'])
+        print("Parsed Time")
     except ValueError as e:
         session.close()
         return jsonify({'error': str(e)}), 400
@@ -73,14 +97,15 @@ def book_mentorship(mentor_id):
 
     # Create the event in Google Calendar
     try:
-        event_id = create_google_calendar_event(
-            mentor_email=mentor.email,
-            mentee_email=user.email,
-            mentor_name=mentor.username,
-            mentee_name=user.username,
-            start_time=scheduled_time.isoformat(),
-            end_time=end_time.isoformat()
-        )
+        #event_id = create_google_calendar_event(
+        #    mentor_email=mentor.email,
+        #    mentee_email=user.email,
+        #    mentor_name=mentor.username,
+        #    mentee_name=user.username,
+        #    start_time=scheduled_time.isoformat(),
+        #    end_time=end_time.isoformat()
+        #)
+        ...
     except Exception as gc_err:
         # Rollback credit deduction if event creation fails
         user.credits += COST_TO_BOOK_MENTORSHIP
@@ -93,22 +118,24 @@ def book_mentorship(mentor_id):
         mentee_id=user.user_id,
         mentor_id=data['mentor_id'],
         scheduled_time=scheduled_time,
-        status='scheduled',
-        event_id=event_id
+        status='pending',
+        #event_id=event_id
     )
 
     session.add(new_session)
     try:
+        
+        credits = user.credits
         session.commit()
+        session_id = new_session.session_id
         session.close()
+
         return jsonify({
             'message': 'Mentorship session booked successfully',
-            'session_id': new_session.session_id,
-            'credits': user.credits
+            'session_id': session_id,
+            'credits': credits
         }), 201
     except Exception as e:
-        # Remove the created Google Calendar event if DB commit fails
-        delete_google_calendar_event(event_id)
         session.rollback()
         session.close()
         return jsonify({'error': str(e)}), 500
@@ -152,24 +179,22 @@ def complete_mentorship(session_id):
         return jsonify({'error': str(e)}), 500
 
 # Endpoint to get upcoming mentorship sessions for a user
-@mentorship_bp.route('/mentorship/upcoming', methods=['GET'])
+@mentorship_bp.route('/mentorship/mentor_requests', methods=['GET'])
 @login_required
 def get_upcoming_sessions():
     session = Session()
     sessions = session.query(MentorshipSession).filter(
-        ((MentorshipSession.mentee_id == current_user.user_id) | 
-         (MentorshipSession.mentor_id == current_user.user_id)) &
-        (MentorshipSession.status == 'scheduled')
+        MentorshipSession.mentor_id == current_user.user_id
     ).all()
 
     session_list = []
     for s in sessions:
-        mentor = session.query(User).filter(User.user_id == s.mentor_id).first()
-        mentee = session.query(User).filter(User.user_id == s.mentee_id).first()
+        mentor = s.mentor
+        mentee = s.mentee
         session_list.append({
             'session_id': s.session_id,
-            'mentor': {'id': s.mentor_id, 'name': mentor.username if mentor else 'Unknown'},
-            'mentee': {'id': s.mentee_id, 'name': mentee.username if mentee else 'Unknown'},
+            'mentor': {'id': s.mentor_id, 'name': mentor.name if mentor else 'Unknown'},
+            'mentee': {'id': s.mentee_id, 'name': mentee.name if mentee else 'Unknown'},
             'scheduled_time': s.scheduled_time.isoformat(),
             'status': s.status
         })
@@ -177,8 +202,8 @@ def get_upcoming_sessions():
     session.close()
     return jsonify({'upcoming_sessions': session_list}), 200
 
-# Endpoint to cancel a mentorship session
-@mentorship_bp.route('/mentorship/cancel/<int:session_id>', methods=['POST'])
+# Endpoint to update a mentorship session
+@mentorship_bp.route('/mentorship/update/<int:session_id>', methods=['POST'])
 @login_required
 def cancel_mentorship(session_id):
     session = Session()
@@ -192,36 +217,62 @@ def cancel_mentorship(session_id):
 
     user = session.query(User).filter(User.user_id == current_user.user_id).first()
 
-    if mentorship_session.mentee_id != user.user_id and mentorship_session.mentor_id != user.user_id:
+    if mentorship_session.mentor_id != user.user_id:
         session.close()
         return jsonify({'error': 'Unauthorized action'}), 403
 
-    if mentorship_session.status != 'scheduled':
+    if mentorship_session.status != 'pending':
         session.close()
-        return jsonify({'error': 'Cannot cancel this session'}), 400
+        return jsonify({'error': 'Cannot update this session'}), 400
 
-    # Update session status
-    mentorship_session.status = 'canceled'
+    if "type" not in request.json:
+        return jsonify({'error': 'Include the type of the update'}), 400
+    
+    if request.json["type"] == "canceled":
+        mentorship_session.status = 'canceled'
+    elif request.json["type"] == "scheduled":
+        mentorship_session.status = 'scheduled'
+    else:
+        return jsonify({'error': 'Include a valid type of the update ("canceled", "scheduled")'}), 400
 
-    # Refund credits if mentee cancels
-    if mentorship_session.mentee_id == user.user_id:
-        user.credits += COST_TO_BOOK_MENTORSHIP
 
-    # Delete event from Google Calendar if exists
-    if mentorship_session.event_id:
-        try:
-            delete_google_calendar_event(mentorship_session.event_id)
-        except Exception as gc_err:
-            pass
+    # Refund credits if mentor cancels
+    if request.json["type"] == "cancelled":
+        mentorship_session.mentee.credits += COST_TO_BOOK_MENTORSHIP
+
+    # Rewarding credits if mentor approved
+    if request.json["type"] == "approved":
+        mentorship_session.mentor.credits += REWARD_FOR_MENTORING
 
     try:
         session.commit()
         session.close()
-        return jsonify({'message': 'Mentorship session canceled', 'credits': user.credits}), 200
+        return jsonify({'message': f'Mentorship session {request.json["type"]}'}), 200
     except Exception as e:
         session.rollback()
         session.close()
         return jsonify({'error': str(e)}), 500
+
+@mentorship_bp.route('/mentors/availability', methods=['POST'])
+@login_required
+def update_mentorship_availability():
+    session = Session()
+    try:
+        data = request.get_json()
+        if 'availability' not in data:
+            return jsonify({'error': 'Availability status is required'}), 400
+
+        # Update the current user's availability
+        user = session.query(User).filter(User.user_id == current_user.user_id).first()
+        user.mentorship_availability = data['availability'] == 'yes'
+        session.commit()
+
+        return jsonify({'message': 'Availability updated successfully'}), 200
+    except Exception as e:
+        session.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        session.close()
 
 @mentorship_bp.route('/mentors/available', methods=['GET'])
 def get_available_mentors():
