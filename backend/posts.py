@@ -60,13 +60,21 @@ def get_posts():
 
         # Fetch all posts
         posts = session.query(Post).all()
-        result = [{"id": p.post_id, "title": p.title, "content": p.content} for p in posts]
 
         # Deduct credits for fetching posts
         current_user.credits -= COST_TO_ACCESS
         session.commit()
 
-        return jsonify({"posts": result}), 200
+        return jsonify({
+            'posts': [
+                {'id': post.post_id,
+                 'author': post.user.name,
+                 'content': post.content,
+                 'title': post.title,
+                 'created_at': post.created_at,
+                 "author_id": post.user_id,
+                 } for post in posts
+                ]}), 200
     except SQLAlchemyError as e:
         session.rollback()
         return jsonify({"error": "Database error occurred", "details": str(e)}), 500
