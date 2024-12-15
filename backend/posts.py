@@ -53,15 +53,17 @@ def add_post():
 def get_posts():
     session = Session()
     try:
-        # Check if the current user has sufficient credits
-        if current_user.credits < COST_TO_ACCESS:
+        # Get fresh user data from database
+        user = session.query(User).filter_by(user_id=current_user.user_id).first()
+        
+        # Check if the user has sufficient credits
+        if user.credits < COST_TO_ACCESS:
             return jsonify({"error": "Insufficient credits"}), 403
 
         # Fetch all posts
         posts = session.query(Post).all()
 
         # Deduct credits for fetching posts
-        user = session.query(User).filter_by(user_id=current_user.user_id).first()
         user.credits -= COST_TO_ACCESS
         session.commit()
 
@@ -152,12 +154,13 @@ def get_post(post_id):
 def fetch_post(post_id):
     return get_post(post_id)
 
+#Endpoint to delete a post
 @posts_bp.route('/post/<int:post_id>', methods=['DELETE'])
 @login_required
 def delete_post(post_id):
     session = Session()
     try:
-        post = session.query(Post).filter(Post.post_id == post_id).first()
+        post = session.query(Post).filter_by(post_id=post_id).first()
         if not post:
             return jsonify({"error": "Post not found"}), 404
         
@@ -170,7 +173,10 @@ def delete_post(post_id):
         return jsonify({"message": "Post deleted successfully"}), 200
     except SQLAlchemyError as e:
         session.rollback()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Database error occurred", "details": str(e)}), 500
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
     finally:
         session.close()
 
@@ -289,50 +295,41 @@ def add_vote(post_id):
         return jsonify({'error': 'Vote type is required and must be "upvote" or "downvote"'}), 400
 
     session = Session()
-    
-    # Verify post exists
-    post = session.query(Post).filter_by(post_id=post_id).first()
-    if not post:
-        return jsonify({'error': 'Post not found'}), 404
+    try:
+        # Check if post exists
+        post = session.query(Post).filter_by(post_id=post_id).first()
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
 
-    # Check if the user has already voted on this post
-    existing_vote = session.query(Vote).filter(
-        Vote.post_id == post_id,
-        Vote.user_id == current_user.user_id
-    ).first()
+        # Check if user already voted
+        existing_vote = session.query(Vote).filter_by(
+            post_id=post_id,
+            user_id=current_user.user_id
+        ).first()
 
-    if existing_vote:
-        if existing_vote.vote_type != data['vote_type']:
-            # Update the existing vote
-            existing_vote.vote_type = data['vote_type']
-            action = 'updated'
+        if existing_vote:
+            if existing_vote.vote_type != data['vote_type']:
+                existing_vote.vote_type = data['vote_type']
+                action = 'updated'
+            else:
+                session.delete(existing_vote)
+                action = 'removed'
         else:
-            delete_vote(
+            new_vote = Vote(
                 post_id=post_id,
                 user_id=current_user.user_id,
-                session=Session(),
-                Post=Post,
-                Vote=Vote
+                vote_type=data['vote_type']
             )
-            action = 'deleted'
+            session.add(new_vote)
+            action = 'added'
 
-    else:
-        # Add a new vote
-        new_vote = Vote(
-            post_id=post_id,
-            user_id=current_user.user_id,
-            vote_type=data['vote_type']
-        )
-        session.add(new_vote)
-        action = 'added'
-
-    try:
         session.commit()
-    except Exception as e:
+        return jsonify({'message': f'Vote {action} successfully'}), 200
+    except SQLAlchemyError as e:
         session.rollback()
         return jsonify({'error': str(e)}), 500
-
-    return jsonify({'message': f'Vote {action} successfully'}), 200
+    finally:
+        session.close()
 
 
 # commenting on a post
@@ -346,7 +343,7 @@ def comment_on_post(post_id):
         if not comment_text:
             return jsonify({"error": "Comment text is required"}), 400
 
-        post = session.query(Post).filter(Post.post_id == post_id).first()
+        post = session.query(Post).filter_by(post_id=post_id).first()
         if not post:
             return jsonify({"error": "Post not found"}), 404
 
