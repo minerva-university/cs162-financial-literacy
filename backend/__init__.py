@@ -5,6 +5,7 @@ from flask_cors import CORS
 from .database.create import User, engine
 from sqlalchemy.orm import sessionmaker
 from flask import jsonify
+import os
 
 
 # Create a new session
@@ -16,7 +17,7 @@ def create_app(test_config=None):
     
     # Use test config if provided, otherwise use default config
     if test_config is None:
-        app.config['SECRET_KEY'] = 'A'
+        app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret_key')
         app.config['SESSION_COOKIE_SAMESITE'] = 'None'
         app.config['SESSION_COOKIE_SECURE'] = True
     else:

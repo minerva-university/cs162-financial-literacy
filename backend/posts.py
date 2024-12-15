@@ -70,7 +70,7 @@ def get_posts():
         return jsonify({
             'posts': [
                 {'id': post.post_id,
-                 'author': post.user.username,
+                 'author': post.user.name,
                  'content': post.content,
                  'title': post.title,
                  'created_at': post.created_at,

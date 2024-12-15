@@ -34,11 +34,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-        db_uri: "sqlite:///test.db"
-        TEST_DB_URI: "sqlite:///test.db"
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DB_URI: ${{ secrets.DB_URI }}
+        TEST_DB_URI: ${{ secrets.TEST_DB_URI }}
         FLASK_ENV: testing
         FLASK_APP: backend.app:create_app
-        SECRET_KEY: test_secret_key
+
     steps:
       - name: Checkout codex
         uses: actions/checkout@v3
@@ -52,7 +53,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
-          pip install pytest pytest-cov
 
       - name: Run tests with pytest and coverage
         run: |
