@@ -7,35 +7,37 @@ from backend.config import COST_TO_ACCESS, REWARD_FOR_POSTING
 @pytest.fixture(autouse=True)
 def patch_session(monkeypatch, db_session):
     """
-    Monkeypatch the Session call in posts.py to return the db_session used by the tests.
-    This ensures that both the tests and the route handlers share the same session,
-    making test data visible to the routes.
+    Monkeypatch the Session usage in posts.py to return the test db_session.
+    Also patch the db_session.close method to do nothing to avoid detaching instances.
+    This ensures that the session remains active and the test can safely query
+    the database after routes return.
     """
-    # Replace the Session in posts.py with a lambda that returns the db_session fixture
+    # Replace the Session call in posts.py with a lambda returning db_session
     monkeypatch.setattr("backend.posts.Session", lambda: db_session)
+    # Prevent db_session from actually closing, which causes detached instances
+    monkeypatch.setattr(db_session, "close", lambda: None)
 
 
 @pytest.mark.usefixtures("client", "db_session")
 class TestPosts:
     """
-    This class contains tests for the posts-related endpoints of the application.
-    These tests assume that user authentication and database setup are handled
-    by fixtures provided in conftest.py and other test utilities.
+    Tests for posts-related endpoints. Assumes user authentication and database setup 
+    are handled by fixtures in conftest.py and other test utilities.
     """
 
     def test_add_post_unauthenticated(self, client):
         """
-        Test that attempting to add a post without being logged in returns a 401 status code.
+        Test that adding a post without being logged in returns 401.
         """
         response = client.post('/post', json={
             "title": "My Post",
             "content": "Post content"
         })
-        assert response.status_code == 401  # Expecting 401 because no user is logged in
+        assert response.status_code == 401
 
     def test_add_post_success(self, client, create_user, login_user):
         """
-        Test that a logged-in user can successfully create a post.
+        Test that a logged-in user can successfully create a new post.
         """
         user = create_user(username="post_user", email="post_user@example.com", password="pass", credits=100)
         login_user(email="post_user@example.com", password="pass")
@@ -44,6 +46,7 @@ class TestPosts:
             "title": "Test Post",
             "content": "This is a test post."
         })
+
         assert response.status_code == 201
         json_data = response.get_json()
         assert json_data["message"] == "Post added"
@@ -53,10 +56,9 @@ class TestPosts:
         """
         Test that a user with insufficient credits receives a 403 when fetching posts.
         """
-        # Create and log in a user with 0 credits
         user = create_user(username="low_credits_user", email="low@example.com", password="pass", credits=0)
         login_user(email="low@example.com", password="pass")
-
+        
         response = client.get('/posts')
         assert response.status_code == 403
         json_data = response.get_json()
@@ -64,7 +66,7 @@ class TestPosts:
 
     def test_get_posts_success(self, client, create_user, login_user, db_session):
         """
-        Test that a user with enough credits can successfully get posts.
+        Test that a user with sufficient credits can successfully get all posts.
         """
         # Clear existing posts
         db_session.query(Post).delete()
@@ -76,9 +78,10 @@ class TestPosts:
         db_session.commit()
 
         login_user(email="rich_user@example.com", password="pass")
+
         response = client.get('/posts')
-        assert response.status_code == 200
         json_data = response.get_json()
+        assert response.status_code == 200
         assert len(json_data["posts"]) == 1
         assert json_data["posts"][0]["title"] == "Test Post"
 
@@ -161,6 +164,7 @@ class TestPosts:
         data = response.get_json()
         assert "Comment added successfully" in data["message"]
 
+        # Verify the comment exists in the database
         comment = db_session.query(Comment).filter_by(post_id=post.post_id).first()
         assert comment is not None
         assert comment.comment_text == "Nice post!"
