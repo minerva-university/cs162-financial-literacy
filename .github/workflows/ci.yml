@@ -34,13 +34,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-        db_uri: "sqlite:///:memory:"
-        TEST_DB_URI: "sqlite:///:memory:"
+        db_uri: "sqlite:///test.db"
+        TEST_DB_URI: "sqlite:///test.db"
         FLASK_ENV: testing
         FLASK_APP: backend.app:create_app
         SECRET_KEY: test_secret_key
     steps:
-      - name: Checkout code
+      - name: Checkout codex
         uses: actions/checkout@v3
 
       - name: Set up Python 3.11
