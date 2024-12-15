@@ -33,28 +33,25 @@ def test_engine():
 
 @pytest.fixture(scope='function')
 def db_session(test_engine):
-    """
-    Creates a new database session for a test.
-    """
     connection = test_engine.connect()
     transaction = connection.begin()
-    Session = sessionmaker(bind=connection)
-    session = scoped_session(Session)
-
-    # Ensure auth session is using the same connection
-    auth_session.remove()
-    auth_session.configure(bind=connection)
-
+    session_factory = sessionmaker(bind=connection)
+    Session = scoped_session(session_factory)
+    session = Session()
     yield session
-
-    # Proper cleanup
     session.close()
     transaction.rollback()
     connection.close()
 
 @pytest.fixture(scope='function')
 def client(app, db_session):
+    """
+    Provides a test client for the Flask app
+    """
     with app.test_client() as client:
+        with app.app_context():
+            auth_session.remove()
+            auth_session.configure(bind=db_session.bind)
         yield client
 
 @pytest.fixture(scope='function')
@@ -132,5 +129,7 @@ def test_data(db_session):
     """Fixture to populate database with test data"""
     def _create_test_data():
         # Add your common test data here
-        pass
+        user = User(username="testuser", email="testuser@example.com", credits=150)
+        db_session.add(user)
+        db_session.commit()
     return _create_test_data

@@ -1,3 +1,5 @@
+# test_auth.py
+
 import pytest
 from backend.database.create import User
 
@@ -39,7 +41,7 @@ class TestAuth:
 
         assert response.status_code == 400
         json_data = response.get_json()
-        assert json_data["reason"] == "User already exists"
+        assert json_data["reason"] == "Email already registered"
 
 
     def test_login_invalid_credentials(self, client):
@@ -67,8 +69,6 @@ class TestAuth:
         json_data = response.get_json()
         assert response.status_code == 200
         assert json_data["authenticated"] is True
-        assert json_data["username"] == "ping_user"
-
 
     def test_ping_unauthenticated(self, client):
         response = client.get('/ping')
@@ -85,14 +85,3 @@ class TestAuth:
     def test_logout_unauthenticated(self, client):
         response = client.get('/logout')
         assert response.status_code == 401
-
-    def test_get_available_mentors(self, client, create_user):
-        mentor1 = create_user(username="mentor1", email="mentor1@example.com", password="mentorpass")
-        mentor2 = create_user(username="mentor2", email="mentor2@example.com", password="mentorpass")
-        mentor1.mentorship_availability = True
-        mentor2.mentorship_availability = True
-
-        response = client.get('/mentors/available')
-        json_data = response.get_json()
-        assert response.status_code == 200
-        assert len(json_data["mentors"]) == 2

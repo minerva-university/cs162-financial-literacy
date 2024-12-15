@@ -1,3 +1,5 @@
+# test_posts.py
+
 import pytest
 from backend.database.create import User, Post, Vote, Comment
 from backend.config import COST_TO_ACCESS, REWARD_FOR_POSTING
@@ -41,7 +43,7 @@ class TestPosts:
         # Clear existing posts first
         db_session.query(Post).delete()
         db_session.commit()
-        
+
         user = create_user(username="rich_user", email="rich_user@example.com", password="pass", credits=100)
         post = Post(user_id=user.user_id, title="Test Post", content="Test Content")
         db_session.add(post)
@@ -55,6 +57,7 @@ class TestPosts:
         assert response.status_code == 200
         assert len(json_data["posts"]) == 1
         assert json_data["posts"][0]["title"] == "Test Post"
+
 
 
     def test_fetch_single_post(self, client, create_user, login_user, db_session):
