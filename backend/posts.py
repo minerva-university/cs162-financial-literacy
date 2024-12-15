@@ -55,20 +55,20 @@ def get_posts():
     try:
         # Check if the current user has sufficient credits
         if current_user.credits < COST_TO_ACCESS:
-            session.rollback()
             return jsonify({"error": "Insufficient credits"}), 403
 
         # Fetch all posts
         posts = session.query(Post).all()
 
         # Deduct credits for fetching posts
-        current_user.credits -= COST_TO_ACCESS
+        user = session.query(User).filter_by(user_id=current_user.user_id).first()
+        user.credits -= COST_TO_ACCESS
         session.commit()
 
         return jsonify({
             'posts': [
                 {'id': post.post_id,
-                 'author': post.user.name,
+                 'author': post.user.username,
                  'content': post.content,
                  'title': post.title,
                  'created_at': post.created_at,
@@ -78,9 +78,6 @@ def get_posts():
     except SQLAlchemyError as e:
         session.rollback()
         return jsonify({"error": "Database error occurred", "details": str(e)}), 500
-    except Exception as e:
-        session.rollback()
-        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
     finally:
         session.close()
 
@@ -150,19 +147,23 @@ def get_post(post_id):
     return jsonify(response)
 
 
-# Register the endpoint with your Flask app
+# endpoint to fetch a single post
 @posts_bp.route("/post/<int:post_id>")
 def fetch_post(post_id):
     return get_post(post_id)
 
-@posts_bp.route('/posts/<int:post_id>', methods=['DELETE'])
+@posts_bp.route('/post/<int:post_id>', methods=['DELETE'])
 @login_required
 def delete_post(post_id):
     session = Session()
     try:
-        post = session.query(Post).filter(Post.id == post_id, Post.user_id == current_user.user_id).first()
+        post = session.query(Post).filter(Post.post_id == post_id).first()
         if not post:
-            return jsonify({"error": "Post not found or unauthorized"}), 404
+            return jsonify({"error": "Post not found"}), 404
+        
+        # Check if the user owns the post
+        if post.user_id != current_user.user_id:
+            return jsonify({"error": "Unauthorized: You can only delete your own posts"}), 403
 
         session.delete(post)
         session.commit()
@@ -280,7 +281,7 @@ def get_posts_of_followed_users():
     return jsonify({'posts': post_list}), 200
 
 # adding votes, upvotes/downvotes
-@posts_bp.route('/posts/<int:post_id>/vote', methods=['POST'])
+@posts_bp.route('/post/<int:post_id>/vote', methods=['POST'])
 @login_required
 def add_vote(post_id):
     data = request.get_json()
@@ -288,6 +289,11 @@ def add_vote(post_id):
         return jsonify({'error': 'Vote type is required and must be "upvote" or "downvote"'}), 400
 
     session = Session()
+    
+    # Verify post exists
+    post = session.query(Post).filter_by(post_id=post_id).first()
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
 
     # Check if the user has already voted on this post
     existing_vote = session.query(Vote).filter(
@@ -330,24 +336,24 @@ def add_vote(post_id):
 
 
 # commenting on a post
-@posts_bp.route('/posts/<int:post_id>/comment', methods=['POST'])
+@posts_bp.route('/post/<int:post_id>/comment', methods=['POST'])
 @login_required
 def comment_on_post(post_id):
     session = Session()
     try:
-        data = request.json
-        content = data.get('content')
-        if not content:
-            return jsonify({"error": "Comment content is required"}), 400
+        data = request.get_json()
+        comment_text = data.get('comment_text')
+        if not comment_text:
+            return jsonify({"error": "Comment text is required"}), 400
 
-        post = session.query(Post).filter(Post.id == post_id).first()
+        post = session.query(Post).filter(Post.post_id == post_id).first()
         if not post:
             return jsonify({"error": "Post not found"}), 404
 
         new_comment = Comment(
             post_id=post_id,
             user_id=current_user.user_id,
-            content=content,
+            comment_text=comment_text,
             created_at=datetime.utcnow()
         )
         session.add(new_comment)

@@ -11,8 +11,6 @@ Session = sessionmaker(bind=engine)
 
 
 
-
-
 @profile.route('/profile', methods=['POST'])
 @login_required  # Ensures that only logged-in users can update profiles
 def update_profile():
