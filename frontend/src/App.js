@@ -27,7 +27,6 @@ import CreditSystemPage from './pages/CreditSystemPage';
 import ScholarshipsPage from './pages/ScholarshipsPage';
 import InternshipsPage from './pages/InternshipsPage';
 
-
 function App() {
     useEffect(() => {
         const checkAuthentication = async () => {
@@ -73,7 +72,7 @@ function App() {
                             <Route path="/faq" element={<FaqPage />} />
                             <Route path="/articles" element={<ArticlesPage />} />
                             <Route path="/article/:articleId" element={<ArticlePage />} />
-                            <Route path="/CreditSystemPage" element={<CreditSystemPage />} />
+                            <Route path="/credits" element={<CreditSystemPage />} />
                             <Route path="/scholarships" element={<ScholarshipsPage />} />
                             <Route path="/internships" element={<InternshipsPage />} />
                         </Routes>

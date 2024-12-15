@@ -1,17 +1,52 @@
+/* Page Styling */
 .mentors-page {
   padding: 20px;
   font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: auto;
 }
 
-.mentors-section,
-.sessions-section,
-.history-section {
-  margin-bottom: 40px;
+.page-title {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #003366;
+  margin-bottom: 20px;
 }
 
-.mentors-list,
-.sessions-list,
-.history-list {
+.loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.nav-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Mentors Section */
+.mentors-section {
+  margin-top: 20px;
+}
+
+.mentors-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
@@ -20,55 +55,106 @@
 }
 
 .mentor-card {
-  background-color: #ffffff;
-  padding: 15px;
+  background: #ffffff;
+  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
 .mentor-card h3 {
+  font-size: 1.5rem;
   margin-bottom: 10px;
+  color: #333;
 }
 
-.mentor-card button {
+.mentor-card p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.calendar-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.calendar-link:hover {
+  text-decoration: underline;
+}
+
+.mentor-request-btn {
   margin-top: 10px;
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #28a745;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 1rem;
 }
 
-.mentor-card button:hover {
-  background-color: #0056b3;
+.mentor-request-btn:hover {
+  background-color: #218838;
 }
 
-.sessions-section ul,
-.history-section ul {
-  list-style: none;
-  padding: 0;
+/* Modal Styling */
+.datepicker-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.sessions-section li,
-.history-section li {
-  background: #ffffff;
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 90%;
+  max-width: 500px;
+}
+
+.datepicker {
+  width: 100%;
+  padding: 10px;
   margin: 10px 0;
-  padding: 15px;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
-.history-section button {
-  padding: 8px 16px;
-  background-color: #28a745;
-  color: #fff;
+.modal-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
 }
 
-.history-section button:hover {
-  background-color: #218838;
+.modal-btn.confirm {
+  background-color: #007bff;
+  color: white;
+}
+
+.modal-btn.confirm:hover {
+  background-color: #0056b3;
+}
+
+.modal-btn.cancel {
+  background-color: #dc3545;
+  color: white;
+}
+
+.modal-btn.cancel:hover {
+  background-color: #b71c1c;
 }
