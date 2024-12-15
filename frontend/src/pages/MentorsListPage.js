@@ -56,11 +56,11 @@ const MentorsListPage = () => {
   if (loading) return <div>Loading mentorship data...</div>;
 
   return (
-    <div className="mentors-page">
-      <h1>Find Mentors</h1>
+    <div className="mentors-page p-4">
+      <h1 className="text-2xl font-bold mb-4">Find Mentors</h1>
 
       {/* Navigation Buttons */}
-      <div className="navigation-buttons">
+      <div className="navigation-buttons flex justify-between">
         <button onClick={() => navigate("/mentorship/upcoming")}>
           View Upcoming Mentorships
         </button>
@@ -70,13 +70,13 @@ const MentorsListPage = () => {
       </div>
 
       <section className="mentors-section">
-        <h2>Available Mentors</h2>
+        <h2 className="text-xl font-bold mb-4">Available Mentors</h2>
         <ul className="mentors-list">
           {mentors.map((mentor) => (
             <li key={mentor.id} className="mentor-card">
               <Link to={`/user/${mentor.id}`}>
-                <h3>{mentor.name}</h3>
-                <p>{mentor.bio}</p>
+                <h3 className="text-lg font-semibold">{mentor.name}</h3>
+                <p className="text-gray-700">{mentor.bio}</p>
               </Link>
               {mentor.calendar_url && (
                 <p>
@@ -101,7 +101,7 @@ const MentorsListPage = () => {
 
       {selectedMentor && (
         <div className="datepicker-modal">
-          <h2>Select Date and Time</h2>
+          <h2 className="text-xl font-bold mb-4">Select Date and Time</h2>
           <DatePicker
             selected={selectedDate}
             onChange={(date) => setSelectedDate(date)}

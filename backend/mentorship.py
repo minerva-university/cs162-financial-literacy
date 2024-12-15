@@ -177,24 +177,22 @@ def complete_mentorship(session_id):
         return jsonify({'error': str(e)}), 500
 
 # Endpoint to get upcoming mentorship sessions for a user
-@mentorship_bp.route('/mentorship/upcoming', methods=['GET'])
+@mentorship_bp.route('/mentorship/mentor_requests', methods=['GET'])
 @login_required
 def get_upcoming_sessions():
     session = Session()
     sessions = session.query(MentorshipSession).filter(
-        ((MentorshipSession.mentee_id == current_user.user_id) | 
-         (MentorshipSession.mentor_id == current_user.user_id)) &
-        (MentorshipSession.status == 'scheduled')
+        MentorshipSession.mentor_id == current_user.user_id
     ).all()
 
     session_list = []
     for s in sessions:
-        mentor = session.query(User).filter(User.user_id == s.mentor_id).first()
-        mentee = session.query(User).filter(User.user_id == s.mentee_id).first()
+        mentor = s.mentor
+        mentee = s.mentee
         session_list.append({
             'session_id': s.session_id,
-            'mentor': {'id': s.mentor_id, 'name': mentor.username if mentor else 'Unknown'},
-            'mentee': {'id': s.mentee_id, 'name': mentee.username if mentee else 'Unknown'},
+            'mentor': {'id': s.mentor_id, 'name': mentor.name if mentor else 'Unknown'},
+            'mentee': {'id': s.mentee_id, 'name': mentee.name if mentee else 'Unknown'},
             'scheduled_time': s.scheduled_time.isoformat(),
             'status': s.status
         })
@@ -202,8 +200,8 @@ def get_upcoming_sessions():
     session.close()
     return jsonify({'upcoming_sessions': session_list}), 200
 
-# Endpoint to cancel a mentorship session
-@mentorship_bp.route('/mentorship/cancel/<int:session_id>', methods=['POST'])
+# Endpoint to update a mentorship session
+@mentorship_bp.route('/mentorship/update/<int:session_id>', methods=['POST'])
 @login_required
 def cancel_mentorship(session_id):
     session = Session()
@@ -217,32 +215,37 @@ def cancel_mentorship(session_id):
 
     user = session.query(User).filter(User.user_id == current_user.user_id).first()
 
-    if mentorship_session.mentee_id != user.user_id and mentorship_session.mentor_id != user.user_id:
+    if mentorship_session.mentor_id != user.user_id:
         session.close()
         return jsonify({'error': 'Unauthorized action'}), 403
 
-    if mentorship_session.status != 'scheduled':
+    if mentorship_session.status != 'pending':
         session.close()
-        return jsonify({'error': 'Cannot cancel this session'}), 400
+        return jsonify({'error': 'Cannot update this session'}), 400
 
-    # Update session status
-    mentorship_session.status = 'canceled'
+    if "type" not in request.json:
+        return jsonify({'error': 'Include the type of the update'}), 400
+    
+    if request.json["type"] == "canceled":
+        mentorship_session.status = 'canceled'
+    elif request.json["type"] == "scheduled":
+        mentorship_session.status = 'scheduled'
+    else:
+        return jsonify({'error': 'Include a valid type of the update ("canceled", "scheduled")'}), 400
 
-    # Refund credits if mentee cancels
-    if mentorship_session.mentee_id == user.user_id:
-        user.credits += COST_TO_BOOK_MENTORSHIP
 
-    # Delete event from Google Calendar if exists
-    if mentorship_session.event_id:
-        try:
-            delete_google_calendar_event(mentorship_session.event_id)
-        except Exception as gc_err:
-            pass
+    # Refund credits if mentor cancels
+    if request.json["type"] == "cancelled":
+        mentorship_session.mentee.credits += COST_TO_BOOK_MENTORSHIP
+
+    # Rewarding credits if mentor approved
+    if request.json["type"] == "approved":
+        mentorship_session.mentor.credits += REWARD_FOR_MENTORING
 
     try:
         session.commit()
         session.close()
-        return jsonify({'message': 'Mentorship session canceled', 'credits': user.credits}), 200
+        return jsonify({'message': f'Mentorship session {request.json["type"]}'}), 200
     except Exception as e:
         session.rollback()
         session.close()

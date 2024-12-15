@@ -172,3 +172,10 @@ export const postInternship = async (title, description, requirements, applicati
   }, { withCredentials: true });
   return response.data;
 };
+
+export const updateMentorshipSession = async (sessionId, updateType) => {
+  const response = await axios.post(`${API_URL}/mentorship/update/${sessionId}`, {
+    type: updateType
+  }, { withCredentials: true });
+  return response.data;
+};
