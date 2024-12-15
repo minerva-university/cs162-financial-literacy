@@ -1,14 +1,16 @@
+# auth.py
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from flask import Blueprint, request, render_template_string
-from sqlalchemy.orm import sessionmaker
+from flask import Blueprint, request, jsonify
+from sqlalchemy.orm import scoped_session, sessionmaker
 from .database.create import User, engine
 
 auth = Blueprint('auth', __name__)
 
-# Create a new session
+# Create a scoped session
 Session = sessionmaker(bind=engine)
-session = Session()
+session = scoped_session(Session)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login_post():
@@ -32,7 +34,6 @@ def login_post():
     elif request.method == "GET":
         return {"Authorization": "Unauthorized"}
 
-
 @auth.route('/signup', methods=['POST'])
 def signup_post():
     body = request.json
@@ -40,11 +41,11 @@ def signup_post():
     if isinstance(email, str):
         email = email.strip()
     name = body.get('name')
-    username = email #body.get('username')
+    username = email
     password = body.get('password')
 
     # Validate input
-    if not username: # No field for username in the frontend
+    if not username:
         return {"success": "No", "reason": "Username is required"}, 400
     if not email:
         return {"success": "No", "reason": "Email is required"}, 400
@@ -54,7 +55,12 @@ def signup_post():
     # Check if user already exists in the database
     existing_user = session.query(User).filter_by(username=username).first()
     if existing_user:
-        return {"success": "No", "reason": "User already exists with this username"}  # User already exists
+        return {"success": "No", "reason": "User already exists with this username"}, 400
+
+    # Check for email duplication
+    existing_email = session.query(User).filter_by(email=email).first()
+    if existing_email:
+        return {"success": "No", "reason": "Email already registered"}, 400
 
     # Create a new user and add to the database
     try:
@@ -67,10 +73,8 @@ def signup_post():
         session.add(new_user)
         session.commit()
     except Exception as e:
-        session.rollback()  # Rollback on error
+        session.rollback()
         return {"success": "No", "reason": f"Database error: {str(e)}"}, 500
-    finally:
-        session.close()
 
     return {"success": "Yes"}
 
@@ -86,9 +90,8 @@ def logout():
 def ping():
     if current_user.is_authenticated:
         return {
-                "authenticated": current_user.is_authenticated,
-                "username": current_user.username,
-                "id": current_user.user_id
-                }
+            "authenticated": current_user.is_authenticated,
+            "username": current_user.username,  
+            "id": current_user.user_id
+        }
     return {"authenticated": current_user.is_authenticated}
-

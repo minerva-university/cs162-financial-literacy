@@ -1,46 +1,143 @@
-"""# backend/unittest/test_mentorship.py
-from .test_base import BaseTestCase
-from datetime import datetime, timedelta, timezone
-from backend.database.create import User
+"""import pytest
+from datetime import datetime, timedelta
+from backend.database.create import MentorshipSession
+from backend.config import COST_TO_BOOK_MENTORSHIP, REWARD_FOR_MENTORING
 
-class TestMentorshipEndpoints(BaseTestCase):
-    def setUp(self):
-        super().setUp()
-        # Create mentor and mentee users
-        self.register_user("mentor@example.com", "mentorpass", "Mentor User")
-        self.register_user("mentee@example.com", "menteepass", "Mentee User")
-        
-        # Login as mentor and set availability in DB
-        self.login_user("mentor@example.com", "mentorpass")
-        # Manually update mentor's availability since no direct endpoint is provided for that
-        mentor = self.session.query(User).filter_by(email="mentor@example.com").first()
-        mentor.mentorship_availability = True
-        self.session.commit()
-        self.logout_user()
 
-    def test_book_mentorship_insufficient_credits(self):
-        # mentee logs in
-        self.login_user("mentee@example.com", "menteepass")
-        # mentee tries to book (assuming initial credits might be insufficient based on COST_TO_BOOK_MENTORSHIP)
-        # If INITIAL_CREDITS is large enough, consider reducing them manually or test a scenario with insufficient credits
-        # For demonstration, let's assume initial credits are sufficient; adjust if needed.
-        mentor = self.session.query(User).filter_by(email="mentor@example.com").first()
-
-        resp = self.client.post('/mentorship/book', json={
-            "mentor_id": mentor.user_id,
-            "scheduled_time": (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+@pytest.mark.usefixtures("client", "db_session")
+class TestMentorship:
+    def test_book_mentorship_unauthenticated(self, client):
+        response = client.post('/mentorship/book', json={
+            "mentor_id": 1,
+            "scheduled_time": "2100-01-01T10:00:00"
         })
-        # Check response. If initial credits are low, expect 403, else 201.
-        if True:  # Replace True with condition or known initial credits logic
-            self.assertIn(resp.status_code, [201, 403]) 
-        self.logout_user()
+        assert response.status_code == 401
 
-    def test_get_available_mentors(self):
-        # login as mentee
-        self.login_user("mentee@example.com", "menteepass")
-        resp = self.client.get('/mentors/available')
-        self.assertEqual(resp.status_code, 200)
-        data = resp.get_json()
-        self.assertIsInstance(data["mentors"], list)
-        self.assertTrue(any(m["name"] == "Mentor User" for m in data["mentors"]))
+    def test_book_mentorship_insufficient_credits(self, client, create_user, login_user):
+        # Create mentee with 0 credits and mentor with availability
+        mentee = create_user(username="mentee", email="mentee@example.com", password="pass", credits=0)
+        create_user(username="mentor", email="mentor@example.com", password="pass", mentorship_availability=True)
+
+        # Log in as mentee
+        login_user(email="mentee@example.com", password="pass")
+
+        # Try to book mentorship
+        future_time = (datetime.utcnow() + timedelta(days=1)).isoformat()
+        response = client.post('/mentorship/book', json={
+            "mentor_id": mentee.user_id,
+            "scheduled_time": future_time
+        })
+
+        assert response.status_code == 403
+        json_data = response.get_json()
+        assert json_data["error"] == "Insufficient credits"
+
+    def test_book_mentorship_success(self, client, create_user, login_user, db_session, monkeypatch):
+        # Mock Google Calendar event creation
+        def mock_create_event(*args, **kwargs):
+            return "mock_event_id"
+        from backend.google_calendar import create_google_calendar_event
+        monkeypatch.setattr("backend.google_calendar.create_google_calendar_event", mock_create_event)
+
+        # Create mentee and mentor
+        mentee = create_user(username="mentee", email="mentee@example.com", password="pass", credits=1000)
+        mentor = create_user(username="mentor", email="mentor@example.com", password="pass", mentorship_availability=True)
+
+        # Log in as mentee
+        login_user(email="mentee@example.com", password="pass")
+
+        # Book mentorship
+        future_time = (datetime.utcnow() + timedelta(days=1)).isoformat()
+        response = client.post('/mentorship/book', json={
+            "mentor_id": mentor.user_id,
+            "scheduled_time": future_time
+        })
+
+        assert response.status_code == 201
+        json_data = response.get_json()
+        assert json_data["message"] == "Mentorship session booked successfully"
+
+        # Verify credits deduction
+        db_session.refresh(mentee)
+        assert mentee.credits == 1000 - COST_TO_BOOK_MENTORSHIP
+
+    def test_complete_mentorship_unauthorized(self, client, create_user, login_user, db_session):
+        # Create mentor, mentee, and session
+        mentor = create_user(username="mentor", email="mentor@example.com", password="pass", credits=1000)
+        mentee = create_user(username="mentee", email="mentee@example.com", password="pass", credits=1000)
+
+        session = MentorshipSession(
+            mentor_id=mentor.user_id,
+            mentee_id=mentee.user_id,
+            scheduled_time=datetime.utcnow() + timedelta(days=1),
+            status='scheduled',
+            event_id="mock_event"
+        )
+        db_session.add(session)
+        db_session.commit()
+
+        # Log in as mentee and try to complete session
+        login_user(email="mentee@example.com", password="pass")
+        response = client.post(f'/mentorship/complete/{session.session_id}')
+        assert response.status_code == 403
+        json_data = response.get_json()
+        assert json_data["error"] == "Unauthorized action"
+
+    def test_complete_mentorship_success(self, client, create_user, login_user, db_session):
+        # Create mentor, mentee, and session
+        mentor = create_user(username="mentor", email="mentor@example.com", password="pass", credits=1000)
+        mentee = create_user(username="mentee", email="mentee@example.com", password="pass", credits=1000)
+
+        session = MentorshipSession(
+            mentor_id=mentor.user_id,
+            mentee_id=mentee.user_id,
+            scheduled_time=datetime.utcnow() + timedelta(days=1),
+            status='scheduled',
+            event_id="mock_event"
+        )
+        db_session.add(session)
+        db_session.commit()
+
+        # Log in as mentor and complete session
+        login_user(email="mentor@example.com", password="pass")
+        response = client.post(f'/mentorship/complete/{session.session_id}')
+        assert response.status_code == 200
+        json_data = response.get_json()
+        assert json_data["message"] == "Mentorship session completed"
+
+        # Verify mentor credits increased
+        db_session.refresh(mentor)
+        assert mentor.credits == 1000 + REWARD_FOR_MENTORING
+
+    def test_cancel_mentorship(self, client, create_user, login_user, db_session, monkeypatch):
+        # Mock Google Calendar event deletion
+        def mock_delete_event(*args, **kwargs):
+            return True
+        from backend.google_calendar import delete_google_calendar_event
+        monkeypatch.setattr("backend.google_calendar.delete_google_calendar_event", mock_delete_event)
+
+        # Create mentor, mentee, and session
+        mentee = create_user(username="mentee", email="mentee@example.com", password="pass", credits=1000)
+        mentor = create_user(username="mentor", email="mentor@example.com", password="pass", credits=1000)
+
+        session = MentorshipSession(
+            mentor_id=mentor.user_id,
+            mentee_id=mentee.user_id,
+            scheduled_time=datetime.utcnow() + timedelta(days=1),
+            status='scheduled',
+            event_id="mock_event"
+        )
+        db_session.add(session)
+        db_session.commit()
+
+        # Log in as mentee and cancel session
+        login_user(email="mentee@example.com", password="pass")
+        response = client.post(f'/mentorship/cancel/{session.session_id}')
+        assert response.status_code == 200
+        json_data = response.get_json()
+        assert json_data["message"] == "Mentorship session canceled"
+
+        # Verify credits refunded
+        db_session.refresh(mentee)
+        assert mentee.credits == 1000 + COST_TO_BOOK_MENTORSHIP
 """

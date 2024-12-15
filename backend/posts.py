@@ -1,12 +1,14 @@
+# posts.py
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from .database.create import Follow, Post, User, Vote, Comment, engine
 from sqlalchemy.orm import sessionmaker
 from .config import COST_TO_ACCESS, REWARD_FOR_POSTING
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from typing import Tuple, Optional
 from datetime import datetime, timezone
+import logging
 
 
 # Define the blueprint
@@ -50,11 +52,19 @@ def add_post():
 @login_required
 def get_posts():
     session = Session()
-    # Fetch all posts from the database if the credit balance is sufficient
-    if current_user.credits >= COST_TO_ACCESS:
+    try:
+        # Check if the current user has sufficient credits
+        if current_user.credits < COST_TO_ACCESS:
+            session.rollback()
+            return jsonify({"error": "Insufficient credits"}), 403
+
+        # Fetch all posts
+        posts = session.query(Post).all()
+
+        # Deduct credits for fetching posts
         current_user.credits -= COST_TO_ACCESS
         session.commit()
-        posts = session.query(Post).all()  # Retrieve all posts
+
         return jsonify({
             'posts': [
                 {'id': post.post_id,
@@ -65,8 +75,16 @@ def get_posts():
                  "author_id": post.user_id,
                  } for post in posts
                 ]}), 200
-    else:
-        return jsonify({'error': 'Insufficient credits'}), 403
+    except SQLAlchemyError as e:
+        session.rollback()
+        return jsonify({"error": "Database error occurred", "details": str(e)}), 500
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+    finally:
+        session.close()
+
+
 
 def get_post(post_id):
     """Fetches a post with its upvotes, downvotes, and comments.
@@ -137,30 +155,23 @@ def get_post(post_id):
 def fetch_post(post_id):
     return get_post(post_id)
 
-# Endpoint to delete a post
-@posts_bp.route('/post/<int:post_id>', methods=['DELETE'])
+@posts_bp.route('/posts/<int:post_id>', methods=['DELETE'])
 @login_required
 def delete_post(post_id):
     session = Session()
-
-    # Fetch the post to delete
-    post = session.query(Post).filter_by(post_id=post_id).first()
-
-    if not post:
-        return jsonify({'error': 'Post not found'}), 404
-
-    # Check if the current user is the owner of the post
-    if post.user_id != current_user.user_id:
-        return jsonify({'error': 'Unauthorized: You can only delete your own posts'}), 403
-
     try:
-        # Delete the post
+        post = session.query(Post).filter(Post.id == post_id, Post.user_id == current_user.user_id).first()
+        if not post:
+            return jsonify({"error": "Post not found or unauthorized"}), 404
+
         session.delete(post)
         session.commit()
-        return jsonify({'message': 'Post deleted successfully'}), 200
-    except Exception as e:
-        session.rollback()  # Rollback in case of an error
-        return jsonify({'error': 'An error occurred while deleting the post', 'details': str(e)}), 500
+        return jsonify({"message": "Post deleted successfully"}), 200
+    except SQLAlchemyError as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
 
 
 
@@ -269,7 +280,7 @@ def get_posts_of_followed_users():
     return jsonify({'posts': post_list}), 200
 
 # adding votes, upvotes/downvotes
-@posts_bp.route('/post/<int:post_id>/vote', methods=['POST'])
+@posts_bp.route('/posts/<int:post_id>/vote', methods=['POST'])
 @login_required
 def add_vote(post_id):
     data = request.get_json()
@@ -319,35 +330,39 @@ def add_vote(post_id):
 
 
 # commenting on a post
-@posts_bp.route('/post/<int:post_id>/comment', methods=['POST'])
+@posts_bp.route('/posts/<int:post_id>/comment', methods=['POST'])
 @login_required
-def add_comment(post_id):
-    data = request.get_json()
-    if not data or 'comment_text' not in data:
-        return jsonify({'error': 'Comment text is required'}), 400
-
+def comment_on_post(post_id):
     session = Session()
-
-    # Create a new comment for the post
-    new_comment = Comment(
-        post_id=post_id,
-        user_id=current_user.user_id,
-        comment_text=data['comment_text']
-    )
-
-    session.add(new_comment)
-    
     try:
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        return jsonify({'error': str(e)}), 500
+        data = request.json
+        content = data.get('content')
+        if not content:
+            return jsonify({"error": "Comment content is required"}), 400
 
-    return jsonify({'message': 'Comment added successfully', 'comment': {'id': new_comment.comment_id, 'created_at':new_comment.created_at,"user_id":current_user.user_id, "name":current_user.name, 'text': new_comment.comment_text}}), 201
+        post = session.query(Post).filter(Post.id == post_id).first()
+        if not post:
+            return jsonify({"error": "Post not found"}), 404
+
+        new_comment = Comment(
+            post_id=post_id,
+            user_id=current_user.user_id,
+            content=content,
+            created_at=datetime.utcnow()
+        )
+        session.add(new_comment)
+        session.commit()
+        return jsonify({"message": "Comment added successfully"}), 201
+    except SQLAlchemyError as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
 
 
 # fetching votes of a post
-@posts_bp.route('/post/<int:post_id>/votes', methods=['GET'])
+@posts_bp.route('/posts/<int:post_id>/votes', methods=['GET'])
 @login_required
 def get_votes(post_id):
     session = Session()
@@ -371,7 +386,7 @@ def get_votes(post_id):
 
 
 # fetching comments of a post
-@posts_bp.route('/post/<int:post_id>/comments', methods=['GET'])
+@posts_bp.route('/posts/<int:post_id>/comments', methods=['GET'])
 @login_required
 def get_comments(post_id):
     session = Session()
@@ -481,7 +496,7 @@ def get_post_votes(
     }
 
 # Route handler for deleting votes
-@posts_bp.route('/post/<int:post_id>/vote', methods=['DELETE'])
+@posts_bp.route('/posts/<int:post_id>/vote', methods=['DELETE'])
 @login_required
 def remove_vote(post_id: int):
     """Delete a user's vote on a post"""
