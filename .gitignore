@@ -2,7 +2,6 @@
 venv
 node_modules
 .env
-
-**/*.db
-
 **/google.json
+.pytest_cache
+**/*.db

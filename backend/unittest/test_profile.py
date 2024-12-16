@@ -1,32 +1,83 @@
-# backend/unittest/test_profile.py
-from .test_base import BaseTestCase
+import pytest
+from backend.database.create import User, Follow
 
-class TestProfileEndpoints(BaseTestCase):
-    def setUp(self):
-        super().setUp()
-        self.register_user("profileuser@example.com", "testpass", "Profile User")
-        self.login_user("profileuser@example.com", "testpass")
-    
-    def test_update_profile(self):
-        resp = self.client.post('/profile', json={"bio": "New bio", "name": "New Name"})
-        self.assertEqual(resp.status_code, 200)
-        data = resp.get_json()
-        self.assertEqual(data["success"], "Profile updated successfully")
-        self.assertEqual(data["updated_profile"]["bio"], "New bio")
+@pytest.mark.usefixtures("client", "db_session")
+class TestProfile:
+    def test_get_own_profile_unauthenticated(self, client):
+        response = client.get('/profile')
+        # Should return 401 because login_required
+        assert response.status_code == 401
 
-    def test_get_followings(self):
-        resp = self.client.get('/profile')
-        self.assertEqual(resp.status_code, 200)
-        data = resp.get_json()
-        self.assertIn("followings", data)
-        self.assertIsInstance(data["followings"], list)
+    def test_update_profile(self, client, create_user, login_user):
+        # Create a user and log them in
+        user = create_user(username="profile_user", email="profile_user@example.com", password="pass")
+        login_user(email="profile_user@example.com", password="pass")
 
-    def test_follow_unfollow(self):
-        # Create another user to follow
-        self.register_user("other@example.com", "testpass", "Other User")
+        # Update the profile
+        response = client.post('/profile', json={
+            "bio": "This is my new bio",
+            "name": "Profile User Updated"
+        })
+        json_data = response.get_json()
+        assert response.status_code == 200
+        assert json_data["updated_profile"]["bio"] == "This is my new bio"
+        assert json_data["updated_profile"]["name"] == "Profile User Updated"
 
-        resp = self.client.post('/follow', json={"user_id": 2}) # 2 is the new user's ID if autoincrement from first user
-        self.assertEqual(resp.status_code, 200)
+    def test_get_followings(self, client, create_user, login_user, db_session):
+        main_user = create_user(username="main_user", email="main_user@example.com", password="pass")
+        followed_user = create_user(username="followed_user", email="followed_user@example.com", password="pass")
 
-        resp = self.client.post('/unfollow', json={"user_id": 2})
-        self.assertEqual(resp.status_code, 200)
+        # Create follow relationship
+        follow = Follow(follower_id=main_user.user_id, followed_id=followed_user.user_id)
+        db_session.add(follow)
+        db_session.commit()
+
+        login_user(email="main_user@example.com", password="pass")
+
+        response = client.get('/profile/followings')
+        assert response.status_code == 200
+        json_data = response.get_json()
+        assert "followed_user" in [f['name'] for f in json_data["followings"]]
+
+
+    def test_get_others_profile(self, client, create_user, login_user):
+        # Create two users
+        other_user = create_user(username="other_user", email="other_user@example.com", password="pass")
+        main_user = create_user(username="main_user", email="main_user@example.com", password="pass")
+
+        # Log in as the main user
+        login_user(email="main_user@example.com", password="pass")
+
+        # Fetch the other user's profile
+        response = client.get(f'/profile/{other_user.user_id}')
+        json_data = response.get_json()
+        assert response.status_code == 200
+        assert json_data["name"] == "other_user"
+
+    def test_follow_unfollow(self, client, create_user, login_user, db_session):
+        # Create two users
+        user = create_user(username="user_a", email="user_a@example.com", password="pass")
+        target = create_user(username="user_b", email="user_b@example.com", password="pass")
+
+        # Log in as user_a
+        login_user(email="user_a@example.com", password="pass")
+
+        # Follow user_b
+        res = client.post('/follow', json={"user_id": target.user_id})
+        assert res.status_code == 200
+        data = res.get_json()
+        assert data["success"] == "Successfully followed user"
+
+        # Check the follow relationship exists
+        follow = db_session.query(Follow).filter_by(follower_id=user.user_id, followed_id=target.user_id).first()
+        assert follow is not None
+
+        # Unfollow user_b
+        res = client.post('/unfollow', json={"user_id": target.user_id})
+        assert res.status_code == 200
+        data = res.get_json()
+        assert data["success"] == "Successfully unfollowed user"
+
+        # Check the follow relationship no longer exists
+        follow = db_session.query(Follow).filter_by(follower_id=user.user_id, followed_id=target.user_id).first()
+        assert follow is None

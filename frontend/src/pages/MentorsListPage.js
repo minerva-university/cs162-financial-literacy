@@ -2,12 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import {
-  getAvailableMentors,
-  bookMentorship,
-} from "../services/api";
+import { getAvailableMentors, bookMentorship } from "../services/api";
 import "../styles/MentorsList.css";
-import { useMentorship } from '../pages/MentorshipContext';
+import { useMentorship } from "../pages/MentorshipContext";
 
 const MentorsListPage = () => {
   const [mentors, setMentors] = useState([]);
@@ -15,14 +12,13 @@ const MentorsListPage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate(); // For navigation between pages
+  const navigate = useNavigate();
   const { addCheckedUser } = useMentorship();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const mentorsResponse = await getAvailableMentors();
-        console.log("Mentors Response:", mentorsResponse); // Add this line
         setMentors(mentorsResponse.mentors);
       } catch (error) {
         console.error("Error fetching mentors:", error);
@@ -53,23 +49,30 @@ const MentorsListPage = () => {
     }
   };
 
-  if (loading) return <div>Loading mentorship data...</div>;
+  if (loading) return <div className="loading">Loading mentorship data...</div>;
 
   return (
     <div className="mentors-page p-4">
-      <h1 className="text-2xl font-bold mb-4">Find Mentors</h1>
+      <h1 className="text-2xl font-bold mb-4">Find Your Mentor</h1>
 
       {/* Navigation Buttons */}
       <div className="navigation-buttons flex justify-between">
-        <button onClick={() => navigate("/mentorship/upcoming")}>
+        <button
+          onClick={() => navigate("/mentorship/upcoming")}
+          className="nav-btn"
+        >
           View Upcoming Mentorships
         </button>
-        <button onClick={() => navigate("/mentorship/history")}>
+        <button
+          onClick={() => navigate("/mentorship/history")}
+          className="nav-btn"
+        >
           View Mentorship History
         </button>
       </div>
 
-      <section className="mentors-section">
+      {/* Available Mentors Section */}
+      <section className="mentors-section mt-4">
         <h2 className="text-xl font-bold mb-4">Available Mentors</h2>
         <ul className="mentors-list">
           {mentors.map((mentor) => (
@@ -80,18 +83,22 @@ const MentorsListPage = () => {
               </Link>
               {mentor.calendar_url && (
                 <p>
-                  <strong>Google Calendar:</strong>{" "}
+                  <strong>Availability:</strong>{" "}
                   <a
                     href={mentor.calendar_url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="calendar-link"
                     onClick={() => addCheckedUser(mentor.id)}
                   >
-                    View Availability
+                    View Calendar
                   </a>
                 </p>
               )}
-              <button onClick={() => setSelectedMentor(mentor.id)}>
+              <button
+                className="mentor-request-btn"
+                onClick={() => setSelectedMentor(mentor.id)}
+              >
                 Request Mentorship
               </button>
             </li>
@@ -99,20 +106,36 @@ const MentorsListPage = () => {
         </ul>
       </section>
 
+      {/* Date Picker Modal */}
       {selectedMentor && (
         <div className="datepicker-modal">
-          <h2 className="text-xl font-bold mb-4">Select Date and Time</h2>
-          <DatePicker
-            selected={selectedDate}
-            onChange={(date) => setSelectedDate(date)}
-            showTimeSelect
-            timeFormat="HH:mm"
-            timeIntervals={15}
-            dateFormat="MMMM d, yyyy h:mm aa"
-            minDate={new Date()}
-          />
-          <button onClick={handleRequestMentorship}>Confirm</button>
-          <button onClick={() => setSelectedMentor(null)}>Cancel</button>
+          <div className="modal-content">
+            <h2 className="text-xl font-bold mb-4">Select Date and Time</h2>
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              showTimeSelect
+              timeFormat="HH:mm"
+              timeIntervals={15}
+              dateFormat="MMMM d, yyyy h:mm aa"
+              minDate={new Date()}
+              className="datepicker"
+            />
+            <div className="modal-actions">
+              <button
+                onClick={handleRequestMentorship}
+                className="modal-btn confirm"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setSelectedMentor(null)}
+                className="modal-btn cancel"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
