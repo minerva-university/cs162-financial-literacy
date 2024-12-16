@@ -50,8 +50,7 @@ def get_available_mentors():
             'id': mentor.user_id,
             'name': mentor.username,
             'bio': mentor.bio,
-            #'calendar_url': mentor.calendar_url
-        } for mentor in available_mentors]
+        } for mentor in available_mentors if mentor.user_id != current_user.user_id]
         print(f"Available mentors: {mentors_list}")
         return jsonify({'mentors': mentors_list}), 200
     except Exception as e:

@@ -124,6 +124,17 @@ export const getPostById = async (postId) => {
   return response.data;
 };
 
+// New functions for sorted posts
+export const getPostsSortedByDate = async (direction = 'desc') => {
+  const response = await axios.get(`${API_URL}/posts/sorted_by_date?direction=${direction}`, { withCredentials: true });
+  return response.data.posts;
+};
+
+export const getPostsSortedByVotes = async (direction = 'desc') => {
+  const response = await axios.get(`${API_URL}/posts/sorted_by_votes?direction=${direction}`, { withCredentials: true });
+  return response.data.posts;
+};
+
 export const deletePost = async (postId) => {
   const response = await axios.delete(`${API_URL}/post/${postId}`, { withCredentials: true });
   return response.data;
