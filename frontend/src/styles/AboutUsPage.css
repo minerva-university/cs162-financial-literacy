@@ -1,100 +1,221 @@
-/* General Container */
-.about-us-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 4rem 2rem;
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.about-page-container {
     font-family: 'Roboto', sans-serif;
-    background-color: #f2f4f7;
+    background: #f7f9fc;
     color: #333;
-    height: 100vh;
-}
-
-/* Content Wrapper */
-.about-us-content {
-    display: flex;
-    max-width: 1200px;
     width: 100%;
-    gap: 2rem;
+    box-sizing: border-box;
 }
 
-/* Left Section */
-.about-us-left {
-    flex: 1;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+/* Hero Section */
+.about-hero {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #12263a 0%, #18405a 100%);
+    color: #fff;
 }
 
-.about-us-left h1 {
-    font-size: 2.5rem;
-    color: #003366;
+.about-hero h1 {
+    font-size: 3rem;
     font-weight: 700;
+    color: #f0efe8;
     margin-bottom: 1rem;
 }
 
-.about-us-left p {
-    font-size: 1.2rem;
+.hero-text {
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
     line-height: 1.6;
-    color: #555;
+    color: #eaeaea;
 }
 
-/* Divider */
-.about-us-divider {
-    width: 2px;
-    background: linear-gradient(to bottom, #003366, #0077b6);
-}
-
-/* Right Section */
-.about-us-right {
-    flex: 2;
+/* Vision, Mission, Impact Section */
+.about-vmi-section {
     display: flex;
-    flex-direction: column;
     justify-content: center;
-}
-
-.card-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
-    gap: 1.5rem;
-}
-
-/* Card Styles */
-.about-us-card, .about-us-card-impact {
+    gap: 2rem;
+    padding: 4rem 2rem;
     background: #ffffff;
+}
+
+.vmi-card {
+    background: #f9fbff;
     border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
+    width: 300px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #dfe3e8;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.about-us-card:hover, .about-us-card-impact:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+.vmi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
 }
 
-.about-us-icon {
+.vmi-icon {
     font-size: 2.5rem;
-    color: #0077b6;
+    color: #FFD700;
     margin-bottom: 1rem;
 }
 
-.about-us-card h2 {
-    font-size: 1.6rem;
+.vmi-card h2 {
+    font-size: 1.8rem;
     font-weight: 600;
-    color: #003366;
+    color: #0b2338;
     margin-bottom: 0.5rem;
 }
 
-.about-us-card p, .about-us-card-impact p {
+.vmi-card p {
     font-size: 1rem;
     color: #555;
     line-height: 1.5;
 }
 
-/* Adjust Impact Card */
-.about-us-card-impact {
-    grid-column: 1 / span 2;
+/* Team Section */
+.about-team-section {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #f7f9fc;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.team-title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #0b2338;
+    margin-bottom: 1rem;
+}
+
+.team-subtitle {
+    font-size: 1rem;
+    color: #555;
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    line-height: 1.5;
+}
+
+/* Team Wrapper for single line */
+.team-wrapper {
+    display: flex;
+    flex-wrap: nowrap; /* Ensure all cards are on a single line */
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow-x: auto;
+    padding: 1rem;
+    border: 2px solid #dfe3e8; /* Give a border to highlight scroll area */
+    border-radius: 12px;
+    background: linear-gradient(to right, #f7f9fc 0%, #ffffff 60%, #f7f9fc 100%);
+    /* A subtle gradient to show the scrolling area */
+    scroll-behavior: smooth;
+}
+
+.team-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #dfe3e8;
+    overflow: hidden;
+    width: 300px;
+    min-width: 300px;
+    text-align: center;
+    padding: 1.5rem;
+    flex-shrink: 0; /* Prevent the card from shrinking */
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+}
+
+.team-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #FFD700;
+    margin-bottom: 1rem;
+}
+
+.team-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0b2338;
+    margin-bottom: 0.5rem;
+}
+
+.team-bio {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.4;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 900px) {
+    .vmi-card {
+        width: 250px;
+        padding: 1.5rem;
+    }
+
+    .vmi-card h2 {
+        font-size: 1.5rem;
+    }
+
+    .team-card {
+        width: 250px;
+        min-width: 250px;
+        padding: 1rem;
+    }
+
+    .team-image {
+        width: 70px;
+        height: 70px;
+    }
+
+    .team-name {
+        font-size: 1.1rem;
+    }
+
+    .team-bio {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .about-hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero-text {
+        font-size: 0.95rem;
+    }
+
+    .vmi-card {
+        width: 220px;
+    }
+
+    .vmi-card h2 {
+        font-size: 1.3rem;
+    }
+
+    .team-card {
+        width: 220px;
+        min-width: 220px;
+    }
+
+    .team-image {
+        width: 60px;
+        height: 60px;
+    }
 }
