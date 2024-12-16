@@ -69,9 +69,9 @@ const LandingPage = () => {
                 </div>
                 <div className="reviews-grid">
                     <div className="review-card">
-                        <h3>John Doe</h3>
+                        <h3>Angela Jin</h3>
                         <p className="review-text">
-                            "This platform helped me secure an internship at a top company! Highly recommended."
+                            "I appreciate how the app simplifies access to tailored financial resources and mentorship opportunities, making financial literacy approachable for all."
                         </p>
                         <div className="stars">
                             <span>⭐</span>
@@ -82,9 +82,9 @@ const LandingPage = () => {
                         </div>
                     </div>
                     <div className="review-card">
-                        <h3>Jane Smith</h3>
+                        <h3>Rawan Khalifa</h3>
                         <p className="review-text">
-                            "The resources and mentorship here are outstanding. It has been a game-changer for my career."
+                            "I love that the app encourages financial literacy knowledge sharing via credits and provides a supportive community."
                         </p>
                         <div className="stars">
                             <span>⭐</span>
@@ -95,9 +95,9 @@ const LandingPage = () => {
                         </div>
                     </div>
                     <div className="review-card">
-                        <h3>Emily Johnson</h3>
+                        <h3>Hilary Tang</h3>
                         <p className="review-text">
-                            "I found amazing scholarships through this marketplace. A must-use for students!"
+                            "I love the idea of a community that supports financial literacy. It’s been a fantastic experience."
                         </p>
                         <div className="stars">
                             <span>⭐</span>

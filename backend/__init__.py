@@ -83,5 +83,4 @@ def create_app(test_config=None, session_factory=None):
         mail.send(msg)
         return "sent"
 
-
     return app

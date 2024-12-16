@@ -10,6 +10,7 @@ from sqlalchemy import and_
 
 profile = Blueprint('profile', __name__)
 
+# Update Profile
 @profile.route('/profile', methods=['POST'])
 @login_required
 def update_profile():
@@ -45,6 +46,7 @@ def update_profile():
         }
     })
 
+
 @profile.route('/profile', methods=['GET'])
 @login_required
 def get_followings():
@@ -62,8 +64,35 @@ def get_followings():
         'name': user.name,
         'bio': user.bio or 'No bio available',
         'followings': [f.name for f in followings],
+        'credits': user.credits,
         'mentorship_availability': 'yes' if user.mentorship_availability else 'no'
     })
+
+# Update Bio
+@profile.route('/profile/update_bio', methods=['POST'])
+@login_required
+def update_bio():
+    s = current_app.session_factory()
+    data = request.get_json()
+
+    bio = data.get('bio')
+    if not bio:
+        return jsonify({"error": "Bio cannot be empty"}), 400
+
+    user = s.query(User).get(current_user.user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    try:
+        user.bio = bio
+        s.commit()
+        return jsonify({"success": True, "message": "Bio updated successfully", "bio": user.bio})
+    except Exception as e:
+        s.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        s.close()
+
 
 @profile.route('/profile/<int:user_id>', methods=['GET'])
 @login_required

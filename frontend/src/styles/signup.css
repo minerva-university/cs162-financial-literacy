@@ -1,10 +1,11 @@
-/* src/styles/signup.css */
+/* General Body Styling */
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
     background-color: #f9f9f9;
 }
 
+/* Signup Page Container */
 .signup-page {
     display: flex;
     justify-content: center;
@@ -13,6 +14,7 @@ body {
     background: linear-gradient(135deg, #2196f3, #6ec6ff);
 }
 
+/* Signup Card Container */
 .signup-card {
     background-color: #ffffff;
     border-radius: 10px;
@@ -23,6 +25,7 @@ body {
     text-align: center;
 }
 
+/* Title and Subtitle */
 .signup-title {
     font-size: 1.8rem;
     font-weight: bold;
@@ -36,6 +39,7 @@ body {
     margin-bottom: 20px;
 }
 
+/* Form Styling */
 .signup-form .form-group {
     margin-bottom: 15px;
     text-align: left;
@@ -48,7 +52,8 @@ body {
     color: #333;
 }
 
-.signup-form input {
+.signup-form input,
+.signup-form textarea {
     width: 100%;
     padding: 10px;
     font-size: 0.9rem;
@@ -58,17 +63,25 @@ body {
     transition: 0.3s ease;
 }
 
-.signup-form input:focus {
+.signup-form input:focus,
+.signup-form textarea:focus {
     border-color: #2196f3;
     box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
 }
 
+.signup-form textarea {
+    resize: none; /* Prevent resizing */
+    rows: 4;
+}
+
+/* Icons for Input Fields */
 .signup-form .input-icon {
     margin-right: 8px;
     color: #2196f3;
     vertical-align: middle;
 }
 
+/* Signup Button */
 .signup-button {
     width: 100%;
     padding: 10px 0;
@@ -86,12 +99,14 @@ body {
     background-color: #43a047;
 }
 
+/* Error Message Styling */
 .error-message {
     color: #f44336;
     font-size: 0.9rem;
     margin-top: 10px;
 }
 
+/* Footer Text */
 .signup-footer {
     margin-top: 20px;
     font-size: 0.9rem;
@@ -106,4 +121,11 @@ body {
 
 .signup-footer a:hover {
     color: #1769aa;
+}
+
+/* Optional Bio Placeholder Styling */
+.signup-form .bio-placeholder {
+    color: #aaa;
+    font-size: 0.85rem;
+    margin-top: 5px;
 }
