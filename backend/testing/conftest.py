@@ -5,10 +5,8 @@ from backend import create_app
 from backend.database.create import Base, User, Scholarship, Internship, Post, Comment, Follow, MentorshipSession
 from backend.auth import session as auth_session
 from datetime import datetime
-from dotenv import load_dotenv
-import os
 
-TEST_DB_URI =  os.getenv('TEST_DB_URI', 'sqlite:///test.db')
+TEST_DB_URI = 'sqlite:///:memory:'
 
 @pytest.fixture(scope='session')
 def app():
