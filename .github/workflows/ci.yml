@@ -13,6 +13,8 @@ jobs:
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DB_URI: ${{ secrets.DB_URI }}  # Uppercase DB_URI
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }} 
       PYTHONPATH: ./backend
       FLASK_ENV: testing
       FLASK_APP: backend.app:create_app
