@@ -67,6 +67,7 @@ class TestAuth:
 
         response = client.get('/ping')
         json_data = response.get_json()
+        print(json_data) #for debugging
         assert response.status_code == 200
         assert json_data["authenticated"] is True
 
