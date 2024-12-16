@@ -124,7 +124,7 @@ export const getPostById = async (postId) => {
 };
 
 export const deletePost = async (postId) => {
-  const response = await axios.delete(`${API_URL}/posts/${postId}`, { withCredentials: true });
+  const response = await axios.delete(`${API_URL}/post/${postId}`, { withCredentials: true });
   return response.data;
 };
 
