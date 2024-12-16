@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import '../styles/PostFeed.css';
 import { deletePost, getPostsSortedByDate, getPostsSortedByVotes } from '../services/api';
 
-const PostFeed = ({deleteOption}) => {
-  const [posts, setPosts] = useState([]);
+const PostFeed = ({deleteOption, posts, type, setPosts}) => {
+  
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -53,7 +53,7 @@ const PostFeed = ({deleteOption}) => {
 
   return (
     <div className="feed-container">
-      <div className="sorting-controls" style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      {type=="Global"&&<div className="sorting-controls" style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <label>
           Sort By: 
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ marginLeft: '0.5rem' }}>
@@ -68,7 +68,7 @@ const PostFeed = ({deleteOption}) => {
             <option value="desc">Descending</option>
           </select>
         </label>
-      </div>
+      </div>}
 
       {posts?.map((post) => (
         <div key={post.id} className="post-card">

@@ -37,7 +37,7 @@ function FeedPage() {
         Switch to {type === "Global" ? "Following" : "Global"} Feed
       </button>
       </div>
-      <PostFeed posts={posts} error={error} isLoading={isLoading} deleteOption={false} />
+      <PostFeed posts={posts} setPosts={setPosts} error={error} isLoading={isLoading} deleteOption={false} type={type}/>
     </>
   );
 }

@@ -106,7 +106,7 @@ const OtherProfile = () => {
       <div className='my-4 col-span-2 '>
         <h2 className="posts-title p-2">{userData.name}'s Posts</h2>
         {posts.length>0&&<>
-          <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={false}/>
+          <PostFeed posts={posts} setPosts={setPosts} isLoading={isLoading} error={error} deleteOption={false}/>
         </>||<div className=' text-center'> {userData.name} never posted! </div>}
       </div>
 
