@@ -57,11 +57,6 @@ def signup_post():
     if existing_user:
         return {"success": "No", "reason": "User already exists with this username"}, 400
 
-    # Check for email duplication
-    existing_email = session.query(User).filter_by(email=email).first()
-    if existing_email:
-        return {"success": "No", "reason": "Email already registered"}, 400
-
     # Create a new user and add to the database
     try:
         new_user = User(
