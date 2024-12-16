@@ -38,11 +38,11 @@ class TestMentorship:
         assert json_data["error"] == "Insufficient credits"
 
     def test_book_mentorship_success(self, client, create_user, login_user, db_session):
-        mentee = create_user(username="rich_mentee", email="rich@example.com", password="pass", name="Rich Mentee", credits=100)
-        mentor = create_user(username="mentor_user", email="mentor@example.com", password="pass", name="Mentor Name")
+        mentee = create_user(username="rich_mentee_1", email="rich1@example.com", password="pass", name="Rich Mentee", credits=100)
+        mentor = create_user(username="mentor_user_1", email="mentor1@example.com", password="pass", name="Mentor Name")
         db_session.commit()
         
-        login_response = login_user(email="rich@example.com", password="pass")
+        login_response = login_user(email="rich1@example.com", password="pass")
         assert login_response.status_code == 200
 
         response = client.post('/mentorship/book', json={
