@@ -18,6 +18,8 @@ jobs:
       PYTHONPATH: ./backend
       FLASK_ENV: testing
       FLASK_APP: backend.app:create_app
+      TEST_DB_URI: "sqlite:///test.db"
+      
 
     steps:
       - name: Checkout code

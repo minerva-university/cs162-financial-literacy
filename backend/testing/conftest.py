@@ -3,8 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from backend import create_app
 from backend.database.create import Base, User, Scholarship, Internship, Post, Comment, Follow, MentorshipSession
+import os
 
-TEST_DB_URI = 'sqlite:///:memory:'
+TEST_DB_URI = os.getenv("TEST_DB_URI", "sqlite:///test.db")
 
 @pytest.fixture(scope='session')
 def app():
