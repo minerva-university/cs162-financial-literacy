@@ -35,24 +35,22 @@ def parse_scheduled_time(time_str):
     except Exception:
         raise ValueError("Invalid time format. Use ISO format (YYYY-MM-DDTHH:MM:SS)")
 
+# Endpoint to get available mentors
 @mentorship_bp.route('/mentors/available', methods=['GET'])
 @login_required
 def get_available_mentors():
+
     print("Getting available mentors")
     session = Session()
     try:
-        available_mentors = session.query(User).filter(
-            User.mentorship_availability == True,
-            User.user_id != current_user.id  # Exclude the current user
-        ).all()
+        # Assuming you have a field in the User model to indicate availability
+        available_mentors = session.query(User).filter(User.mentorship_availability == True).all()
         
         mentors_list = [{
             'id': mentor.user_id,
             'name': mentor.username,
             'bio': mentor.bio,
-            # 'calendar_url': mentor.calendar_url
-        } for mentor in available_mentors]
-        
+        } for mentor in available_mentors if mentor.user_id != current_user.user_id]
         print(f"Available mentors: {mentors_list}")
         return jsonify({'mentors': mentors_list}), 200
     except Exception as e:
@@ -60,7 +58,6 @@ def get_available_mentors():
         return jsonify({'error': 'Internal server error'}), 500
     finally:
         session.close()
-
 
 # Endpoint to book a mentorship session
 @mentorship_bp.route('/mentorship/book', methods=['POST'])
