@@ -48,7 +48,7 @@ export const getUserCredits = async () => {
 // Mentorship APIs
 export const updateMentorship = async (availability) => {
   const response = await axios.post(`${API_URL}/mentors/availability`, { availability }, { withCredentials: true });
-  return response.data;
+  return response;
 };
 
 export const getAvailableMentors = async () => {

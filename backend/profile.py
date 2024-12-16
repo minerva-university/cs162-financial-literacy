@@ -59,13 +59,15 @@ def get_followings():
     user = current_user
     if user is None:
         return jsonify({"error": "User not found"}), 404
-
+    
+    session = Session()
+    user = session.query(User).filter_by(user_id=current_user.user_id).first()
     # Get the users the current user is following
     following_alias = aliased(User)  # Alias for the User table
     followings = Session().query(following_alias).join(Follow, Follow.follower_id == user.user_id).filter(
         Follow.follower_id == user.user_id).all()
 
-    print(f"User availability: {user.mentorship_availability}")
+    print(f"User availability: {user.mentorship_availability}", user.user_id)
     # Return only followings
     return jsonify({
         'id': user.user_id,
@@ -96,7 +98,8 @@ def get_others_profile(user_id):
         'email': user.email,
         'name': user.name,
         'bio': user.bio or 'No bio available',  # Default message if bio is None
-        'followings': [following.name for following in followings]
+        'followings': [following.name for following in followings],
+        'mentorship_availability': 'yes' if user.mentorship_availability else 'no'
     })
 
 @profile.route('/follow', methods=['POST'])

@@ -8,8 +8,8 @@ import {
   getPostsCurrentUser,
 } from "../services/api";
 import "../styles/ProfilePage.css";
-import PostFeed from "../components/Feed";
-import MentorshipRequest from "../components/MentorshipRequest";
+import MentorshipRequest from "../components/MentorshipReqeust";
+
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
@@ -53,7 +53,7 @@ const ProfilePage = () => {
     const availability = event.target.value;
     try {
       const result = await updateMentorship(availability);
-      if (result.success) {
+      if (result.status) {
         setUserData({ ...userData, mentorship_availability: availability });
         alert(
           `Mentorship availability updated to: ${

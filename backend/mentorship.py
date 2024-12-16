@@ -9,7 +9,7 @@ from .config import (
     COST_TO_BOOK_MENTORSHIP,
     REWARD_FOR_MENTORING,
 )
-from .google_calendar import create_google_calendar_event, delete_google_calendar_event
+
 from .emailing_util import send_email
 
 mentorship_bp = Blueprint('mentorship', __name__)
