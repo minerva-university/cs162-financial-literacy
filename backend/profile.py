@@ -198,3 +198,33 @@ def unfollow_user():
     except Exception as e:
         s.rollback()
         return jsonify({"error": str(e)}), 500
+
+@profile.route('/is_following/<int:user_id>', methods=['GET'])
+@login_required
+def is_following_user(user_id):
+    """
+    Checks if the current user follows the specified target user.
+    """
+    s = current_app.session_factory()
+    
+    if not user_id:
+        return jsonify({"error": "Missing user_id in request"}), 400
+
+    target_user_id = user_id
+    target_user = s.query(User).get(target_user_id)
+    
+    if not target_user:
+        return jsonify({"error": "Target user not found"}), 404
+
+    is_following = s.query(Follow).filter(
+        and_(
+            Follow.follower_id == current_user.user_id,
+            Follow.followed_id == target_user_id
+        )
+    ).first() is not None
+
+    return jsonify({
+        "user_id": target_user_id,
+        "name": target_user.name,
+        "is_following": is_following
+    }), 200
