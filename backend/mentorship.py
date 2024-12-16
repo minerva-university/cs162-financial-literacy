@@ -9,8 +9,8 @@ from .config import (
     COST_TO_BOOK_MENTORSHIP,
     REWARD_FOR_MENTORING,
 )
-
 from .emailing_util import send_email
+
 
 mentorship_bp = Blueprint('mentorship', __name__)
 Session = sessionmaker(bind=engine)
