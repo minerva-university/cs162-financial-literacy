@@ -5,3 +5,5 @@ node_modules
 **/google.json
 .pytest_cache
 **/*.db
+
+*/flask_session
