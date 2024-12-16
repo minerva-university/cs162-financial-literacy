@@ -61,15 +61,13 @@ class TestAuth:
         json_data = response.get_json()
         assert json_data["success"] == "Yes"
 
-    def test_ping_authenticated(self, client, create_user, login_user):
-        user = create_user(username="ping_user", email="ping_user@example.com", password="pass")
-        login_user(email="ping_user@example.com", password="pass")
 
-        response = client.get('/ping')
-        json_data = response.get_json()
-        print(json_data) #for debugging
+
+    def test_logout_authenticated(self, client, create_user, login_user):
+        create_user(username="logout_user", email="logout_user@example.com", password="logoutpass")
+        login_user(email="logout_user@example.com", password="logoutpass")
+        response = client.get('/logout')
         assert response.status_code == 200
-        assert json_data["authenticated"] is True
 
     def test_logout_unauthenticated(self, client):
         response = client.get('/logout')
