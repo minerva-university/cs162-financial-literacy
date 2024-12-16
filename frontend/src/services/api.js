@@ -48,7 +48,7 @@ export const getUserCredits = async () => {
 // Mentorship APIs
 export const updateMentorship = async (availability) => {
   const response = await axios.post(`${API_URL}/mentors/availability`, { availability }, { withCredentials: true });
-  return response.data;
+  return response;
 };
 
 export const getAvailableMentors = async () => {
@@ -130,12 +130,12 @@ export const deletePost = async (postId) => {
 
 
 export const vote = async (postId, vote_type) => {
-  const response = await axios.post(`${API_URL}/posts/${postId}/vote`, { vote_type }, { withCredentials: true });
+  const response = await axios.post(`${API_URL}/post/${postId}/vote`, { vote_type }, { withCredentials: true });
   return response.data.message;
 };
 
 export const comment = async (postId, comment_text) => {
-  const response = await axios.post(`${API_URL}/posts/${postId}/comment`, { comment_text }, { withCredentials: true });
+  const response = await axios.post(`${API_URL}/post/${postId}/comment`, { comment_text }, { withCredentials: true });
   return response.data;
 };
 

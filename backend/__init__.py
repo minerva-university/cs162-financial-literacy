@@ -1,15 +1,17 @@
-# backend/__init__.py
-
-from flask import Flask, jsonify
+import os
+from flask import Flask, jsonify, request
 from flask_login import LoginManager
 from flask_cors import CORS
 from .database.create import User, engine
 from sqlalchemy.orm import sessionmaker
+from flask_mail import Message
+from .mail import mail
 from dotenv import load_dotenv
-import os
+
 
 def create_app(test_config=None, session_factory=None):
     app = Flask(__name__)
+
 
     # Assign the session_factory
     if session_factory is None:
@@ -25,6 +27,15 @@ def create_app(test_config=None, session_factory=None):
         app.config['SESSION_COOKIE_SECURE'] = True
     else:
         app.config.update(test_config)
+    # Email
+    app.config["MAIL_SERVER"] = "in-v3.mailjet.com"
+    app.config["MAIL_PORT"] = 587
+    app.config["MAIL_USERNAME"] = os.environ["MAIL_USERNAME"]
+    app.config["MAIL_PASSWORD"] = os.environ["MAIL_PASSWORD"]
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
+    
+    mail.init_app(app)
 
     CORS(app, supports_credentials=True)
 
@@ -65,7 +76,12 @@ def create_app(test_config=None, session_factory=None):
     @app.route('/')
     def home():
         return jsonify(message="Welcome to the Financial Literacy Marketplace! Empowering you with the knowledge and tools to achieve financial success.")
+    @app.route('/test_email', methods=["POST"])
+    def emailing():
+        msg = Message('Testing emailing for financial literacy!', sender='eltranscriber.email@gmail.com', recipients=[request.json["email"]])
+        msg.body = f"Hey {request.json['name']}, \n Test was successful. Otherwise, you should not receive this email lol."
+        mail.send(msg)
+        return "sent"
+
 
     return app
-
-# Removed 'app = create_app()' to prevent global app creation

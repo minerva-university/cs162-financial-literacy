@@ -18,7 +18,7 @@ def add_post():
     s = current_app.session_factory()
     data = request.get_json()
     if not data or 'content' not in data or 'title' not in data:
-        return jsonify({'error': 'Content is required'}), 400
+        return jsonify({'error': 'content is required'}), 400
 
     # Create and commit new post
     new_post = Post(user_id=current_user.user_id, content=data['content'], title=data["title"])
@@ -105,6 +105,7 @@ def get_post(post_id):
         ]
     })
 
+# Get the details of a specific post
 @posts_bp.route("/post/<int:post_id>")
 def fetch_post(post_id):
     return get_post(post_id)
@@ -208,6 +209,7 @@ def get_posts_of_followed_users():
         })
     return jsonify({'posts': post_list}), 200
 
+# adding votes, upvotes/downvotes
 @posts_bp.route('/post/<int:post_id>/vote', methods=['POST'])
 @login_required
 def add_vote(post_id):
@@ -242,17 +244,18 @@ def add_vote(post_id):
         s.rollback()
         return jsonify({'error': str(e)}), 500
 
+# commenting on a post
 @posts_bp.route('/post/<int:post_id>/comment', methods=['POST'])
 @login_required
 def comment_on_post(post_id):
     s = current_app.session_factory()
     try:
-        data = request.get_json()
+        data = request.json
         comment_text = data.get('comment_text')
         if not comment_text:
             return jsonify({"error": "Comment text is required"}), 400
-
         post = s.query(Post).filter_by(post_id=post_id).first()
+
         if not post:
             return jsonify({"error": "Post not found"}), 404
 
@@ -264,34 +267,12 @@ def comment_on_post(post_id):
         )
         s.add(new_comment)
         s.commit()
-        return jsonify({"message": "Comment added successfully"}), 201
+        return jsonify({"message": "Comment added successfully", 'comment': {'id': new_comment.comment_id, 'created_at':new_comment.created_at,"user_id":current_user.user_id, "name":current_user.name, 'text': new_comment.comment_text}}), 201
     except SQLAlchemyError as e:
         s.rollback()
         return jsonify({"error": str(e)}), 500
 
-@posts_bp.route('/posts/<int:post_id>/votes', methods=['GET'])
-@login_required
-def get_votes(post_id):
-    s = current_app.session_factory()
-    upvotes_count = s.query(Vote).filter(Vote.post_id == post_id, Vote.vote_type == 'upvote').count()
-    downvotes_count = s.query(Vote).filter(Vote.post_id == post_id, Vote.vote_type == 'downvote').count()
-
-    return jsonify({'post_id': post_id, 'upvotes': upvotes_count, 'downvotes': downvotes_count}), 200
-
-@posts_bp.route('/posts/<int:post_id>/comments', methods=['GET'])
-@login_required
-def get_comments(post_id):
-    s = current_app.session_factory()
-    comments = s.query(Comment).filter(Comment.post_id == post_id).all()
-    comment_list = [{
-        'id': c.comment_id,
-        'user_id': c.user_id,
-        'comment_text': c.comment_text,
-        'created_at': c.created_at
-    } for c in comments]
-
-    return jsonify({'post_id': post_id, 'comments': comment_list}), 200
-
+# Endpoint to fetch the number of credits available to the user
 @posts_bp.route('/get_credits', methods=['GET'])
 @login_required
 def get_credits():
@@ -315,20 +296,9 @@ def delete_vote(post_id: int, user_id: int, s, Post, Vote):
     except SQLAlchemyError as e:
         s.rollback()
         return False, str(e), 500
-
-def get_post_votes(post_id: int, s, Post, Vote):
-    # Helper to count votes for a post
-    upvotes = s.query(Vote).filter(Vote.post_id == post_id, Vote.vote_type == 'upvote').count()
-    downvotes = s.query(Vote).filter(Vote.post_id == post_id, Vote.vote_type == 'downvote').count()
-    return {'upvotes': upvotes, 'downvotes': downvotes, 'total': upvotes - downvotes}
-
-@posts_bp.route('/posts/<int:post_id>/vote', methods=['DELETE'])
-@login_required
-def remove_vote(post_id: int):
-    s = current_app.session_factory()
-    success, message, status_code = delete_vote(post_id, current_user.user_id, s, Post, Vote)
-    if not success:
-        return jsonify({'error': message}), status_code
-
-    vote_counts = get_post_votes(post_id, s, Post, Vote)
-    return jsonify({'message': message, 'votes': vote_counts}), status_code
+    except IntegrityError as e:
+        session.rollback()
+        return False, "Database integrity error", 500
+    except Exception as e:
+        session.rollback()
+        return False, f"Error deleting vote: {str(e)}", 500

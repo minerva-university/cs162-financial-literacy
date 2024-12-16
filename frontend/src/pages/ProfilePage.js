@@ -8,8 +8,9 @@ import {
   getPostsCurrentUser,
 } from "../services/api";
 import "../styles/ProfilePage.css";
+import MentorshipRequest from "../components/MentorshipReqeust";
 import PostFeed from "../components/Feed";
-import MentorshipRequest from "../components/MentorshipRequest";
+
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
@@ -53,7 +54,7 @@ const ProfilePage = () => {
     const availability = event.target.value;
     try {
       const result = await updateMentorship(availability);
-      if (result.success) {
+      if (result.status) {
         setUserData({ ...userData, mentorship_availability: availability });
         alert(
           `Mentorship availability updated to: ${
@@ -156,19 +157,9 @@ const ProfilePage = () => {
         {isLoading ? (
           <p>Loading posts...</p>
         ) : posts.length > 0 ? (
-          <div className="posts-feed">
-            {posts.map((post) => (
-              <div key={post.id} className="post-card">
-                <h3 className="post-title">{post.title}</h3>
-                <p className="post-content">{post.content}</p>
-                <p className="post-meta">
-                  <span>Author: {post.author}</span> |{" "}
-                  <span>Created: {post.created_at}</span>
-                </p>
-                <button className="delete-button">Delete</button>
-              </div>
-            ))}
-          </div>
+          <>
+          <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={true}/>
+        </>
         ) : (
           <p>No posts yet. Create your first post now!</p>
         )}
