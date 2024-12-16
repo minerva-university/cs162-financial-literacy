@@ -64,10 +64,9 @@ def get_followings():
     user = session.query(User).filter_by(user_id=current_user.user_id).first()
     # Get the users the current user is following
     following_alias = aliased(User)  # Alias for the User table
-    followings = Session().query(following_alias).join(Follow, Follow.follower_id == user.user_id).filter(
+    followings = session.query(following_alias).join(Follow, Follow.follower_id == user.user_id).filter(
         Follow.follower_id == user.user_id).all()
 
-    print(f"User availability: {user.mentorship_availability}", user.user_id)
     # Return only followings
     return jsonify({
         'id': user.user_id,

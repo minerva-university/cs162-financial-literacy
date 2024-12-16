@@ -61,9 +61,10 @@ def get_available_mentors():
         session.close()
 
 # Endpoint to book a mentorship session
-@mentorship_bp.route('/mentorship/book/<int:mentor_id>', methods=['POST'])
+@mentorship_bp.route('/mentorship/book', methods=['POST'])
 @login_required
-def book_mentorship(mentor_id):
+def book_mentorship():
+    data = request.json
     mentee = current_user
     if mentee.credits < COST_TO_BOOK_MENTORSHIP:
         return jsonify({"error": "Insufficient credits"}), 403
