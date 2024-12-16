@@ -8,6 +8,7 @@ from .config import (
     REWARD_FOR_MENTORING,
 )
 from .google_calendar import create_google_calendar_event, delete_google_calendar_event
+from .emailing_util import send_email
 
 mentorship_bp = Blueprint('mentorship', __name__)
 Session = sessionmaker(bind=engine)
@@ -75,7 +76,8 @@ def book_mentorship():
 
     # Parse and validate scheduled time
     try:
-        scheduled_time = parse_scheduled_time(data['scheduled_time'])
+        print(data['scheduled_time'])
+        scheduled_time = parse_scheduled_time(data['scheduled_time'][:19])
         print("Parsed Time")
     except ValueError as e:
         session.close()
@@ -90,35 +92,14 @@ def book_mentorship():
     # Deduct credits from the user
     user.credits -= COST_TO_BOOK_MENTORSHIP
 
-    # Assume each session lasts 1 hour
-    end_time = scheduled_time + timedelta(hours=1)
-
-    # Create the event in Google Calendar
-    try:
-        #event_id = create_google_calendar_event(
-        #    mentor_email=mentor.email,
-        #    mentee_email=user.email,
-        #    mentor_name=mentor.username,
-        #    mentee_name=user.username,
-        #    start_time=scheduled_time.isoformat(),
-        #    end_time=end_time.isoformat()
-        #)
-        ...
-    except Exception as gc_err:
-        # Rollback credit deduction if event creation fails
-        user.credits += COST_TO_BOOK_MENTORSHIP
-        session.commit()
-        session.close()
-        return jsonify({'error': f"Failed to create calendar event: {str(gc_err)}"}), 500
-
     # Create a new mentorship session
     new_session = MentorshipSession(
         mentee_id=user.user_id,
         mentor_id=data['mentor_id'],
         scheduled_time=scheduled_time,
         status='pending',
-        #event_id=event_id
     )
+    
 
     session.add(new_session)
     try:
@@ -126,7 +107,9 @@ def book_mentorship():
         credits = user.credits
         session.commit()
         session_id = new_session.session_id
+        send_email([mentor.email, current_user.email], f"Hi, {mentor.name}!\n\n{current_user.name} requested to book a mentorship session with you for :\n{new_session.scheduled_time} \nPlease, go to your profile page and review it.\n\nBest,\nFinancial Literacy Team", "New Mentorship Request!")
         session.close()
+        
 
         return jsonify({
             'message': 'Mentorship session booked successfully',
@@ -134,6 +117,7 @@ def book_mentorship():
             'credits': credits
         }), 201
     except Exception as e:
+        print(e)
         session.rollback()
         session.close()
         return jsonify({'error': str(e)}), 500
@@ -226,9 +210,12 @@ def cancel_mentorship(session_id):
     if "type" not in request.json:
         return jsonify({'error': 'Include the type of the update'}), 400
     
+    end_time = mentorship_session.scheduled_time + timedelta(hours=1)
     if request.json["type"] == "canceled":
+        send_email([mentorship_session.mentor.email, mentorship_session.mentee.email], f"Hi, {mentorship_session.mentee.name}, {mentorship_session.mentor.name}!\n\nThe mentorship request has been cancelled!\n\nBest,\nFinancial Literacy Team", "Mentorship Request Cancelled!")
         mentorship_session.status = 'canceled'
     elif request.json["type"] == "scheduled":
+        send_email([mentorship_session.mentor.email, mentorship_session.mentee.email], f"Hi, {mentorship_session.mentee.name}, {mentorship_session.mentor.name}!\n\nThe mentorship request has been approved! \nYou are both set up to meet at: \n{mentorship_session.scheduled_time}.\n\nBest,\nFinancial Literacy Team", "Mentorship Request Approved!")
         mentorship_session.status = 'scheduled'
     else:
         return jsonify({'error': 'Include a valid type of the update ("canceled", "scheduled")'}), 400

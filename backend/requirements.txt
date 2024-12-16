@@ -11,3 +11,4 @@ pytest==7.4.2
 pytz==2023.3        # Required for timezone conversion
 google-api-python-client==2.94.0  # Required for Google Calendar API
 google-auth==2.23.0  # Authentication for Google APIs
+flask-mail=0.10.0
