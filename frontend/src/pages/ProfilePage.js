@@ -213,7 +213,7 @@ const ProfilePage = () => {
         {isLoading ? (
           <p>Loading posts...</p>
         ) : posts.length > 0 ? (
-          <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={true} />
+          <PostFeed posts={posts} setPosts={setPosts} isLoading={isLoading} error={error} deleteOption={true} />
         ) : (
           <p>No posts yet. Create your first post now!</p>
         )}

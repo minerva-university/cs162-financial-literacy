@@ -225,7 +225,8 @@ def get_posts_of_followed_users():
             'title': p.title,
             'content': p.content,
             'author': author.name if author else 'Unknown',
-            'created_at': p.created_at
+            'created_at': p.created_at,
+            'author_id': p.user_id
         })
     return jsonify({'posts': post_list}), 200
 
