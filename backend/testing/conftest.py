@@ -1,10 +1,8 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from datetime import datetime
 from backend import create_app
 from backend.database.create import Base, User, Scholarship, Internship, Post, Comment, Follow, MentorshipSession
-from backend.auth import session as auth_session
 
 TEST_DB_URI = 'sqlite:///:memory:'
 
@@ -26,6 +24,9 @@ def app():
 
 @pytest.fixture(scope='session')
 def test_engine():
+    """
+    Create a test database engine and setup the database schema.
+    """
     engine = create_engine(TEST_DB_URI)
     Base.metadata.create_all(bind=engine)
     yield engine
@@ -33,6 +34,9 @@ def test_engine():
 
 @pytest.fixture(scope='function')
 def db_session(test_engine):
+    """
+    Provide a transactional scope around a series of operations.
+    """
     connection = test_engine.connect()
     transaction = connection.begin()
     session_factory = sessionmaker(bind=connection)
@@ -47,11 +51,12 @@ def db_session(test_engine):
 def client(app, db_session):
     """
     Provides a test client for the Flask app.
+    Sets app.session_factory to return the test db_session so that
+    all database queries use this session.
     """
     with app.test_client() as client:
         with app.app_context():
-            auth_session.remove()
-            auth_session.configure(bind=db_session.bind)
+            app.session_factory = lambda: db_session
         yield client
 
 @pytest.fixture(scope='function')
@@ -75,6 +80,9 @@ def create_user(db_session):
 
 @pytest.fixture
 def login_user(client):
+    """
+    Fixture to log a user in using the test client.
+    """
     def _login(email, password):
         return client.post('/login', json={"email": email, "password": password})
     return _login
@@ -83,6 +91,7 @@ def login_user(client):
 def cleanup(db_session):
     """
     Cleanup fixture to remove all test data after each test.
+    Ensures a clean state for subsequent tests.
     """
     yield
     try:
@@ -97,7 +106,7 @@ def cleanup(db_session):
 @pytest.fixture
 def auth_headers(client, create_user, login_user):
     """
-    Fixture to retrieve auth headers for requests.
+    Fixture to retrieve auth headers (like a JWT) for requests if needed.
     """
     def _get_headers(username="testuser", email="test@example.com", password="password123"):
         user = create_user(username=username, email=email, password=password)

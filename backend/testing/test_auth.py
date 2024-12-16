@@ -2,16 +2,12 @@ import pytest
 from backend.database.create import User
 from werkzeug.security import generate_password_hash
 
-
-@pytest.fixture(autouse=True)
-def patch_session(monkeypatch, db_session):
-    # Ensure auth.py uses the test db_session
-    monkeypatch.setattr("backend.auth.Session", lambda: db_session)
-    monkeypatch.setattr(db_session, "close", lambda: None)
-
 @pytest.mark.usefixtures("client", "db_session")
 class TestAuth:
     def create_user_via_db(self, db_session, email, name, password):
+        """
+        Helper function to directly create a user in the database.
+        """
         user = User(
             email=email,
             name=name,
@@ -70,10 +66,8 @@ class TestAuth:
 
     def test_ping_authenticated(self, client, db_session):
         self.create_user_via_db(db_session, "ping_user@example.com", "Ping User", "pass")
-        client.post('/login', json={
-            "email": "ping_user@example.com",
-            "password": "pass"
-        })
+        # Log in
+        client.post('/login', json={"email": "ping_user@example.com", "password": "pass"})
         response = client.get('/ping')
         json_data = response.get_json()
         assert response.status_code == 200
@@ -87,6 +81,7 @@ class TestAuth:
 
     def test_logout_authenticated(self, client, db_session):
         self.create_user_via_db(db_session, "logout_user@example.com", "Logout User", "logoutpass")
+        # Log in
         client.post('/login', json={
             "email": "logout_user@example.com",
             "password": "logoutpass"
