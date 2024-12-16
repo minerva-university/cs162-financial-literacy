@@ -192,6 +192,11 @@ export const updateMentorshipSession = async (sessionId, updateType) => {
   return response.data;
 };
 
+export const getUpcomingMenteeRequests = async () => {
+  const response = await axios.get(`${API_URL}/mentorship/mentee_requests`, { withCredentials: true });
+  return response.data.upcoming_sessions;
+};
+
 export const updateUserBio = async (bio) => {
   const response = await axios.post(`${API_URL}/profile/update_bio`, { bio }, { withCredentials: true });
   return response.data;
