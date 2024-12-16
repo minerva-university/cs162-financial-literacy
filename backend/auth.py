@@ -71,7 +71,7 @@ def signup_post():
         session.rollback()
         return {"success": "No", "reason": f"Database error: {str(e)}"}, 500
 
-    return {"success": "Yes"}
+    return {"success": "Yes"}, 200
 
 @auth.route('/logout')
 def logout():
