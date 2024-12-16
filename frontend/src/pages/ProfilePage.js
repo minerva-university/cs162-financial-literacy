@@ -71,19 +71,19 @@ const ProfilePage = () => {
     }
   };
 
-  if (!userData) return <div className="loading">Loading profile...</div>;
+  if (!userData) return <div className="loading text-center text-gray-500">Loading profile...</div>;
 
   return (
-    <div className="profile-page">
-      <h2 className="profile-header">Your Profile</h2>
-      <p className="profile-subheader">Manage your account details and preferences below.</p>
-      <div className="profile-card">
-        <div className="profile-section">
+    <div className="profile-page p-4">
+      <h2 className="text-2xl font-bold mb-4">Your Profile</h2>
+      <p className="text-gray-600 mb-4">Manage your account details and preferences below.</p>
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="flex items-center mb-4">
           <FaIdBadge className="profile-icon" />
           <span className="label">ID:</span>
           <span className="value">{userData.id}</span>
         </div>
-        <div className="profile-section">
+        <div className="flex items-center mb-4">
           <FaUser className="profile-icon" />
           <span className="label">Name:</span>
           <span className="value">{userData.name}</span>

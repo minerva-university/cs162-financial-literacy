@@ -60,7 +60,7 @@ const MentorsListPage = () => {
       <h1 className="text-2xl font-bold mb-4">Find Mentors</h1>
 
       {/* Navigation Buttons */}
-      <div className="navigation-buttons flex justify-between">
+      <div className="navigation-buttons flex justify-between mb-4">
         <button onClick={() => navigate("/mentorship/upcoming")}>
           View Upcoming Mentorships
         </button>
@@ -110,6 +110,14 @@ const MentorsListPage = () => {
             timeIntervals={15}
             dateFormat="MMMM d, yyyy h:mm aa"
             minDate={new Date()}
+            className="border p-2 rounded w-full"
+            popperPlacement="auto"
+            popperModifiers={{
+              preventOverflow: {
+                enabled: true,
+                boundariesElement: 'viewport',
+              },
+            }}
           />
           <button onClick={handleRequestMentorship}>Confirm</button>
           <button onClick={() => setSelectedMentor(null)}>Cancel</button>
