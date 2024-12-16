@@ -9,11 +9,12 @@ class TestMentorship:
         # Clear the database to ensure no residual users
         db_session.query(User).delete()
         db_session.commit()
-        
         # Create test users with defined names
         mentor = create_user(username="mentor_user", email="mentor@example.com", password="pass", name="Mentor Name", mentorship_availability=True)
         mentee = create_user(username="mentee_user", email="mentee@example.com", password="pass", name="Mentee Name", mentorship_availability=False)
+        db_session.commit()
         login_response = login_user(email="mentee@example.com", password="pass")
+
         assert login_response.status_code == 200
         
         # Test the endpoint
@@ -23,9 +24,10 @@ class TestMentorship:
         assert "mentors" in json_data
         assert len(json_data["mentors"]) > 0
 
-    def test_book_mentorship_insufficient_credits(self, client, create_user, login_user):
+    def test_book_mentorship_insufficient_credits(self, client, create_user, login_user, db_session):
         mentee = create_user(username="low_credit_mentee", email="low@example.com", password="pass", name="Low Credit Mentee", credits=0)
         mentor = create_user(username="mentor_user", email="mentor@example.com", password="pass", name="Mentor Name")
+        db_session.commit()
         login_response = login_user(email="low@example.com", password="pass")
         assert login_response.status_code == 200
 
