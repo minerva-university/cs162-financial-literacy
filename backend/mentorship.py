@@ -50,8 +50,7 @@ def get_available_mentors():
             'id': mentor.user_id,
             'name': mentor.username,
             'bio': mentor.bio,
-            #'calendar_url': mentor.calendar_url
-        } for mentor in available_mentors]
+        } for mentor in available_mentors if mentor.user_id != current_user.user_id]
         print(f"Available mentors: {mentors_list}")
         return jsonify({'mentors': mentors_list}), 200
     except Exception as e:
@@ -261,3 +260,26 @@ def update_mentorship_availability():
         return jsonify({'error': str(e)}), 500
     finally:
         session.close()
+
+@mentorship_bp.route('/mentorship/mentee_requests', methods=['GET'])
+@login_required
+def get_upcoming_mentee_requests():
+    session = Session()
+    sessions = session.query(MentorshipSession).filter(
+        MentorshipSession.mentee_id == current_user.user_id
+    ).all()
+
+    session_list = []
+    for s in sessions:
+        mentor = s.mentor
+        mentee = s.mentee
+        session_list.append({
+            'session_id': s.session_id,
+            'mentor': {'id': s.mentor_id, 'name': mentor.name if mentor else 'Unknown'},
+            'mentee': {'id': s.mentee_id, 'name': mentee.name if mentee else 'Unknown'},
+            'scheduled_time': s.scheduled_time.isoformat(),
+            'status': s.status
+        })
+
+    session.close()
+    return jsonify({'upcoming_sessions': session_list}), 200

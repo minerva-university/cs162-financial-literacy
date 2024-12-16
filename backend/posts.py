@@ -152,7 +152,15 @@ def get_user_posts(user_id):
 @login_required
 def get_posts_sorted_by_date():
     s = current_app.session_factory()
-    posts = s.query(Post).order_by(Post.created_at.desc()).all()
+    direction = request.args.get('direction', 'desc').lower()
+    
+    # Validate direction
+    if direction not in ['asc', 'desc']:
+        direction = 'desc'
+        
+    order = Post.created_at.asc() if direction == 'asc' else Post.created_at.desc()
+    posts = s.query(Post).order_by(order).all()
+
     post_list = []
     for p in posts:
         author = s.query(User).filter(User.user_id == p.user_id).first()
@@ -161,20 +169,30 @@ def get_posts_sorted_by_date():
             'title': p.title,
             'content': p.content,
             'author': author.name if author else 'Unknown',
+            'author_id': author.user_id if author else None,
             'created_at': p.created_at
         })
     return jsonify({'posts': post_list}), 200
+
 
 @posts_bp.route('/posts/sorted_by_votes', methods=['GET'])
 @login_required
 def get_posts_sorted_by_votes():
     s = current_app.session_factory()
+    direction = request.args.get('direction', 'desc').lower()
+    
+    # Validate direction
+    if direction not in ['asc', 'desc']:
+        direction = 'desc'
+        
+    order = func.count(Vote.vote_id).asc() if direction == 'asc' else func.count(Vote.vote_id).desc()
+
     posts_with_votes = s.query(
         Post,
         func.count(Vote.vote_id).label('vote_count')
     ).join(Vote, Vote.post_id == Post.post_id, isouter=True) \
      .group_by(Post.post_id) \
-     .order_by(func.count(Vote.vote_id).desc()).all()
+     .order_by(order).all()
 
     post_list = []
     for p, vote_count in posts_with_votes:
@@ -184,10 +202,12 @@ def get_posts_sorted_by_votes():
             'title': p.title,
             'content': p.content,
             'author': author.name if author else 'Unknown',
+            'author_id': author.user_id if author else None,
             'vote_count': vote_count,
             'created_at': p.created_at
         })
     return jsonify({'posts': post_list}), 200
+
 
 @posts_bp.route('/posts/followed', methods=['GET'])
 @login_required

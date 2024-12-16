@@ -22,6 +22,7 @@ import ArticlePage from './pages/ArticlePage';
 import { MentorshipProvider } from './pages/MentorshipContext';
 import MentorshipSessionsPage from './pages/MentorshipSessionsPage';
 import MentorshipHistoryPage from './pages/MentorshipHistoryPage';
+import MentorshipUpcoming from './pages/MentorshipUpcoming';
 import FeedPage from './pages/FeedPage';
 import OtherProfile from './pages/OtherProfile';
 import CreditSystemPage from './pages/CreditSystemPage';
@@ -90,8 +91,8 @@ function App() {
                                                 <Routes>
                                                     <Route path="/home" element={<MainPage />} />
                                                     <Route path="/mentors" element={<MentorsListPage />} />
-                                                    <Route path="/mentorship/upcoming" element={<MentorshipSessionsPage />} />
                                                     <Route path="/mentorship/history" element={<MentorshipHistoryPage />} />
+                                                    <Route path="/mentorship/upcoming" element={<MentorshipUpcoming />} />
                                                     <Route path="/post" element={<PostForm />} />
                                                     <Route path="/feed" element={<FeedPage />} />
                                                     <Route path="/profile" element={<ProfilePage />} />
@@ -106,6 +107,7 @@ function App() {
                                                     <Route path="/faq" element={<FaqPage />} />
                                                     <Route path="/articles" element={<ArticlesPage />} />
                                                     <Route path="/article/:articleId" element={<ArticlePage />} />
+                                                    <Route path="/CreditSystemPage" element={<CreditSystemPage />} />
                                                     {/* Redirect authenticated users to main page */}
                                                     <Route path="*" element={<Navigate to="/home" />} />
                                                 </Routes>

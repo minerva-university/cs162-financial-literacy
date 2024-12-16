@@ -13,10 +13,11 @@ export const login = async (email, password, remember) => {
   return response.data;
 };
 
-export const register = async (email, name, password) => {
-  const response = await axios.post(`${API_URL}/signup`, { email, name, password }, { withCredentials: true });
+export const register = async (email, name, password, bio) => {
+  const response = await axios.post(`${API_URL}/signup`, { email, name, password, bio }, { withCredentials: true });
   return response.data;
 };
+
 
 export const logout = async () => {
   const response = await axios.get(`${API_URL}/logout`, { withCredentials: true });
@@ -128,6 +129,17 @@ export const getPostById = async (postId) => {
   return response.data;
 };
 
+// New functions for sorted posts
+export const getPostsSortedByDate = async (direction = 'desc') => {
+  const response = await axios.get(`${API_URL}/posts/sorted_by_date?direction=${direction}`, { withCredentials: true });
+  return response.data.posts;
+};
+
+export const getPostsSortedByVotes = async (direction = 'desc') => {
+  const response = await axios.get(`${API_URL}/posts/sorted_by_votes?direction=${direction}`, { withCredentials: true });
+  return response.data.posts;
+};
+
 export const deletePost = async (postId) => {
   const response = await axios.delete(`${API_URL}/post/${postId}`, { withCredentials: true });
   return response.data;
@@ -184,8 +196,6 @@ export const updateMentorshipSession = async (sessionId, updateType) => {
   }, { withCredentials: true });
   return response.data;
 };
-
-
 /**
  * Check if the current user follows another user
  * @param {string} userId - The ID of the target user to check.
@@ -213,5 +223,16 @@ export const followUser = async (userId) => {
  */
 export const unfollowUser = async (userId) => {
   const response = await axios.post(`${API_URL}/unfollow`, { user_id: userId }, { withCredentials: true });
+  return response.data;
+};
+
+
+export const getUpcomingMenteeRequests = async () => {
+  const response = await axios.get(`${API_URL}/mentorship/mentee_requests`, { withCredentials: true });
+  return response.data.upcoming_sessions;
+};
+
+export const updateUserBio = async (bio) => {
+  const response = await axios.post(`${API_URL}/profile/update_bio`, { bio }, { withCredentials: true });
   return response.data;
 };

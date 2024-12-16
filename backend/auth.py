@@ -42,6 +42,7 @@ def signup_post():
     name = body.get('name')
     username = email
     password = body.get('password')
+    bio = body.get('bio', '')  # Extract bio with a default value
 
     # Validate input fields
     if not username:
@@ -62,7 +63,8 @@ def signup_post():
             email=email,
             name=name,
             password_hash=generate_password_hash(password),
-            username=username
+            username=username,
+            bio=bio  # Add bio here
         )
         s.add(new_user)
         s.commit()
@@ -71,6 +73,7 @@ def signup_post():
         return {"success": "No", "reason": f"Database error: {str(e)}"}, 500
 
     return {"success": "Yes"}, 200
+
 
 @auth.route('/logout')
 def logout():

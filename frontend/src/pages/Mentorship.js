@@ -112,22 +112,28 @@ function Mentorship() {
                     placeholder="Mentor ID"
                     value={mentorId}
                     onChange={(e) => setMentorId(e.target.value)}
+                    className="border p-2 rounded w-full mb-2"
                 />
                 <input
                     type="datetime-local"
                     value={scheduledTime}
                     onChange={(e) => setScheduledTime(e.target.value)}
+                    className="border p-2 rounded w-full mb-2"
                 />
-                <button onClick={handleBook}>Book Session</button>
+                <button onClick={handleBook} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Book Session
+                </button>
             </div>
 
             <div className="upcoming-section mb-4">
                 <h2 className="text-xl font-semibold mb-2">Upcoming Sessions</h2>
-                <ul>
+                <ul className="space-y-2">
                     {upcomingSessions.map((session) => (
-                        <li key={session.session_id}>
+                        <li key={session.session_id} className="bg-white p-4 rounded-lg shadow-md">
                             {session.mentor.name} - {new Date(session.scheduled_time).toLocaleString()}
-                            <button onClick={() => handleCancel(session.session_id)}>Cancel</button>
+                            <button onClick={() => handleCancel(session.session_id)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mt-2">
+                                Cancel
+                            </button>
                         </li>
                     ))}
                 </ul>
@@ -135,9 +141,9 @@ function Mentorship() {
 
             <div className="history-section mb-4">
                 <h2 className="text-xl font-semibold mb-2">Mentorship History</h2>
-                <ul>
+                <ul className="space-y-2">
                     {history.map((session) => (
-                        <li key={session.session_id}>
+                        <li key={session.session_id} className="bg-white p-4 rounded-lg shadow-md">
                             {session.mentor.name} - {session.status}
                         </li>
                     ))}
@@ -151,13 +157,17 @@ function Mentorship() {
                     placeholder="Session ID"
                     value={sessionId}
                     onChange={(e) => setSessionId(e.target.value)}
+                    className="border p-2 rounded w-full mb-2"
                 />
                 <textarea
                     placeholder="Feedback"
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
+                    className="border p-2 rounded w-full mb-2"
                 />
-                <button onClick={handleFeedback}>Submit Feedback</button>
+                <button onClick={handleFeedback} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    Submit Feedback
+                </button>
             </div>
         </div>
     );
