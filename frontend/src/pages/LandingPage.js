@@ -24,8 +24,14 @@ const LandingPage = () => {
             <section className="landing-about section-light">
                 <h2>About Us</h2>
                 <p>
-                    We empower individuals with the tools, resources, and guidance they need to achieve financial
-                    success. Explore our platform to discover how we can help you on your financial journey.
+                    The Financial Literacy Marketplace was shaped by in-depth user interviews and iterative refinement.
+                    We offer a robust credit system that encourages active participation, ensuring fair and
+                    collaborative access to financial knowledge. By earning credits through activities like posting content 
+                    or mentoring others, you unlock curated resources and schedule mentorship sessions that cost credits to access.
+                    Our platform is designed for students and young professionals seeking reliable guidance, 
+                    scholarships, internships, and meaningful mentorship connections. With transparent mentor profiles, 
+                    clear credit mechanics, and intuitive navigation, we support your financial literacy journey
+                    from start to finish.
                 </p>
             </section>
 
@@ -34,28 +40,28 @@ const LandingPage = () => {
                 <div className="benefits-container">
                     <div className="benefits-title">
                         <h2>Why Choose Us?</h2>
-                        <p>Explore the unique features that set our platform apart from the rest.</p>
+                        <p>Discover a platform built on user feedback, continuously refined to meet your needs.</p>
                     </div>
                     <div className="benefits-grid">
                         <div className="benefit-card">
                             <div className="benefit-icon">📘</div>
                             <h3>Curated Resources</h3>
-                            <p>Gain access to expertly curated tools and resources to simplify your financial journey.</p>
+                            <p>Access expertly selected tools and insights to guide your financial decisions.</p>
                         </div>
                         <div className="benefit-card">
                             <div className="benefit-icon">🎓</div>
                             <h3>Scholarships & Internships</h3>
-                            <p>Discover tailored opportunities to fund your education and launch your career.</p>
+                            <p>Find opportunities that match your goals, filtered by criteria like deadline or field.</p>
                         </div>
                         <div className="benefit-card">
                             <div className="benefit-icon">🌐</div>
                             <h3>Supportive Community</h3>
-                            <p>Connect with mentors and peers who are passionate about your success.</p>
+                            <p>Engage with peers and mentors who help you grow and leverage your credits wisely.</p>
                         </div>
                         <div className="benefit-card">
                             <div className="benefit-icon">⚙️</div>
-                            <h3>Seamless Navigation</h3>
-                            <p>Enjoy a user-friendly interface that makes finding opportunities effortless.</p>
+                            <h3>Credit System</h3>
+                            <p>Earn credits by posting and mentoring, spend them to access content or book sessions, ensuring a fair and dynamic environment.</p>
                         </div>
                     </div>
                 </div>
@@ -69,43 +75,79 @@ const LandingPage = () => {
                 </div>
                 <div className="reviews-grid">
                     <div className="review-card">
-                        <h3>Angela Jin</h3>
+                        <img src="/images/Gabija.jpeg" alt="Gabija" className="review-image" />
+                        <h3>Gabija Parnarauskaite</h3>
                         <p className="review-text">
                             "I appreciate how the app simplifies access to tailored financial resources and mentorship opportunities, making financial literacy approachable for all."
                         </p>
                         <div className="stars">
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
+                            <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
                         </div>
                     </div>
                     <div className="review-card">
-                        <h3>Rawan Khalifa</h3>
+                        <img src="/images/Fien.jpeg" alt="Fien" className="review-image" />
+                        <h3>Fien Van Dan Hondel</h3>
                         <p className="review-text">
                             "I love that the app encourages financial literacy knowledge sharing via credits and provides a supportive community."
                         </p>
                         <div className="stars">
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
+                            <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
                         </div>
                     </div>
                     <div className="review-card">
-                        <h3>Hilary Tang</h3>
+                        <img src="/images/Dimitar.jpeg" alt="Dimitar" className="review-image" />
+                        <h3>Dimitar Ivanov</h3>
                         <p className="review-text">
                             "I love the idea of a community that supports financial literacy. It’s been a fantastic experience."
                         </p>
                         <div className="stars">
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
-                            <span>⭐</span>
+                            <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Team Section */}
+            <section className="team-section section-dark">
+                <div className="team-header">
+                    <h2>Meet Our Team</h2>
+                    <p>Our dedicated group of professionals is committed to your financial literacy journey.</p>
+                </div>
+                <div className="team-grid">
+                    <div className="team-card">
+                        <img src="/images/Jiyun.jpg" alt="Jiyun" className="team-image" />
+                        <h3 className="team-name">Jiyun</h3>
+                        <p className="team-bio">
+                            Hi, I am a Computer Science & Sustainability student at Minerva University. I am a Quant trader and software engineer, interested in using advanced technology for enhancing sustainability.
+                        </p>
+                    </div>
+                    <div className="team-card">
+                        <img src="/images/Alaa.jpg" alt="Alaa" className="team-image" />
+                        <h3 className="team-name">Alaa</h3>
+                        <p className="team-bio">
+                            Hi! I am Alaa, a computer science student. I aim to blend technology and finance, helping people manage their financial lives more efficiently.
+                        </p>
+                    </div>
+                    <div className="team-card">
+                        <img src="/images/Daria.jpg" alt="Daria" className="team-image" />
+                        <h3 className="team-name">Daria</h3>
+                        <p className="team-bio">
+                            I am Daria, a computer science and data science student from Ukraine. I focus on creating meaningful projects that build community and reflect my identity.
+                        </p>
+                    </div>
+                    <div className="team-card">
+                        <img src="/images/Haneen.jpg" alt="Haneen" className="team-image" />
+                        <h3 className="team-name">Haneen</h3>
+                        <p className="team-bio">
+                            I am Haneen, a Computer Science and Finance student passionate about blending technology with financial markets to forge smarter investment solutions.
+                        </p>
+                    </div>
+                    <div className="team-card">
+                        <img src="/images/Jeevan.jpg" alt="Jeevan" className="team-image" />
+                        <h3 className="team-name">Jeevan</h3>
+                        <p className="team-bio">
+                        Hello, I’m a software engineering enthusiast passionate about building impactful tools with Python, JavaScript, and machine learning. Having worked across four countries, I thrive in collaborative environments.
+                        </p>
                     </div>
                 </div>
             </section>
@@ -151,13 +193,22 @@ const LandingPage = () => {
                 <div className="contact-page-sections">
                     <div className="contact-page-card">
                         <FaEnvelope className="contact-page-icon" />
-                        <h3 className="contact-card-title">Email Us</h3>
-                        <p className="contact-card-content">support@financialliteracy.com</p>
+                        <h3 className="contact-card-title">Email Our Team</h3>
+                        <div className="contact-card-content email-dropdown">
+                            <label htmlFor="team-emails" className="email-label"><strong>Select a Team Email:</strong></label>
+                            <select id="team-emails" className="email-select">
+                                <option value="haneen@uni.minerva.edu">haneen@uni.minerva.edu</option>
+                                <option value="jeevan@uni.minerva.edu">jeevan@uni.minerva.edu</option>
+                                <option value="Daria@uni.minerva.edu">Daria@uni.minerva.edu</option>
+                                <option value="Alaa@uni.minerva.edu">Alaa@uni.minerva.edu</option>
+                                <option value="Jiyun@uni.minerva.edu">Jiyun@uni.minerva.edu</option>
+                            </select>
+                        </div>
                     </div>
                     <div className="contact-page-card">
                         <FaPhone className="contact-page-icon" />
                         <h3 className="contact-card-title">Call Us</h3>
-                        <p className="contact-card-content">+1 (123) 456-7890</p>
+                        <p className="contact-card-content">+1 (415) 623-9269</p>
                     </div>
                     <div className="contact-page-card">
                         <FaMapMarkerAlt className="contact-page-icon" />
@@ -168,7 +219,8 @@ const LandingPage = () => {
                         <FaFacebookF className="contact-page-icon" />
                         <h3 className="contact-card-title">Follow Us</h3>
                         <p className="contact-card-content">
-                            Stay connected: <a href="https://facebook.com" className="social-link">Facebook</a>,{' '}
+                            Stay connected:&nbsp;
+                            <a href="https://facebook.com" className="social-link">Facebook</a>,{' '}
                             <a href="https://twitter.com" className="social-link">Twitter</a>,{' '}
                             <a href="https://instagram.com" className="social-link">Instagram</a>
                         </p>
