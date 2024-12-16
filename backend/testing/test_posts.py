@@ -1,143 +1,170 @@
+# test_posts.py
 import pytest
-from backend.database.create import User
+from backend.database.create import User, Post, Vote, Comment
+from backend.config import COST_TO_ACCESS, REWARD_FOR_POSTING
+
 
 @pytest.fixture(autouse=True)
 def patch_session(monkeypatch, db_session):
     """
-    Monkeypatch the Session usage in auth.py to return the test db_session.
+    Monkeypatch the Session usage in posts.py to return the test db_session.
     Also patch the db_session.close method to do nothing to avoid detaching instances.
     This ensures that the session remains active and the test can safely query
     the database after routes return.
     """
-    # Replace the Session call in auth.py with a lambda returning db_session
-    monkeypatch.setattr("backend.auth.Session", lambda: db_session)
+    # Replace the Session call in posts.py with a lambda returning db_session
+    monkeypatch.setattr("backend.posts.Session", lambda: db_session)
     # Prevent db_session from actually closing, which causes detached instances
     monkeypatch.setattr(db_session, "close", lambda: None)
 
 
 @pytest.mark.usefixtures("client", "db_session")
-class TestAuth:
-    def create_user_via_client(self, client, email, password, name):
+class TestPosts:
+    """
+    Tests for posts-related endpoints. Assumes user authentication and database setup 
+    are handled by fixtures in conftest.py and other test utilities.
+    """
+
+    def test_add_post_unauthenticated(self, client):
         """
-        Helper function to create a user using the client.
+        Test that adding a post without being logged in returns 401.
         """
-        response = client.post('/signup', json={
-            "email": email,
-            "password": password,
-            "name": name
+        response = client.post('/post', json={
+            "title": "My Post",
+            "content": "Post content"
         })
-        assert response.status_code == 200
-        json_data = response.get_json()
-        assert json_data["success"] == "Yes"
-
-    def login_user_via_client(self, client, email, password):
-        """
-        Helper function to log in a user using the client.
-        """
-        response = client.post('/login', json={
-            "email": email,
-            "password": password
-        })
-        assert response.status_code == 200
-        json_data = response.get_json()
-        assert json_data["success"] == "Yes"
-
-    def test_get_login_unauthorized(self, client):
-        """
-        Test that unauthenticated access to /login returns a proper response.
-        """
-        response = client.get('/login')
-        assert response.status_code == 200
-        json_data = response.get_json()
-        assert json_data.get("Authorization") == "Unauthorized"
-
-    def test_signup_missing_fields(self, client):
-        """
-        Test that signing up with missing fields returns an error.
-        """
-        response = client.post('/signup', json={"email": "test@example.com"})
-        assert response.status_code == 400
-        json_data = response.get_json()
-        assert json_data["reason"] == "Password is required"
-
-    def test_signup_success(self, client):
-        """
-        Test that a new user can sign up successfully.
-        """
-        self.create_user_via_client(client, "newuser@example.com", "securepass", "New User")
-
-    def test_signup_user_already_exists(self, client):
-        """
-        Test that signing up with an existing email returns an error.
-        """
-        self.create_user_via_client(client, "existing_user@example.com", "pass123", "Existing User")
-
-        response = client.post('/signup', json={
-            "email": "existing_user@example.com",
-            "password": "pass123",
-            "name": "Duplicate User"
-        })
-
-        assert response.status_code == 400
-        json_data = response.get_json()
-        assert json_data["reason"] == "Email already registered"
-
-    def test_login_invalid_credentials(self, client):
-        """
-        Test that logging in with invalid credentials returns an error.
-        """
-        response = client.post('/login', json={
-            "email": "nonexistent@example.com",
-            "password": "wrongpass"
-        })
-        assert response.status_code == 200
-        json_data = response.get_json()
-        assert json_data["success"] == "No"
-        assert json_data["reason"] == "Invalid credentials"
-
-    def test_login_success(self, client):
-        """
-        Test that a user can log in successfully.
-        """
-        self.create_user_via_client(client, "login_user@example.com", "correctpass", "Login User")
-        self.login_user_via_client(client, "login_user@example.com", "correctpass")
-
-    def test_ping_authenticated(self, client):
-        """
-        Test authenticated /ping endpoint.
-        """
-        self.create_user_via_client(client, "ping_user@example.com", "pass", "Ping User")
-        self.login_user_via_client(client, "ping_user@example.com", "pass")
-
-        response = client.get('/ping')
-        json_data = response.get_json()
-        assert response.status_code == 200
-        assert json_data["authenticated"] is True
-
-    def test_ping_unauthenticated(self, client):
-        """
-        Test unauthenticated /ping endpoint.
-        """
-        response = client.get('/ping')
-        json_data = response.get_json()
-        assert response.status_code == 200
-        assert json_data["authenticated"] is False
-
-    def test_logout_authenticated(self, client):
-        """
-        Test logout for an authenticated user.
-        """
-        self.create_user_via_client(client, "logout_user@example.com", "logoutpass", "Logout User")
-        self.login_user_via_client(client, "logout_user@example.com", "logoutpass")
-
-        response = client.get('/logout')
-        assert response.status_code == 200
-        json_data = response.get_json()
-        assert json_data.get("message") == "Logged out successfully"
-
-    def test_logout_unauthenticated(self, client):
-        """
-        Test logout for an unauthenticated user.
-        """
-        response = client.get('/logout')
         assert response.status_code == 401
+
+    def test_add_post_success(self, client, create_user, login_user):
+        """
+        Test that a logged-in user can successfully create a new post.
+        """
+        user = create_user(username="post_user", email="post_user@example.com", password="pass", credits=100)
+        login_user(email="post_user@example.com", password="pass")
+
+        response = client.post('/post', json={
+            "title": "Test Post",
+            "content": "This is a test post."
+        })
+
+        assert response.status_code == 201
+        json_data = response.get_json()
+        assert json_data["message"] == "Post added"
+        assert json_data["post"]["id"] is not None
+
+    def test_get_posts_with_insufficient_credits(self, client, create_user, login_user):
+        """
+        Test that a user with insufficient credits receives a 403 when fetching posts.
+        """
+        user = create_user(username="low_credits_user", email="low@example.com", password="pass", credits=0)
+        login_user(email="low@example.com", password="pass")
+        
+        response = client.get('/posts')
+        assert response.status_code == 403
+        json_data = response.get_json()
+        assert json_data["error"] == "Insufficient credits"
+
+    def test_get_posts_success(self, client, create_user, login_user, db_session):
+        """
+        Test that a user with sufficient credits can successfully get all posts.
+        """
+        # Clear existing posts
+        db_session.query(Post).delete()
+        db_session.commit()
+
+        user = create_user(username="rich_user", email="rich_user@example.com", password="pass", credits=100)
+        post = Post(user_id=user.user_id, title="Test Post", content="Test Content")
+        db_session.add(post)
+        db_session.commit()
+
+        login_user(email="rich_user@example.com", password="pass")
+
+        response = client.get('/posts')
+        json_data = response.get_json()
+        assert response.status_code == 200
+        assert len(json_data["posts"]) == 1
+        assert json_data["posts"][0]["title"] == "Test Post"
+
+    def test_fetch_single_post(self, client, create_user, login_user, db_session):
+        """
+        Test that a user can fetch a single post by its ID.
+        """
+        user = create_user(username="fetch_user", email="fetch@example.com", password="pass", credits=100)
+        post = Post(user_id=user.user_id, title="Fetch Title", content="Fetch Content")
+        db_session.add(post)
+        db_session.commit()
+
+        login_user(email="fetch@example.com", password="pass")
+        response = client.get(f'/post/{post.post_id}')
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["post"]["title"] == "Fetch Title"
+
+    def test_delete_own_post(self, client, create_user, login_user, db_session):
+        """
+        Test that a user can delete their own post and that it is removed from the database.
+        """
+        user = create_user(username="del_user", email="del@example.com", password="pass")
+        post = Post(user_id=user.user_id, title="To Delete", content="Delete me")
+        db_session.add(post)
+        db_session.commit()
+
+        login_user(email="del@example.com", password="pass")
+        response = client.delete(f'/post/{post.post_id}')
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["message"] == "Post deleted successfully"
+
+        deleted_post = db_session.query(Post).filter_by(post_id=post.post_id).first()
+        assert deleted_post is None
+
+    def test_delete_other_users_post(self, client, create_user, login_user, db_session):
+        """
+        Test that a user cannot delete another user's post.
+        """
+        user1 = create_user(username="u1", email="u1@example.com", password="pass")
+        user2 = create_user(username="u2", email="u2@example.com", password="pass")
+        post = Post(user_id=user1.user_id, title="User1 Post", content="Content")
+        db_session.add(post)
+        db_session.commit()
+
+        login_user(email="u2@example.com", password="pass")
+        response = client.delete(f'/post/{post.post_id}')
+        assert response.status_code == 403
+        json_data = response.get_json()
+        assert json_data["error"] == "Unauthorized: You can only delete your own posts"
+
+    def test_vote_on_post(self, client, create_user, login_user, db_session):
+        """
+        Test that a logged-in user can upvote a post successfully.
+        """
+        user = create_user(username="voter", email="voter@example.com", password="pass")
+        post = Post(user_id=user.user_id, title="Vote Post", content="Votable")
+        db_session.add(post)
+        db_session.commit()
+
+        login_user(email="voter@example.com", password="pass")
+        response = client.post(f'/post/{post.post_id}/vote', json={"vote_type": "upvote"})
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "Vote" in data["message"]
+
+    def test_comment_on_post(self, client, create_user, login_user, db_session):
+        """
+        Test that a logged-in user can comment on a post successfully.
+        """
+        user = create_user(username="commenter", email="commenter@example.com", password="pass")
+        post = Post(user_id=user.user_id, title="Comment Post", content="Comment here")
+        db_session.add(post)
+        db_session.commit()
+
+        login_user(email="commenter@example.com", password="pass")
+        response = client.post(f'/post/{post.post_id}/comment', json={"comment_text": "Nice post!"})
+        assert response.status_code == 201
+        data = response.get_json()
+        assert "Comment added successfully" in data["message"]
+
+        # Verify the comment exists in the database
+        comment = db_session.query(Comment).filter_by(post_id=post.post_id).first()
+        assert comment is not None
+        assert comment.comment_text == "Nice post!"
