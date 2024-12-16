@@ -107,6 +107,11 @@ export const getPosts = async () => {
   return response.data.posts;
 };
 
+export const getFollowingPosts = async () => {
+  const response = await axios.get(`${API_URL}/posts/followed`, { withCredentials: true });
+  return response.data.posts;
+};
+
 
 export const getPostsByUser = async (id) => {
   const response = await axios.get(`${API_URL}/posts/${id}`, { withCredentials: true });
@@ -177,5 +182,36 @@ export const updateMentorshipSession = async (sessionId, updateType) => {
   const response = await axios.post(`${API_URL}/mentorship/update/${sessionId}`, {
     type: updateType
   }, { withCredentials: true });
+  return response.data;
+};
+
+
+/**
+ * Check if the current user follows another user
+ * @param {string} userId - The ID of the target user to check.
+ * @returns {Promise<boolean>} - True if the current user follows the target user, false otherwise.
+ */
+export const isFollowing = async (userId) => {
+  const response = await axios.get(`${API_URL}/is_following/${userId}`, { withCredentials: true });
+  return response.data.is_following;
+};
+
+/**
+ * Follow another user
+ * @param {string} userId - The ID of the target user to follow.
+ * @returns {Promise<Object>} - A success message or an error object.
+ */
+export const followUser = async (userId) => {
+  const response = await axios.post(`${API_URL}/follow`, { user_id: userId }, { withCredentials: true });
+  return response.data;
+};
+
+/**
+ * Unfollow another user
+ * @param {string} userId - The ID of the target user to unfollow.
+ * @returns {Promise<Object>} - A success message or an error object.
+ */
+export const unfollowUser = async (userId) => {
+  const response = await axios.post(`${API_URL}/unfollow`, { user_id: userId }, { withCredentials: true });
   return response.data;
 };
