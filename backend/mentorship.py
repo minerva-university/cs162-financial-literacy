@@ -1,6 +1,6 @@
 # mentorship.py
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime, timedelta
@@ -13,7 +13,6 @@ from .emailing_util import send_email
 
 
 mentorship_bp = Blueprint('mentorship', __name__)
-Session = sessionmaker(bind=engine)
 
 # Helper function to parse and validate scheduled times
 def parse_scheduled_time(time_str):
@@ -41,7 +40,7 @@ def parse_scheduled_time(time_str):
 def get_available_mentors():
 
     print("Getting available mentors")
-    session = Session()
+    session = current_app.session_factory()
     try:
         # Assuming you have a field in the User model to indicate availability
         available_mentors = session.query(User).filter(User.mentorship_availability == True).all()
@@ -68,7 +67,7 @@ def book_mentorship():
     if mentee.credits < COST_TO_BOOK_MENTORSHIP:
         return jsonify({"error": "Insufficient credits"}), 403
 
-    session = Session()
+    session = current_app.session_factory()
     user = session.query(User).filter(User.user_id == current_user.user_id).first()
 
     # Parse and validate scheduled time
@@ -123,7 +122,7 @@ def book_mentorship():
 @mentorship_bp.route('/mentorship/complete/<int:session_id>', methods=['POST'])
 @login_required
 def complete_mentorship(session_id):
-    session = Session()
+    session = current_app.session_factory()
     mentorship_session = session.query(MentorshipSession).filter(
         MentorshipSession.session_id == session_id
     ).first()
@@ -161,7 +160,7 @@ def complete_mentorship(session_id):
 @mentorship_bp.route('/mentorship/mentor_requests', methods=['GET'])
 @login_required
 def get_upcoming_sessions():
-    session = Session()
+    session = current_app.session_factory()
     sessions = session.query(MentorshipSession).filter(
         MentorshipSession.mentor_id == current_user.user_id
     ).all()
@@ -185,7 +184,7 @@ def get_upcoming_sessions():
 @mentorship_bp.route('/mentorship/update/<int:session_id>', methods=['POST'])
 @login_required
 def cancel_mentorship(session_id):
-    session = Session()
+    session = current_app.session_factory()
     mentorship_session = session.query(MentorshipSession).filter(
         MentorshipSession.session_id == session_id
     ).first()
@@ -238,7 +237,7 @@ def cancel_mentorship(session_id):
 @mentorship_bp.route('/mentors/availability', methods=['POST'])
 @login_required
 def update_mentorship_availability():
-    session = Session()
+    session = current_app.session_factory()
     try:
         data = request.get_json()
         if 'availability' not in data:
@@ -259,7 +258,7 @@ def update_mentorship_availability():
 @mentorship_bp.route('/mentorship/mentee_requests', methods=['GET'])
 @login_required
 def get_upcoming_mentee_requests():
-    session = Session()
+    session = current_app.session_factory()
     sessions = session.query(MentorshipSession).filter(
         MentorshipSession.mentee_id == current_user.user_id
     ).all()
