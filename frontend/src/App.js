@@ -107,6 +107,7 @@ function App() {
                                                     <Route path="/faq" element={<FaqPage />} />
                                                     <Route path="/articles" element={<ArticlesPage />} />
                                                     <Route path="/article/:articleId" element={<ArticlePage />} />
+                                                    <Route path="/CreditSystemPage" element={<CreditSystemPage />} />
                                                     {/* Redirect authenticated users to main page */}
                                                     <Route path="*" element={<Navigate to="/home" />} />
                                                 </Routes>
