@@ -36,7 +36,7 @@ class User(UserMixin, Base):
     mentorship_availability = Column(Boolean, default=False)
     profile_picture = Column(String(255))
     bio = Column(Text)
-    credits = Column(Integer, default=INITIAL_CREDITS)  # Add this line for initial credits
+    credits = Column(Integer, default=INITIAL_CREDITS) 
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

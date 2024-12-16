@@ -2,5 +2,8 @@
 venv
 node_modules
 .env
-
+**/google.json
+.pytest_cache
 **/*.db
+
+*/flask_session

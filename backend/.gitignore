@@ -4,3 +4,4 @@
 *.venv
 *.env
 secrets/*.json
+*/flask_session
