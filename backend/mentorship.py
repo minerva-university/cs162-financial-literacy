@@ -71,11 +71,6 @@ def book_mentorship():
     session = Session()
     user = session.query(User).filter(User.user_id == current_user.user_id).first()
 
-    # Check if user has enough credits
-    if user.credits < COST_TO_BOOK_MENTORSHIP:
-        session.close()
-        return jsonify({'error': 'Insufficient credits'}), 403
-
     # Parse and validate scheduled time
     try:
         print(data['scheduled_time'])
