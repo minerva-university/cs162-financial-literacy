@@ -46,24 +46,27 @@ const MentorshipRequest = () => {
     }
   };
 
-  if (loading) return <div>Loading received requests...</div>;
+  if (loading) return <div className="text-center text-gray-500">Loading received requests...</div>;
 
   return (
-    <div className="received-requests p-4">
+    <div className="bg-white shadow-md rounded-lg p-6">
       <h2 className="text-2xl font-bold mb-4">Received Mentorship Requests</h2>
       {receivedRequests.length === 0 ? (
         <p className="text-gray-500">No received requests found.</p>
       ) : (
         <ul className="space-y-4">
           {receivedRequests.map((request) => (
-            <li key={request.session_id}>
-              From: {request.mentee.name} - {new Date(request.scheduled_time).toLocaleString()}
-              {request.status === 'pending' && (
-                <>
-                  <button onClick={() => handleAccept(request.session_id)}>Accept</button>
-                  <button onClick={() => handleReject(request.session_id)}>Reject</button>
-                </>
-              )||<div>{request.status}</div>}
+            <li key={request.session_id} className="bg-gray-100 p-4 rounded-lg shadow-sm">
+              <p className="font-semibold">From: {request.mentee.name}</p>
+              <p className="text-sm text-gray-600">{new Date(request.scheduled_time).toLocaleString()}</p>
+              {request.status === 'pending' ? (
+                <div className="flex space-x-2 mt-2">
+                  <button onClick={() => handleAccept(request.session_id)} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Accept</button>
+                  <button onClick={() => handleReject(request.session_id)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reject</button>
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500">{request.status}</div>
+              )}
             </li>
           ))}
         </ul>

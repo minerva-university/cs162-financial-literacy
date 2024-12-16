@@ -61,13 +61,7 @@ const MentorsListPage = () => {
           onClick={() => navigate("/mentorship/upcoming")}
           className="nav-btn"
         >
-          View Upcoming Mentorships
-        </button>
-        <button
-          onClick={() => navigate("/mentorship/history")}
-          className="nav-btn"
-        >
-          View Mentorship History
+          My Requested Mentorship Sessions
         </button>
       </div>
 
