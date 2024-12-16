@@ -13,10 +13,11 @@ export const login = async (email, password, remember) => {
   return response.data;
 };
 
-export const register = async (email, name, password) => {
-  const response = await axios.post(`${API_URL}/signup`, { email, name, password }, { withCredentials: true });
+export const register = async (email, name, password, bio) => {
+  const response = await axios.post(`${API_URL}/signup`, { email, name, password, bio }, { withCredentials: true });
   return response.data;
 };
+
 
 export const logout = async () => {
   const response = await axios.get(`${API_URL}/logout`, { withCredentials: true });
@@ -183,4 +184,9 @@ export const updateMentorshipSession = async (sessionId, updateType) => {
 export const getUpcomingMenteeRequests = async () => {
   const response = await axios.get(`${API_URL}/mentorship/mentee_requests`, { withCredentials: true });
   return response.data.upcoming_sessions;
+};
+
+export const updateUserBio = async (bio) => {
+  const response = await axios.post(`${API_URL}/profile/update_bio`, { bio }, { withCredentials: true });
+  return response.data;
 };

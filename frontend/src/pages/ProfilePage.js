@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaIdBadge, FaUser, FaUserEdit } from "react-icons/fa";
+import { FaIdBadge, FaUser, FaUserEdit, FaInfoCircle } from "react-icons/fa";
 import {
   getUserProfile,
   updateUserName,
   updateMentorship,
   getPostsCurrentUser,
+  updateUserBio,
 } from "../services/api";
 import "../styles/ProfilePage.css";
 import MentorshipRequest from "../components/MentorshipReqeust";
 import PostFeed from "../components/Feed";
 
-
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingBio, setIsEditingBio] = useState(false);
   const [newName, setNewName] = useState("");
+  const [newBio, setNewBio] = useState("");
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,6 +44,7 @@ const ProfilePage = () => {
       try {
         const profile = await getUserProfile();
         setUserData(profile);
+        setNewBio(profile.bio || ""); // Set initial bio value
       } catch (error) {
         console.error("Failed to fetch profile", error);
       }
@@ -87,7 +90,25 @@ const ProfilePage = () => {
     }
   };
 
-  if (!userData) return <div className="loading text-center text-gray-500">Loading profile...</div>;
+  // Handle Save Bio
+  const handleSaveBio = async () => {
+    try {
+      const result = await updateUserBio(newBio); // Call new API function
+      if (result.success) {
+        setUserData({ ...userData, bio: result.bio });
+        alert("Bio updated successfully!");
+        setIsEditingBio(false);
+      } else {
+        alert("Failed to update bio: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error updating bio", error);
+      alert("An error occurred while updating your bio.");
+    }
+  };
+  
+
+  if (!userData) return <div className="loading">Loading profile...</div>;
 
   return (
     <div className="profile-page-container">
@@ -130,6 +151,41 @@ const ProfilePage = () => {
             </div>
           )}
           <div className="info-item">
+            <FaInfoCircle className="profile-icon" />
+            <span>Bio: {userData.bio || "No bio added yet"}</span>
+            <button
+              className="edit-button"
+              onClick={() => setIsEditingBio(true)}
+            >
+              <FaUserEdit />
+            </button>
+          </div>
+          <div className="info-item">
+            <span>Credits:</span>
+            <span className="credits-value">{userData.credits || 0}</span>
+          </div>
+
+          {isEditingBio && (
+            <div className="edit-bio-section">
+              <textarea
+                placeholder="Enter your bio"
+                value={newBio}
+                onChange={(e) => setNewBio(e.target.value)}
+                className="edit-bio-input"
+              />
+              <button className="save-button" onClick={handleSaveBio}>
+                Save
+              </button>
+              <button
+                className="cancel-button"
+                onClick={() => setIsEditingBio(false)}
+              >
+                Cancel
+              </button>
+            </div>
+            
+          )}
+          <div className="info-item">
             <span>Mentorship Availability:</span>
             <select
               value={userData.mentorship_availability}
@@ -157,9 +213,7 @@ const ProfilePage = () => {
         {isLoading ? (
           <p>Loading posts...</p>
         ) : posts.length > 0 ? (
-          <>
-          <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={true}/>
-        </>
+          <PostFeed posts={posts} isLoading={isLoading} error={error} deleteOption={true} />
         ) : (
           <p>No posts yet. Create your first post now!</p>
         )}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaEnvelope, FaUser, FaLock } from 'react-icons/fa';
+import { FaEnvelope, FaUser, FaLock, FaInfoCircle } from 'react-icons/fa';
 import '../styles/signup.css';
 import { register } from '../services/api';
 
@@ -9,29 +9,26 @@ function Signup() {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
+    const [bio, setBio] = useState(''); // New state for bio
     const [errorMessage, setErrorMessage] = useState('');
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            event.preventDefault();
-            handleSignup(email, name, password);
+            await handleSignup(email, name, password, bio);
         } catch (error) {
-            
+            setErrorMessage('Signup failed. Please try again.');
         }
     };
 
-    const handleSignup = async (email, name, password) => {
-        const data = await register(email, name, password)
-        if (data.success == "No"){
+    const handleSignup = async (email, name, password, bio) => {
+        const data = await register(email, name, password, bio);
+        if (data.success === "No") {
             setErrorMessage('Signup failed. Please try again.');
         } else {
             navigate('/login');
         }
-        
-           
     };
-
 
     return (
         <div className="signup-page">
@@ -75,6 +72,19 @@ function Signup() {
                             placeholder="Create a password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="bio">
+                            <FaInfoCircle className="input-icon" /> Bio
+                        </label>
+                        <textarea
+                            id="bio"
+                            placeholder="Your time to Shine!"
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                            rows="4"
                             required
                         />
                     </div>
