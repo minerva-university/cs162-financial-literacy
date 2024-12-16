@@ -1,0 +1,473 @@
+/* General Container */
+.landing-container {
+    font-family: 'Roboto', sans-serif;
+    background: #f9fbff;
+    color: #333;
+    margin: 0;
+}
+
+/* Hero Section */
+.landing-hero {
+    background: linear-gradient(135deg, #0066cc, #003366);
+    color: #fff;
+    text-align: center;
+    padding: 4rem 1.5rem;
+    border-radius: 0 0 20px 20px;
+}
+
+.landing-hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.landing-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.landing-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.landing-cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.landing-cta-button {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    color: #fff;
+    background: #007bff;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.landing-cta-button.secondary {
+    background: #555;
+}
+
+.landing-cta-button:hover {
+    background: #0056b3;
+}
+
+.landing-cta-button.secondary:hover {
+    background: #333;
+}
+
+/* About Section */
+.landing-about {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    margin: 0 auto;
+    background-color: #ffffff;
+}
+
+.landing-about h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #003366;
+    margin-bottom: 1rem;
+}
+
+.landing-about p {
+    font-size: 1rem;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.5;
+    color: #555;
+}
+
+/* Key Benefits Section */
+.benefits-section {
+    padding: 3rem 1.5rem;
+    background-color: #f2f4f7;
+    text-align: center;
+}
+
+.benefits-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.benefits-title h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #003366;
+}
+
+.benefits-title p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 2rem;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem; /* Increased spacing between cards */
+}
+
+.benefit-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.benefit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.benefit-icon {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+
+.benefit-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #003366;
+}
+
+.benefit-card p {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.4;
+}
+
+/* Reviews Section */
+.reviews-section {
+    padding: 3rem 1.5rem;
+    background-color: #ffffff;
+    text-align: center;
+}
+
+.reviews-header h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #003366;
+}
+
+.reviews-header p {
+    font-size: 1rem;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    line-height: 1.5;
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem; /* Increased spacing between cards */
+    margin-top: 2rem;
+}
+
+.review-card {
+    background: #f2f4f7;
+    padding: 1.5rem;
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.review-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+    border: 2px solid #003366;
+    display: block;
+}
+
+.review-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #003366;
+    margin-bottom: 0.5rem;
+}
+
+.review-text {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.stars span {
+    color: #FFD700;
+    font-size: 1.2rem;
+}
+
+/* Team Section */
+.team-section {
+    padding: 7rem 5rem;
+    background-color: #003366;
+    text-align: center;
+    color: #fff;
+    position: relative;
+}
+
+.team-header h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.team-header p {
+    font-size: 1rem;
+    margin-bottom: 3rem;
+    color: #d4d4d4;
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    line-height: 1.5;
+}
+
+/* Make all team cards aligned horizontally without scroll and not too thin */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(250px, 1fr)); /* 5 team members, each at least 250px */
+    gap: 2rem;
+    max-width: 1500px; /* Ensure enough space for all cards side by side */
+    margin: 0 auto;
+}
+
+.team-card {
+    background: #ffffff11;
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid #ffffff33;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    /* With a min width in the grid, they won't be too thin */
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.team-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 3px solid #fff;
+    display: inline-block;
+}
+
+.team-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.team-bio {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #eaeaea;
+}
+
+/* Articles Section */
+.articles-section {
+    padding: 3rem 1.5rem;
+    background-color: #ffffff;
+    text-align: center;
+}
+
+.articles-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #003366;
+    margin-bottom: 0.5rem;
+}
+
+.articles-subtitle {
+    font-size: 1rem;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    line-height: 1.5;
+}
+
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem; /* Increased spacing between cards */
+    margin-top: 2rem;
+}
+
+.article-card {
+    background: #f2f4f7;
+    padding: 1.5rem;
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.article-image {
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.article-content h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #003366;
+    margin-bottom: 0.5rem;
+}
+
+.article-content p {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.read-more-link {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.read-more-link:hover {
+    text-decoration: underline;
+}
+
+/* Contact Us Section */
+.contact-page {
+    padding: 2rem 1.5rem;
+    margin: 0 auto;
+    text-align: center;
+    background-color: #f2f4f7;
+}
+
+.contact-page-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #003366;
+}
+
+.contact-page-description {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    line-height: 1.5;
+}
+
+.contact-page-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem; /* Increased spacing between cards */
+    margin-top: 2rem;
+}
+
+.contact-page-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+}
+
+.contact-page-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.contact-page-icon {
+    font-size: 2rem;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+}
+
+.contact-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #003366;
+}
+
+.contact-card-content {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.4;
+}
+
+.social-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.social-link:hover {
+    text-decoration: underline;
+}
+
+/* Additional styling for Email dropdown */
+.email-dropdown {
+    margin-top: 1rem;
+    text-align: left;
+    display: inline-block;
+}
+
+.email-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.email-select {
+    padding: 0.4rem;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    border: 2px solid #007bff;
+    width: 100%;
+    max-width: 220px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.email-select:focus {
+    outline: none;
+    border-color: #0056b3;
+}

@@ -1,0 +1,74 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DB_URI: ${{ secrets.DB_URI }}  # Uppercase DB_URI
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }} 
+      PYTHONPATH: ./backend
+      FLASK_ENV: testing
+      FLASK_APP: backend.app:create_app
+      TEST_DB_URI: "sqlite:///test.db"
+      
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.2'
+
+      - name: Export Lowercase db_uri
+        run: |
+          echo "db_uri=${{ secrets.DB_URI }}" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Run tests with pytest and coverage
+        run: |
+          pytest --disable-warnings -v --cov=backend --cov-report=xml
+
+  #   - name: Upload coverage to Codecov
+  #    uses: codecov/codecov-action@v2
+  #     with:
+  #      file: ./coverage.xml
+  #      flags: unittests
+  #      name: codecov-umbrella
+  #      fail_ci_if_error: true
+
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Set up Python 3.11
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.11'
+
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install -r backend/requirements.txt
+  #         pip install flake8
+
+  #     - name: Lint with flake8
+  #       run: |
+  #         flake8 backend/ --count --select=E9,F63,F7,F82 --show-source --statistics
+  #         flake8 backend/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics

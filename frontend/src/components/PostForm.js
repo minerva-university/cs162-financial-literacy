@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { addPost } from '../services/api';
 import Editor from 'react-simple-wysiwyg';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 
 const PostForm = () => {
+  const navigate = useNavigate()
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
@@ -14,6 +15,7 @@ const PostForm = () => {
     const result = await addPost(title, content);
     if (result.status == 201) {
       alert('Post added successfully!');
+      navigate("/profile")
     } else {
       alert('Failed to add post.');
     }

@@ -13,10 +13,11 @@ export const login = async (email, password, remember) => {
   return response.data;
 };
 
-export const register = async (email, name, password) => {
-  const response = await axios.post(`${API_URL}/signup`, { email, name, password }, { withCredentials: true });
+export const register = async (email, name, password, bio) => {
+  const response = await axios.post(`${API_URL}/signup`, { email, name, password, bio }, { withCredentials: true });
   return response.data;
 };
+
 
 export const logout = async () => {
   const response = await axios.get(`${API_URL}/logout`, { withCredentials: true });
@@ -26,6 +27,12 @@ export const logout = async () => {
 // User Profile
 export const getUserProfile = async () => {
   const response = await axios.get(`${API_URL}/profile`, { withCredentials: true });
+  return response.data;
+};
+
+// Other people's Profile
+export const getOtherProfile = async (userId) => {
+  const response = await axios.get(`${API_URL}/profile/${userId}`, { withCredentials: true });
   return response.data;
 };
 
@@ -42,14 +49,21 @@ export const getUserCredits = async () => {
 // Mentorship APIs
 export const updateMentorship = async (availability) => {
   const response = await axios.post(`${API_URL}/mentors/availability`, { availability }, { withCredentials: true });
-  return response.data;
+  return response;
 };
 
 export const getAvailableMentors = async () => {
-  const response = await axios.get(`${API_URL}/mentors/available`, { withCredentials: true });
-  return response.data;
+  try {
+    console.log('API URL:', API_URL);
+    const response = await axios.get(`${API_URL}/mentors/available`, { withCredentials: true });
+    console.log('Mentors API Response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching mentors:', error);
+    console.error('Error details:', error.response);
+    throw error;
+  }
 };
-
 export const bookMentorship = async (mentorId, scheduledTime) => {
   const response = await axios.post(`${API_URL}/mentorship/book`, {
     mentor_id: mentorId,
@@ -74,8 +88,8 @@ export const getMentorshipHistory = async () => {
 };
 
 export const getUpcomingMentorships = async () => {
-  const response = await axios.get(`${API_URL}/mentorship/upcoming`, { withCredentials: true });
-  return response.data;
+const response = await axios.get(`${API_URL}/mentorship/mentor_requests`, { withCredentials: true });
+return response.data.upcoming_sessions;
 };
 
 export const submitFeedback = async (sessionId, feedback) => {
@@ -86,11 +100,16 @@ export const submitFeedback = async (sessionId, feedback) => {
 // Post APIs
 export const addPost = async (title, content) => {
   const response = await axios.post(`${API_URL}/post`, { title, content }, { withCredentials: true });
-  return response.data;
+  return response;
 };
 
 export const getPosts = async () => {
   const response = await axios.get(`${API_URL}/posts`, { withCredentials: true });
+  return response.data.posts;
+};
+
+export const getFollowingPosts = async () => {
+  const response = await axios.get(`${API_URL}/posts/followed`, { withCredentials: true });
   return response.data.posts;
 };
 
@@ -108,6 +127,17 @@ export const getPostsCurrentUser = async ()=>{
 export const getPostById = async (postId) => {
   const response = await axios.get(`${API_URL}/post/${postId}`, { withCredentials: true });
   return response.data;
+};
+
+// New functions for sorted posts
+export const getPostsSortedByDate = async (direction = 'desc') => {
+  const response = await axios.get(`${API_URL}/posts/sorted_by_date?direction=${direction}`, { withCredentials: true });
+  return response.data.posts;
+};
+
+export const getPostsSortedByVotes = async (direction = 'desc') => {
+  const response = await axios.get(`${API_URL}/posts/sorted_by_votes?direction=${direction}`, { withCredentials: true });
+  return response.data.posts;
 };
 
 export const deletePost = async (postId) => {
@@ -132,12 +162,14 @@ export const getScholarships = async () => {
   return response.data;
 };
 
-export const postScholarship = async (title, description, requirements, applicationLink) => {
+export const postScholarship = async (title, description, amount, requirements, application_link, deadline) => {
   const response = await axios.post(`${API_URL}/scholarships`, {
     title,
     description,
+    amount,
     requirements,
-    applicationLink
+    application_link,
+    deadline,
   }, { withCredentials: true });
   return response.data;
 };
@@ -147,12 +179,60 @@ export const getInternships = async () => {
   return response.data;
 };
 
-export const postInternship = async (title, description, requirements, applicationLink) => {
+export const postInternship = async (title, description, requirements, application_link, deadline) => {
   const response = await axios.post(`${API_URL}/internships`, {
     title,
     description,
     requirements,
-    applicationLink
+    application_link,
+    deadline,
   }, { withCredentials: true });
+  return response.data;
+};
+
+export const updateMentorshipSession = async (sessionId, updateType) => {
+  const response = await axios.post(`${API_URL}/mentorship/update/${sessionId}`, {
+    type: updateType
+  }, { withCredentials: true });
+  return response.data;
+};
+/**
+ * Check if the current user follows another user
+ * @param {string} userId - The ID of the target user to check.
+ * @returns {Promise<boolean>} - True if the current user follows the target user, false otherwise.
+ */
+export const isFollowing = async (userId) => {
+  const response = await axios.get(`${API_URL}/is_following/${userId}`, { withCredentials: true });
+  return response.data.is_following;
+};
+
+/**
+ * Follow another user
+ * @param {string} userId - The ID of the target user to follow.
+ * @returns {Promise<Object>} - A success message or an error object.
+ */
+export const followUser = async (userId) => {
+  const response = await axios.post(`${API_URL}/follow`, { user_id: userId }, { withCredentials: true });
+  return response.data;
+};
+
+/**
+ * Unfollow another user
+ * @param {string} userId - The ID of the target user to unfollow.
+ * @returns {Promise<Object>} - A success message or an error object.
+ */
+export const unfollowUser = async (userId) => {
+  const response = await axios.post(`${API_URL}/unfollow`, { user_id: userId }, { withCredentials: true });
+  return response.data;
+};
+
+
+export const getUpcomingMenteeRequests = async () => {
+  const response = await axios.get(`${API_URL}/mentorship/mentee_requests`, { withCredentials: true });
+  return response.data.upcoming_sessions;
+};
+
+export const updateUserBio = async (bio) => {
+  const response = await axios.post(`${API_URL}/profile/update_bio`, { bio }, { withCredentials: true });
   return response.data;
 };

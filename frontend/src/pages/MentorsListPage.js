@@ -1,37 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import {
-  getAvailableMentors,
-  bookMentorship,
-  getUpcomingMentorships,
-  getMentorshipHistory,
-  submitFeedback,
-} from "../services/api";
+import { Link, useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { getAvailableMentors, bookMentorship } from "../services/api";
 import "../styles/MentorsList.css";
+import { useMentorship } from "../pages/MentorshipContext";
 
 const MentorsListPage = () => {
   const [mentors, setMentors] = useState([]);
-  const [upcomingSessions, setUpcomingSessions] = useState([]);
-  const [mentorshipHistory, setMentorshipHistory] = useState([]);
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [feedbackLoading, setFeedbackLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const { addCheckedUser } = useMentorship();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch available mentors
         const mentorsResponse = await getAvailableMentors();
         setMentors(mentorsResponse.mentors);
-
-        // Fetch upcoming sessions
-        const upcomingResponse = await getUpcomingMentorships();
-        setUpcomingSessions(upcomingResponse.upcoming_sessions);
-
-        // Fetch mentorship history
-        const historyResponse = await getMentorshipHistory();
-        setMentorshipHistory(historyResponse.mentorship_history);
       } catch (error) {
-        console.error("Error fetching mentorship data:", error);
+        console.error("Error fetching mentors:", error);
       } finally {
         setLoading(false);
       }
@@ -40,52 +30,69 @@ const MentorsListPage = () => {
     fetchData();
   }, []);
 
-  const handleRequestMentorship = async (mentorId) => {
-    try {
-      const scheduledTime = prompt("Enter a scheduled time (YYYY-MM-DD HH:MM):");
-      if (!scheduledTime) return;
+  const handleRequestMentorship = async () => {
+    if (!selectedMentor || !selectedDate) {
+      alert("Please select a mentor and a valid date/time.");
+      return;
+    }
 
-      const response = await bookMentorship(mentorId, scheduledTime);
+    const scheduledTime = selectedDate.toISOString();
+
+    try {
+      const response = await bookMentorship(selectedMentor, scheduledTime);
       alert(`Mentorship session booked! Credits left: ${response.credits}`);
+      setSelectedMentor(null);
+      setSelectedDate(null);
     } catch (error) {
       alert("Failed to request mentorship. Please try again.");
       console.error("Mentorship request error:", error);
     }
   };
 
-  const handleSubmitFeedback = async (sessionId) => {
-    const feedback = prompt("Enter your feedback for this session:");
-    if (!feedback) return;
-
-    setFeedbackLoading(true);
-    try {
-      const response = await submitFeedback(sessionId, feedback);
-      alert(response.message);
-    } catch (error) {
-      alert("Failed to submit feedback. Please try again.");
-      console.error("Feedback submission error:", error);
-    } finally {
-      setFeedbackLoading(false);
-    }
-  };
-
-  if (loading) return <div>Loading mentorship data...</div>;
+  if (loading) return <div className="loading">Loading mentorship data...</div>;
 
   return (
-    <div className="mentors-page">
-      <h1>Find Mentors</h1>
+    <div className="mentors-page p-4">
+      <h1 className="text-2xl font-bold mb-4">Find Your Mentor</h1>
+
+      {/* Navigation Buttons */}
+      <div className="navigation-buttons flex justify-between">
+        <button
+          onClick={() => navigate("/mentorship/upcoming")}
+          className="nav-btn"
+        >
+          My Requested Mentorship Sessions
+        </button>
+      </div>
 
       {/* Available Mentors Section */}
-      <section className="mentors-section">
-        <h2>Available Mentors</h2>
+      <section className="mentors-section mt-4">
+        <h2 className="text-xl font-bold mb-4">Available Mentors</h2>
         <ul className="mentors-list">
           {mentors.map((mentor) => (
             <li key={mentor.id} className="mentor-card">
               <Link to={`/user/${mentor.id}`}>
-                <h3>{mentor.name}</h3>
-                <p>{mentor.bio}</p>
+                <h3 className="text-lg font-semibold">{mentor.name}</h3>
+                <p className="text-gray-700">{mentor.bio}</p>
               </Link>
-              <button onClick={() => handleRequestMentorship(mentor.id)}>
+              {mentor.calendar_url && (
+                <p>
+                  <strong>Availability:</strong>{" "}
+                  <a
+                    href={mentor.calendar_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="calendar-link"
+                    onClick={() => addCheckedUser(mentor.id)}
+                  >
+                    View Calendar
+                  </a>
+                </p>
+              )}
+              <button
+                className="mentor-request-btn"
+                onClick={() => setSelectedMentor(mentor.id)}
+              >
                 Request Mentorship
               </button>
             </li>
@@ -93,51 +100,38 @@ const MentorsListPage = () => {
         </ul>
       </section>
 
-      {/* Upcoming Sessions Section */}
-      <section className="sessions-section">
-        <h2>Upcoming Mentorship Sessions</h2>
-        {upcomingSessions.length > 0 ? (
-          <ul className="sessions-list">
-            {upcomingSessions.map((session) => (
-              <li key={session.session_id}>
-                <p>
-                  Mentor: {session.mentor.name} | Scheduled Time:{" "}
-                  {session.scheduled_time}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No upcoming sessions scheduled.</p>
-        )}
-      </section>
-
-      {/* Mentorship History Section */}
-      <section className="history-section">
-        <h2>Mentorship History</h2>
-        {mentorshipHistory.length > 0 ? (
-          <ul className="history-list">
-            {mentorshipHistory.map((history) => (
-              <li key={history.session_id}>
-                <p>
-                  Mentor: {history.mentor.name} | Status: {history.status} | Date:{" "}
-                  {history.scheduled_time}
-                </p>
-                {history.status === "completed" && (
-                  <button
-                    onClick={() => handleSubmitFeedback(history.session_id)}
-                    disabled={feedbackLoading}
-                  >
-                    {feedbackLoading ? "Submitting..." : "Submit Feedback"}
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No mentorship history found.</p>
-        )}
-      </section>
+      {/* Date Picker Modal */}
+      {selectedMentor && (
+        <div className="datepicker-modal">
+          <div className="modal-content">
+            <h2 className="text-xl font-bold mb-4">Select Date and Time</h2>
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              showTimeSelect
+              timeFormat="HH:mm"
+              timeIntervals={15}
+              dateFormat="MMMM d, yyyy h:mm aa"
+              minDate={new Date()}
+              className="datepicker"
+            />
+            <div className="modal-actions">
+              <button
+                onClick={handleRequestMentorship}
+                className="modal-btn confirm"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setSelectedMentor(null)}
+                className="modal-btn cancel"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
