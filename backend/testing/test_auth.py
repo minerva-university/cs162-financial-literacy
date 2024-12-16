@@ -1,7 +1,19 @@
-# test_auth.py
-
 import pytest
 from backend.database.create import User
+
+@pytest.fixture(autouse=True)
+def patch_session(monkeypatch, db_session):
+    """
+    Monkeypatch the Session usage in auth.py to return the test db_session.
+    Also patch the db_session.close method to do nothing to avoid detaching instances.
+    This ensures that the session remains active and the test can safely query
+    the database after routes return.
+    """
+    # Replace the Session call in auth.py with a lambda returning db_session
+    monkeypatch.setattr("backend.auth.Session", lambda: db_session)
+    # Prevent db_session from actually closing, which causes detached instances
+    monkeypatch.setattr(db_session, "close", lambda: None)
+
 
 @pytest.mark.usefixtures("client", "db_session")
 class TestAuth:
@@ -43,7 +55,6 @@ class TestAuth:
         json_data = response.get_json()
         assert json_data["reason"] == "Email already registered"
 
-
     def test_login_invalid_credentials(self, client):
         response = client.post('/login', json={
             "email": "nonexistent@example.com",
@@ -61,7 +72,20 @@ class TestAuth:
         json_data = response.get_json()
         assert json_data["success"] == "Yes"
 
+    def test_ping_authenticated(self, client, create_user, login_user):
+        user = create_user(username="ping_user", email="ping_user@example.com", password="pass")
+        login_user(email="ping_user@example.com", password="pass")
 
+        response = client.get('/ping')
+        json_data = response.get_json()
+        assert response.status_code == 200
+        assert json_data["authenticated"] is True
+
+    def test_ping_unauthenticated(self, client):
+        response = client.get('/ping')
+        json_data = response.get_json()
+        assert response.status_code == 200
+        assert json_data["authenticated"] is False
 
     def test_logout_authenticated(self, client, create_user, login_user):
         create_user(username="logout_user", email="logout_user@example.com", password="logoutpass")
