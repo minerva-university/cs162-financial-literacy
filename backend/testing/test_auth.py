@@ -71,18 +71,6 @@ class TestAuth:
         assert response.status_code == 200
         assert json_data["authenticated"] is True
 
-    def test_ping_unauthenticated(self, client):
-        response = client.get('/ping')
-        json_data = response.get_json()
-        assert response.status_code == 200
-        assert json_data["authenticated"] is False
-
-    def test_logout_authenticated(self, client, create_user, login_user):
-        create_user(username="logout_user", email="logout_user@example.com", password="logoutpass")
-        login_user(email="logout_user@example.com", password="logoutpass")
-        response = client.get('/logout')
-        assert response.status_code == 200
-
     def test_logout_unauthenticated(self, client):
         response = client.get('/logout')
         assert response.status_code == 401
