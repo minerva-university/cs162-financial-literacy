@@ -9,6 +9,12 @@ The Financial Literacy Marketplace is a comprehensive web application designed t
 
 This project aims to enhance financial awareness among students by offering a centralized hub for knowledge and mentorship opportunities.
 
+### Demo and Deployment Links
+- **Demo**: [Demo Link](https://drive.google.com/file/d/1gXy6xL8PqYpfaVkoSzjiYOZUwN-DgnyG/view)
+- **Frontend Deployment**: [Frontend Deployment Link](https://cs162-financial-literacy.vercel.app/)
+- **Backend Deployment**: [Backend Deployment Link](https://cs162-financial-literacy.onrender.com/)
+
+
 ---
 
 ## Features
@@ -74,10 +80,19 @@ This project aims to enhance financial awareness among students by offering a ce
    FLASK_ENV=development
    SECRET_KEY=your_secret_key
    db_uri=your_database_url
+   TEST_DB_URI= your_test_database_url
+   MAIL_USERNAME= your_username
+   MAIL_PASSWORD = your_password
    ```
 
    Replace `your_secret_key` with a secret key of your choice and `your_database_url` with the URL of your database.
 
+   Create a `.env` file in the `frontend` directory and add the following environment variables:
+
+   ```env
+   REACT_APP_backend_api=http://127.0.0.1:5000
+   ```
+   Change the port to the backend port used in your computer.
 5. **Run the Flask application**:
    ```sh
    flask run
